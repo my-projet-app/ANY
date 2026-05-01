@@ -155,14 +155,15 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
 .radius-circle{stroke:var(--accent);stroke-width:2;fill:rgba(110,231,183,0.08);}
 
 /* INSTALL BANNER */
-#install-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:9000;background:var(--surface);border-top:2px solid var(--accent);padding:14px 18px;align-items:center;gap:12px;animation:slideUp 0.3s ease;}
+#install-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:9000;background:var(--surface);border-top:2px solid var(--accent);padding:16px 18px 20px;flex-direction:column;gap:12px;animation:slideUp 0.3s ease;}
 #install-banner.show{display:flex;}
-#install-banner .ib-icon{font-size:28px;flex-shrink:0;}
-#install-banner .ib-text{flex:1;}
-#install-banner .ib-title{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--text);}
-#install-banner .ib-sub{font-size:11px;color:var(--text2);margin-top:2px;}
-#install-banner .ib-btn{background:var(--accent);color:#000;border:none;border-radius:var(--radius-sm);padding:9px 16px;font-family:var(--font-head);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;}
-#install-banner .ib-close{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px;flex-shrink:0;}
+#install-banner .ib-header{display:flex;align-items:center;justify-content:space-between;}
+#install-banner .ib-title{font-family:var(--font-head);font-size:15px;font-weight:800;color:var(--accent);}
+#install-banner .ib-close{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px;}
+#install-banner .ib-steps{display:flex;flex-direction:column;gap:8px;}
+#install-banner .ib-step{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);}
+#install-banner .ib-step-num{width:22px;height:22px;border-radius:50%;background:var(--accent);color:#000;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+#install-banner .ib-btn{width:100%;background:var(--accent);color:#000;border:none;border-radius:var(--radius-sm);padding:12px;font-family:var(--font-head);font-size:14px;font-weight:700;cursor:pointer;margin-top:4px;}
 
 /* TOAST */
 #toast{position:fixed;bottom:calc(var(--nav-h) + var(--safe-bottom) + 12px);left:50%;transform:translateX(-50%) translateY(100px);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 18px;font-size:13px;z-index:9999;transition:transform 0.3s ease;white-space:nowrap;}
@@ -377,13 +378,20 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
 </div>
 
 <div id="install-banner">
-  <div class="ib-icon">&#128205;</div>
-  <div class="ib-text">
-    <div class="ib-title">Installer MapLibre</div>
-    <div class="ib-sub">Accès rapide depuis votre écran d'accueil</div>
+  <div class="ib-header">
+    <div class="ib-title">&#128205; Installer MapLibre</div>
+    <button class="ib-close" onclick="dismissInstall()">&#10005;</button>
   </div>
-  <button class="ib-btn" id="install-btn">Installer</button>
-  <button class="ib-close" onclick="dismissInstall()">&#10005;</button>
+  <div class="ib-steps" id="install-steps-ios" style="display:none">
+    <div class="ib-step"><div class="ib-step-num">1</div><span>Appuyez sur le bouton <strong>Partager</strong> &#11015;&#65039; en bas de Safari</span></div>
+    <div class="ib-step"><div class="ib-step-num">2</div><span>Faites défiler et appuyez sur <strong>"Sur l'écran d'accueil"</strong></span></div>
+    <div class="ib-step"><div class="ib-step-num">3</div><span>Appuyez sur <strong>"Ajouter"</strong> en haut à droite</span></div>
+  </div>
+  <div class="ib-steps" id="install-steps-android" style="display:none">
+    <div class="ib-step"><div class="ib-step-num">1</div><span>Appuyez sur <strong>"Installer"</strong> ci-dessous</span></div>
+    <div class="ib-step"><div class="ib-step-num">2</div><span>Confirmez en appuyant sur <strong>"Installer"</strong></span></div>
+  </div>
+  <button class="ib-btn" id="install-btn" style="display:none">&#128187; Installer l'application</button>
 </div>
 
 <div id="toast"></div>
@@ -1090,9 +1098,7 @@ var isStandalone = window.matchMedia('(display-mode: standalone)').matches || wi
 var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 
 if (isIOS && !isStandalone && !localStorage.getItem('install-dismissed')) {
-  document.getElementById('install-btn').style.display = 'none';
-  document.querySelector('#install-banner .ib-title').textContent = 'Installer MapLibre';
-  document.querySelector('#install-banner .ib-sub').innerHTML = 'Appuyez sur &#128279; puis "Sur l\'écran d\'accueil"';
+  document.getElementById('install-steps-ios').style.display = 'flex';
   document.getElementById('install-banner').classList.add('show');
 }
 
@@ -1100,6 +1106,8 @@ window.addEventListener('beforeinstallprompt', function(e) {
   e.preventDefault();
   installPrompt = e;
   if (!isStandalone && !localStorage.getItem('install-dismissed')) {
+    document.getElementById('install-steps-android').style.display = 'flex';
+    document.getElementById('install-btn').style.display = 'block';
     document.getElementById('install-banner').classList.add('show');
   }
 });
