@@ -1,4 +1,4 @@
-var CACHE = 'maplibre-v1';
+var CACHE = 'vanlifemap-v2';
 var ASSETS = [
   '/',
   '/index.html',
@@ -32,6 +32,19 @@ self.addEventListener('fetch', function(e) {
   if (e.request.method !== 'GET') return;
   var url = e.request.url;
   if (url.includes('supabase.co')) return;
+  var isHTML = e.request.headers.get('accept') && e.request.headers.get('accept').includes('text/html');
+  if (isHTML) {
+    e.respondWith(
+      fetch(e.request).then(function(res) {
+        var clone = res.clone();
+        caches.open(CACHE).then(function(cache) { cache.put(e.request, clone); });
+        return res;
+      }).catch(function() {
+        return caches.match(e.request);
+      })
+    );
+    return;
+  }
   e.respondWith(
     caches.match(e.request).then(function(cached) {
       return cached || fetch(e.request).then(function(res) {
