@@ -351,6 +351,17 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
   </div>
 </div>
 
+<div id="modal-confirm-email" class="modal-overlay" style="display:none">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:48px;margin-bottom:16px">&#128231;</div>
+    <h2 style="text-align:center">Confirmez votre email</h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:8px">Un email de confirmation a été envoyé à :</p>
+    <p style="font-size:15px;font-weight:600;color:var(--accent);margin-bottom:16px" id="confirm-email-addr"></p>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:20px">Cliquez sur le lien dans l'email pour activer votre compte, puis connectez-vous.</p>
+    <button class="btn-p" onclick="closeModal('modal-confirm-email')">J'ai compris</button>
+  </div>
+</div>
+
 <div id="modal-report" class="modal-overlay" style="display:none">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-report')">&#10005;</button>
@@ -760,17 +771,32 @@ async function handleAuth() {
   var result;
   if (isLogin) {
     result = await db.auth.signInWithPassword({ email: email, password: pass });
+    if (result.error) { showToast(result.error.message, 'error'); return; }
+    var user = result.data.user;
+    if (!user.email_confirmed_at) {
+      await db.auth.signOut();
+      closeModal('modal-auth');
+      showUnconfirmedMessage(email);
+      return;
+    }
+    currentUser = user;
+    document.getElementById('auth-info').textContent = currentUser.email;
+    document.getElementById('btn-auth').textContent = 'D\u00e9connexion';
+    closeModal('modal-auth');
+    updateSatBtn();
+    await loadPrefs();
+    showToast('Connect\u00e9 !', 'success');
   } else {
     result = await db.auth.signUp({ email: email, password: pass });
+    if (result.error) { showToast(result.error.message, 'error'); return; }
+    closeModal('modal-auth');
+    showUnconfirmedMessage(email);
   }
-  if (result.error) { showToast(result.error.message, 'error'); return; }
-  currentUser = result.data.user;
-  document.getElementById('auth-info').textContent = currentUser.email;
-  document.getElementById('btn-auth').textContent = 'D\u00e9connexion';
-  closeModal('modal-auth');
-  updateSatBtn();
-  await loadPrefs();
-  showToast(isLogin ? 'Connect\u00e9 !' : 'Compte cr\u00e9\u00e9 !', 'success');
+}
+
+function showUnconfirmedMessage(email) {
+  document.getElementById('modal-confirm-email').style.display = 'flex';
+  document.getElementById('confirm-email-addr').textContent = email;
 }
 
 function switchAuthMode() {
