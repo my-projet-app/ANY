@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MapLibre — Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3348;
+  --accent:#6ee7b7;--text:#e8eaf0;--text2:#8b91a8;--danger:#f87171;--warn:#fbbf24;
+  --font-head:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;
+  --radius:16px;--radius-sm:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;}
+#loading,#login-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:999;flex-direction:column;gap:16px;}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#login-screen h2{font-family:var(--font-head);font-size:22px;color:var(--accent);}
+#login-screen input{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;color:var(--text);font-size:14px;outline:none;width:280px;}
+#login-screen input:focus{border-color:var(--accent);}
+#login-screen button{background:var(--accent);color:#000;border:none;border-radius:var(--radius-sm);padding:12px 24px;font-family:var(--font-head);font-size:14px;font-weight:700;cursor:pointer;width:280px;}
+#login-screen .err{color:var(--danger);font-size:13px;}
+#app{display:none;max-width:1100px;margin:0 auto;padding:24px 16px;}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+header h1{font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--accent);}
+header button{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:8px 16px;cursor:pointer;font-size:13px;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:28px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;}
+.stat-card .val{font-family:var(--font-head);font-size:32px;font-weight:800;color:var(--accent);}
+.stat-card .lbl{font-size:12px;color:var(--text2);margin-top:4px;}
+.tabs{display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:0;}
+.tab{background:none;border:none;color:var(--text2);font-size:14px;padding:10px 18px;cursor:pointer;border-bottom:2px solid transparent;font-family:var(--font-body);}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.section{display:none;}
+.section.active{display:block;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.card-title{font-family:var(--font-head);font-size:15px;font-weight:700;margin-bottom:4px;}
+.card-meta{font-size:12px;color:var(--text2);line-height:1.6;}
+.card-meta span{color:var(--accent);}
+.card-meta .danger{color:var(--danger);}
+.card-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.btn-del{background:transparent;border:1px solid var(--danger);color:var(--danger);border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer;}
+.btn-del:hover{background:var(--danger);color:#000;}
+.btn-ok{background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer;}
+.btn-ok:hover{background:var(--accent);color:#000;}
+.btn-view{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer;}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-warn{background:rgba(251,191,36,0.15);color:var(--warn);}
+.badge-danger{background:rgba(248,113,113,0.15);color:var(--danger);}
+.empty{text-align:center;padding:40px;color:var(--text2);font-size:14px;}
+#search-admin{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text);font-size:14px;outline:none;margin-bottom:16px;}
+#search-admin:focus{border-color:var(--accent);}
+</style>
+</head>
+<body>
+
+<div id="loading"><div class="spinner"></div></div>
+
+<div id="login-screen" style="display:none">
+  <h2>&#128274; Admin MapLibre</h2>
+  <input type="email" id="adm-email" placeholder="Email admin">
+  <input type="password" id="adm-pass" placeholder="Mot de passe">
+  <button onclick="adminLogin()">Se connecter</button>
+  <span class="err" id="adm-err"></span>
+</div>
+
+<div id="app">
+  <header>
+    <h1>&#9881;&#65039; Panel Admin</h1>
+    <button onclick="adminLogout()">&#128682; Déconnexion</button>
+  </header>
+
+  <div class="stats">
+    <div class="stat-card"><div class="val" id="stat-places">—</div><div class="lbl">Lieux total</div></div>
+    <div class="stat-card"><div class="val" id="stat-reports">—</div><div class="lbl">Signalements</div></div>
+    <div class="stat-card"><div class="val" id="stat-users">—</div><div class="lbl">Commentaires</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('reports')">&#9888;&#65039; Signalements</button>
+    <button class="tab" onclick="switchTab('places')">&#128205; Lieux</button>
+  </div>
+
+  <div class="section active" id="section-reports">
+    <div id="reports-list"></div>
+  </div>
+
+  <div class="section" id="section-places">
+    <input type="text" id="search-admin" placeholder="&#128269; Rechercher un lieu..." oninput="filterPlaces(this.value)">
+    <div id="places-list"></div>
+  </div>
+</div>
+
+<script>
+var SUPABASE_URL = 'https://xssfehwbmvrxtxmocowc.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_lB89hOOAXUCIheGRbS2wEQ_L7uVajNV';
+var ADMIN_EMAIL = 'mypoiuytreza@gmail.com';
+var db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+var allPlaces = [];
+
+async function init() {
+  var res = await db.auth.getSession();
+  document.getElementById('loading').style.display = 'none';
+  if (res.data && res.data.session && res.data.session.user.email === ADMIN_EMAIL) {
+    showApp();
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+}
+
+async function adminLogin() {
+  var email = document.getElementById('adm-email').value;
+  var pass = document.getElementById('adm-pass').value;
+  if (email !== ADMIN_EMAIL) { document.getElementById('adm-err').textContent = 'Accès refusé.'; return; }
+  var res = await db.auth.signInWithPassword({ email: email, password: pass });
+  if (res.error) { document.getElementById('adm-err').textContent = res.error.message; return; }
+  document.getElementById('login-screen').style.display = 'none';
+  showApp();
+}
+
+async function adminLogout() {
+  await db.auth.signOut();
+  location.reload();
+}
+
+async function showApp() {
+  document.getElementById('app').style.display = 'block';
+  loadStats();
+  loadReports();
+  loadPlaces();
+}
+
+async function loadStats() {
+  var [rPlaces, rReports, rComments] = await Promise.all([
+    db.from('places').select('id', { count: 'exact', head: true }),
+    db.from('reports').select('id', { count: 'exact', head: true }),
+    db.from('comments').select('id', { count: 'exact', head: true })
+  ]);
+  document.getElementById('stat-places').textContent = (rPlaces.count || 0).toLocaleString('fr');
+  document.getElementById('stat-reports').textContent = (rReports.count || 0).toLocaleString('fr');
+  document.getElementById('stat-users').textContent = (rComments.count || 0).toLocaleString('fr');
+}
+
+async function loadReports() {
+  var res = await db.from('reports').select('*, places(id, name, latitude, longitude)').order('created_at', { ascending: false }).limit(100);
+  var list = document.getElementById('reports-list');
+  var data = res.data || [];
+  if (!data.length) { list.innerHTML = '<div class="empty">Aucun signalement</div>'; return; }
+  list.innerHTML = data.map(function(r) {
+    var place = r.places;
+    var reasons = { closed:'Lieu fermé', wrong_location:'Emplacement incorrect', duplicate:'Doublon', wrong_info:'Infos incorrectes', inappropriate:'Contenu inapproprié', other:'Autre' };
+    return '<div class="card" id="rep-' + r.id + '">'
+      + '<div class="card-top">'
+      + '<div>'
+      + '<div class="card-title">' + (place ? place.name : 'Lieu supprimé') + ' <span class="badge badge-warn">' + (reasons[r.reason] || r.reason) + '</span></div>'
+      + '<div class="card-meta">'
+      + (r.details ? 'Précision : <span>' + r.details + '</span><br>' : '')
+      + 'Signalé le : ' + new Date(r.created_at).toLocaleDateString('fr')
+      + '</div>'
+      + '</div>'
+      + '</div>'
+      + '<div class="card-actions">'
+      + (place ? '<button class="btn-del" onclick="deletePlace(\'' + place.id + '\',\'rep-' + r.id + '\')">&#128465; Supprimer le lieu</button>' : '')
+      + '<button class="btn-ok" onclick="dismissReport(\'' + r.id + '\')">&#10003; Ignorer le signalement</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+async function loadPlaces() {
+  var res = await db.from('places').select('id, name, category_id, user_name, created_at, approved, latitude, longitude, categories(name,icon)').order('created_at', { ascending: false }).limit(200);
+  allPlaces = res.data || [];
+  renderPlaces(allPlaces);
+}
+
+function renderPlaces(data) {
+  var list = document.getElementById('places-list');
+  if (!data.length) { list.innerHTML = '<div class="empty">Aucun lieu</div>'; return; }
+  list.innerHTML = data.map(function(p) {
+    var cat = p.categories;
+    return '<div class="card" id="pl-' + p.id + '">'
+      + '<div class="card-top">'
+      + '<div>'
+      + '<div class="card-title">' + (cat ? cat.icon + ' ' : '') + p.name + '</div>'
+      + '<div class="card-meta">'
+      + 'Catégorie : <span>' + (cat ? cat.name : '—') + '</span><br>'
+      + 'Ajouté par : <span>' + (p.user_name || 'Anonyme') + '</span> · ' + new Date(p.created_at).toLocaleDateString('fr')
+      + '</div>'
+      + '</div>'
+      + '</div>'
+      + '<div class="card-actions">'
+      + '<a class="btn-view" href="https://mypoiuytreza.github.io/MapLibre" target="_blank">&#128205; Voir sur la carte</a>'
+      + '<button class="btn-del" onclick="deletePlace(\'' + p.id + '\',\'pl-' + p.id + '\')">&#128465; Supprimer</button>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+}
+
+function filterPlaces(q) {
+  if (!q) { renderPlaces(allPlaces); return; }
+  q = q.toLowerCase();
+  renderPlaces(allPlaces.filter(function(p) { return p.name.toLowerCase().indexOf(q) >= 0; }));
+}
+
+async function deletePlace(placeId, cardId) {
+  if (!confirm('Supprimer ce lieu définitivement ?')) return;
+  await db.from('places').delete().eq('id', placeId);
+  var el = document.getElementById(cardId);
+  if (el) el.remove();
+  loadStats();
+}
+
+async function dismissReport(reportId) {
+  await db.from('reports').delete().eq('id', reportId);
+  var el = document.getElementById('rep-' + reportId);
+  if (el) el.remove();
+  loadStats();
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  event.target.classList.add('active');
+  document.getElementById('section-' + tab).classList.add('active');
+}
+
+init();
+</script>
+</body>
+</html>
