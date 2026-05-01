@@ -1087,6 +1087,14 @@ async function submitReport() {
 var installPrompt = null;
 
 var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+if (isIOS && !isStandalone && !localStorage.getItem('install-dismissed')) {
+  document.getElementById('install-btn').style.display = 'none';
+  document.querySelector('#install-banner .ib-title').textContent = 'Installer MapLibre';
+  document.querySelector('#install-banner .ib-sub').innerHTML = 'Appuyez sur &#128279; puis "Sur l\'écran d\'accueil"';
+  document.getElementById('install-banner').classList.add('show');
+}
 
 window.addEventListener('beforeinstallprompt', function(e) {
   e.preventDefault();
