@@ -197,6 +197,41 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
 .custom-marker{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.55);border:2.5px solid rgba(255,255,255,0.35);}
 .custom-marker-inner{font-size:15px;line-height:1;}
 
+/* COMMUNITY */
+.comm-filters{display:flex;gap:6px;padding:0 16px 12px;overflow-x:auto;flex-shrink:0;scrollbar-width:none;}
+.comm-filters::-webkit-scrollbar{display:none;}
+.comm-filter{background:var(--surface2);border:1.5px solid var(--border);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2);white-space:nowrap;flex-shrink:0;}
+.comm-filter.active{background:var(--accent);border-color:var(--accent);color:#000;}
+.comm-feed{flex:1;overflow-y:auto;padding:0 16px 80px;scrollbar-width:none;}
+.comm-feed::-webkit-scrollbar{display:none;}
+.comm-post{background:var(--surface2);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;border:1px solid var(--border);transition:border-color 0.15s;}
+.comm-post:active{border-color:var(--accent);}
+.comm-post-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;}
+.comm-badge{padding:3px 10px;border-radius:10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;}
+.comm-badge.signalement{background:rgba(248,113,113,0.15);color:#f87171;}
+.comm-badge.message{background:rgba(240,120,0,0.12);color:var(--accent);}
+.comm-badge.support{background:rgba(138,155,191,0.15);color:var(--text2);}
+.comm-date{font-size:11px;color:var(--text2);margin-left:auto;}
+.comm-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:1.3;}
+.comm-content{font-size:13px;color:var(--text2);line-height:1.5;}
+.comm-place-tag{display:inline-flex;align-items:center;gap:4px;background:rgba(240,120,0,0.1);border:1px solid rgba(240,120,0,0.3);border-radius:8px;padding:4px 10px;font-size:11px;color:var(--accent);margin-top:8px;cursor:pointer;font-weight:600;}
+.comm-actions{display:flex;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.comm-action-btn{background:none;border:none;color:var(--text2);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;padding:0;font-family:var(--font-body);}
+.comm-action-btn.liked{color:var(--accent);}
+.comm-new-btn{position:fixed;bottom:calc(var(--nav-h) + var(--safe-bottom) + 16px);right:16px;width:54px;height:54px;background:var(--accent);border:none;border-radius:50%;font-size:26px;color:#000;cursor:pointer;box-shadow:0 4px 20px rgba(240,120,0,0.45);display:none;align-items:center;justify-content:center;z-index:1600;font-weight:700;}
+.comm-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:2000;display:none;align-items:flex-end;}
+.comm-modal-overlay.open{display:flex;}
+.comm-modal{width:100%;background:var(--surface);border-radius:20px 20px 0 0;padding:20px 16px;padding-bottom:calc(var(--safe-bottom) + 20px);max-height:85vh;overflow-y:auto;box-sizing:border-box;}
+.comm-type-selector{display:flex;gap:8px;margin-bottom:16px;}
+.comm-type-btn{flex:1;padding:10px 4px;border:1.5px solid var(--border);border-radius:12px;background:var(--surface2);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);}
+.comm-type-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(240,120,0,0.08);}
+.comm-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-size:14px;outline:none;font-family:var(--font-body);box-sizing:border-box;margin-bottom:10px;transition:border-color 0.2s;}
+.comm-input:focus{border-color:var(--accent);}
+.comm-textarea{resize:none;min-height:90px;}
+.comm-submit-btn{width:100%;background:var(--accent);border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;color:#000;font-family:var(--font-body);margin-top:4px;}
+.comm-reply-card{background:var(--surface2);border-radius:12px;padding:12px;margin-bottom:8px;border:1px solid var(--border);}
+.comm-empty{text-align:center;padding:50px 20px;color:var(--text2);font-size:14px;line-height:1.8;}
+
 /* INSTALL BANNER */
 #install-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:9000;background:var(--surface);border-top:2px solid var(--accent);padding:16px 18px 20px;flex-direction:column;gap:12px;animation:slideUp 0.3s ease;}
 #install-banner.show{display:flex;}
@@ -337,8 +372,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
     <button class="nav-item" id="nav-search" onclick="navTo('search')">
       <span class="nav-item-icon">&#128269;</span><span>Recherche</span>
     </button>
-    <button class="nav-item" id="nav-rank" onclick="navTo('rank')">
-      <span class="nav-item-icon">&#127942;</span><span>Classement</span>
+    <button class="nav-item" id="nav-community" onclick="navTo('community')">
+      <span class="nav-item-icon">&#128172;</span><span>Communaut&#233;</span>
     </button>
     <button class="nav-item" id="nav-profile" onclick="navTo('profile')">
       <span class="nav-item-icon">&#128100;</span><span>Profil</span>
@@ -424,6 +459,54 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
     <div class="sheet-content" style="padding:16px">
       <div id="profile-content"></div>
     </div>
+  </div>
+</div>
+
+<!-- COMMUNITY SHEET -->
+<div class="sheet-overlay" id="sheet-community" onclick="closeSheet('sheet-community')">
+  <div class="sheet" onclick="event.stopPropagation()" style="max-height:92vh;">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <span class="sheet-title">&#128172; Communaut&#233;</span>
+      <button class="sheet-close" onclick="closeSheet('sheet-community')">&#10005;</button>
+    </div>
+    <div class="comm-filters">
+      <button class="comm-filter active" data-filter="all" onclick="filterComm('all',this)">Tout</button>
+      <button class="comm-filter" data-filter="signalement" onclick="filterComm('signalement',this)">&#9888;&#65039; Signalements</button>
+      <button class="comm-filter" data-filter="message" onclick="filterComm('message',this)">&#128172; Messages</button>
+      <button class="comm-filter" data-filter="support" onclick="filterComm('support',this)">&#128295; Support</button>
+      <button class="comm-filter" data-filter="rank" onclick="filterComm('rank',this)">&#127942; Classement</button>
+    </div>
+    <div class="comm-feed" id="comm-feed">
+      <div class="comm-empty">Chargement...</div>
+    </div>
+    <div id="comm-detail" style="display:none;flex:1;overflow-y:auto;padding:0 16px 80px;scrollbar-width:none;"></div>
+  </div>
+</div>
+
+<!-- FAB nouveau post -->
+<button class="comm-new-btn" id="comm-new-btn" onclick="openNewPost()">&#65291;</button>
+
+<!-- MODAL NOUVEAU POST -->
+<div class="comm-modal-overlay" id="comm-modal" onclick="closeNewPost()">
+  <div class="comm-modal" onclick="event.stopPropagation()">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <span style="font-size:17px;font-weight:700;color:var(--accent);">&#128172; Nouveau post</span>
+      <button onclick="closeNewPost()" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;">&#10005;</button>
+    </div>
+    <div class="comm-type-selector">
+      <button class="comm-type-btn active" data-type="message" onclick="selectPostType('message',this)">&#128172; Message</button>
+      <button class="comm-type-btn" data-type="signalement" onclick="selectPostType('signalement',this)">&#9888;&#65039; Signalement</button>
+      <button class="comm-type-btn" data-type="support" onclick="selectPostType('support',this)">&#128295; Support</button>
+    </div>
+    <div id="comm-place-search" style="display:none;">
+      <input type="text" class="comm-input" id="comm-place-input" placeholder="&#128269; Rechercher le lieu concern&#233;..." oninput="searchCommPlace(this.value)" autocomplete="off">
+      <div id="comm-place-results"></div>
+      <div id="comm-place-selected" style="display:none;" class="comm-place-tag">&#128205; <span id="comm-place-selected-name"></span> <button onclick="clearCommPlace()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:14px;margin-left:4px;">&#10005;</button></div>
+    </div>
+    <input type="text" class="comm-input" id="comm-title-input" placeholder="Titre (optionnel)">
+    <textarea class="comm-input comm-textarea" id="comm-content-input" placeholder="D&#233;crivez votre message..."></textarea>
+    <button class="comm-submit-btn" onclick="submitPost()">Publier</button>
   </div>
 </div>
 
@@ -798,11 +881,13 @@ function navTo(tab) {
   else if (tab === 'search') { openSheet('sheet-search'); setTimeout(function() { document.getElementById('search-mobile').focus(); }, 300); }
   else if (tab === 'rank') { openSheet('sheet-rank'); loadLeaderboard('places'); }
   else if (tab === 'profile') { renderProfile(); openSheet('sheet-profile'); }
+  else if (tab === 'community') { openSheet('sheet-community'); loadCommunity(); document.getElementById('comm-new-btn').style.display = 'flex'; }
 }
 
 function openSheet(id) { document.getElementById(id).classList.add('open'); }
 function closeSheet(id) {
   document.getElementById(id).classList.remove('open');
+  if (id === 'sheet-community') document.getElementById('comm-new-btn').style.display = 'none';
   document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active'); });
   var m = document.getElementById('nav-map');
   if (m) m.classList.add('active');
@@ -1678,6 +1763,227 @@ function dismissInstall() {
 window.addEventListener('appinstalled', function() {
   document.getElementById('install-banner').classList.remove('show');
 });
+
+// ===== COMMUNITY =====
+var commFilter = 'all';
+var commPosts = [];
+var newPostType = 'message';
+var newPostPlace = null;
+
+async function loadCommunity() {
+  var feed = document.getElementById('comm-feed');
+  var detail = document.getElementById('comm-detail');
+  detail.style.display = 'none';
+  feed.style.display = 'block';
+  feed.innerHTML = '<div class="comm-empty">Chargement...</div>';
+  if (commFilter === 'rank') { renderLeaderboardInComm(); return; }
+  var query = db.from('community_posts').select('*').order('created_at', { ascending: false }).limit(60);
+  if (commFilter !== 'all') query = query.eq('type', commFilter);
+  var res = await query;
+  commPosts = res.data || [];
+  if (!commPosts.length) {
+    feed.innerHTML = '<div class="comm-empty">Aucun post pour le moment.<br>Sois le premier ! 👋</div>';
+    return;
+  }
+  feed.innerHTML = commPosts.map(renderPostCard).join('');
+}
+
+function renderPostCard(p) {
+  var labels = { signalement: '⚠️ Signalement', message: '💬 Message', support: '🛠️ Support' };
+  var date = new Date(p.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+  var statusHtml = (p.type === 'support' && p.status && p.status !== 'ouvert')
+    ? '<span style="font-size:10px;font-weight:700;color:var(--accent);padding:2px 8px;background:rgba(240,120,0,0.1);border-radius:8px;">' + (p.status === 'resolu' ? '✅ Résolu' : '🗓️ Prévu') + '</span>' : '';
+  var placeHtml = p.place_name
+    ? '<div class="comm-place-tag" onclick="goToCommPlace(' + p.place_lat + ',' + p.place_lon + ');event.stopPropagation()">📍 ' + escHtml(p.place_name) + '</div>' : '';
+  var content = p.content.length > 130 ? p.content.slice(0, 130) + '…' : p.content;
+  return '<div class="comm-post" onclick="openPostDetail(\'' + p.id + '\')">'
+    + '<div class="comm-post-header"><span class="comm-badge ' + p.type + '">' + (labels[p.type] || p.type) + '</span>'
+    + statusHtml + '<span class="comm-date">' + date + '</span></div>'
+    + (p.title ? '<div class="comm-title">' + escHtml(p.title) + '</div>' : '')
+    + '<div class="comm-content">' + escHtml(content) + '</div>'
+    + '<div style="font-size:11px;color:var(--text2);margin-top:5px;">par ' + escHtml(p.author_name || 'Anonyme') + '</div>'
+    + placeHtml
+    + '<div class="comm-actions">'
+    + '<button class="comm-action-btn" onclick="likePost(\'' + p.id + '\');event.stopPropagation()">👍 ' + (p.likes_count || 0) + '</button>'
+    + '<button class="comm-action-btn">💬 ' + (p.replies_count || 0) + ' réponse' + ((p.replies_count || 0) > 1 ? 's' : '') + '</button>'
+    + '</div></div>';
+}
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function filterComm(type, btn) {
+  commFilter = type;
+  document.querySelectorAll('.comm-filter').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  loadCommunity();
+}
+
+async function openPostDetail(id) {
+  var post = commPosts.find(function(p) { return p.id === id; });
+  if (!post) return;
+  var feed = document.getElementById('comm-feed');
+  var detail = document.getElementById('comm-detail');
+  feed.style.display = 'none';
+  detail.style.display = 'block';
+  detail.style.flex = '1';
+  detail.style.overflowY = 'auto';
+  var labels = { signalement: '⚠️ Signalement', message: '💬 Message', support: '🛠️ Support' };
+  var date = new Date(post.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+  var placeHtml = post.place_name
+    ? '<div class="comm-place-tag" onclick="goToCommPlace(' + post.place_lat + ',' + post.place_lon + ')">📍 ' + escHtml(post.place_name) + '</div>' : '';
+  var isAdmin = currentUser && currentUser.email === 'mypoiuytreza@gmail.com';
+  var statusBtn = (isAdmin && post.type === 'support')
+    ? '<button onclick="cycleStatus(\'' + post.id + '\')" style="margin-left:auto;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:11px;cursor:pointer;color:var(--text);font-family:var(--font-body);">Changer statut</button>' : '';
+  detail.innerHTML = '<button onclick="backToFeed()" style="background:none;border:none;color:var(--accent);font-size:14px;cursor:pointer;padding:10px 0;display:flex;align-items:center;gap:4px;font-family:var(--font-body);">&#8592; Retour</button>'
+    + '<div style="background:var(--surface2);border-radius:14px;padding:16px;margin-bottom:14px;border:1px solid var(--border);">'
+    + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">'
+    + '<span class="comm-badge ' + post.type + '">' + (labels[post.type] || post.type) + '</span>'
+    + '<span style="font-size:12px;color:var(--text2);">par <b>' + escHtml(post.author_name || 'Anonyme') + '</b> · ' + date + '</span>'
+    + '</div>'
+    + (post.title ? '<div style="font-size:17px;font-weight:700;margin-bottom:8px;color:var(--text);">' + escHtml(post.title) + '</div>' : '')
+    + '<div style="font-size:14px;color:var(--text);line-height:1.6;">' + escHtml(post.content) + '</div>'
+    + placeHtml
+    + '<div class="comm-actions" style="margin-top:12px;">'
+    + '<button class="comm-action-btn" onclick="likePost(\'' + post.id + '\')">👍 ' + (post.likes_count || 0) + '</button>'
+    + statusBtn
+    + '</div></div>'
+    + '<div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;">' + (post.replies_count || 0) + ' réponse' + ((post.replies_count || 0) > 1 ? 's' : '') + '</div>'
+    + '<div id="comm-replies-list"></div>'
+    + (currentUser
+      ? '<div style="display:flex;gap:8px;margin-top:12px;padding-bottom:20px;">'
+        + '<input type="text" id="reply-input" class="comm-input" style="flex:1;margin:0;" placeholder="Votre réponse...">'
+        + '<button onclick="submitReply(\'' + post.id + '\')" style="background:var(--accent);border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;color:#000;white-space:nowrap;">Envoyer</button>'
+        + '</div>'
+      : '<p style="font-size:12px;color:var(--text2);text-align:center;margin-top:12px;padding-bottom:20px;">Connectez-vous pour répondre</p>');
+  loadReplies(id);
+}
+
+async function loadReplies(postId) {
+  var res = await db.from('community_replies').select('*').eq('post_id', postId).order('created_at');
+  var el = document.getElementById('comm-replies-list');
+  if (!el) return;
+  var data = res.data || [];
+  if (!data.length) { el.innerHTML = '<p style="font-size:12px;color:var(--text2);padding:4px 0 12px;">Aucune réponse — lance la discussion !</p>'; return; }
+  el.innerHTML = data.map(function(r) {
+    var d = new Date(r.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+    return '<div class="comm-reply-card">'
+      + '<div style="display:flex;justify-content:space-between;margin-bottom:6px;">'
+      + '<span style="font-size:12px;font-weight:700;color:var(--accent);">' + escHtml(r.author_name || 'Anonyme') + '</span>'
+      + '<span style="font-size:11px;color:var(--text2);">' + d + '</span>'
+      + '</div><div style="font-size:13px;color:var(--text);line-height:1.5;">' + escHtml(r.content) + '</div></div>';
+  }).join('');
+}
+
+function backToFeed() {
+  document.getElementById('comm-detail').style.display = 'none';
+  document.getElementById('comm-feed').style.display = 'block';
+  loadCommunity();
+}
+
+async function submitReply(postId) {
+  if (!currentUser) { showToast('Connectez-vous pour répondre', 'error'); return; }
+  var inp = document.getElementById('reply-input');
+  var content = (inp.value || '').trim();
+  if (!content) return;
+  var name = (currentUser.user_metadata && currentUser.user_metadata.display_name) || currentUser.email.split('@')[0];
+  await db.from('community_replies').insert({ post_id: postId, user_id: currentUser.id, author_name: name, content: content });
+  var post = commPosts.find(function(p) { return p.id === postId; });
+  var cnt = (post ? (post.replies_count || 0) : 0) + 1;
+  await db.from('community_posts').update({ replies_count: cnt }).eq('id', postId);
+  inp.value = '';
+  if (post) post.replies_count = cnt;
+  loadReplies(postId);
+}
+
+async function likePost(id) {
+  if (!currentUser) { showToast('Connectez-vous pour liker', 'error'); return; }
+  var res = await db.from('community_likes').insert({ user_id: currentUser.id, post_id: id });
+  if (!res.error) {
+    var post = commPosts.find(function(p) { return p.id === id; });
+    var cnt = (post ? (post.likes_count || 0) : 0) + 1;
+    await db.from('community_posts').update({ likes_count: cnt }).eq('id', id);
+    if (post) post.likes_count = cnt;
+    loadCommunity();
+  } else { showToast('Déjà liké !', 'error'); }
+}
+
+function openNewPost() {
+  if (!currentUser) { showToast('Connectez-vous pour poster', 'error'); return; }
+  newPostPlace = null;
+  document.getElementById('comm-place-input') && (document.getElementById('comm-place-input').value = '');
+  document.getElementById('comm-place-selected').style.display = 'none';
+  document.getElementById('comm-place-results').innerHTML = '';
+  document.getElementById('comm-title-input').value = '';
+  document.getElementById('comm-content-input').value = '';
+  selectPostType('message', document.querySelector('.comm-type-btn[data-type="message"]'));
+  document.getElementById('comm-modal').classList.add('open');
+}
+function closeNewPost() { document.getElementById('comm-modal').classList.remove('open'); }
+
+function selectPostType(type, btn) {
+  newPostType = type;
+  document.querySelectorAll('.comm-type-btn').forEach(function(b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  document.getElementById('comm-place-search').style.display = type === 'signalement' ? 'block' : 'none';
+}
+
+async function searchCommPlace(q) {
+  var el = document.getElementById('comm-place-results');
+  if (!q || q.length < 2) { el.innerHTML = ''; return; }
+  var res = await db.from('places').select('id,name,latitude,longitude').ilike('name', '%' + q + '%').limit(6);
+  var data = res.data || [];
+  if (!data.length) { el.innerHTML = '<p style="font-size:12px;color:var(--text2);padding:4px 0;">Aucun lieu trouvé</p>'; return; }
+  el.innerHTML = data.map(function(p) {
+    return '<div onclick="selectCommPlace(\'' + p.id + '\',\'' + p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\',' + p.latitude + ',' + p.longitude + ')" style="padding:10px 12px;background:var(--surface2);border-radius:8px;margin-bottom:4px;cursor:pointer;font-size:13px;border:1px solid var(--border);">📍 ' + escHtml(p.name) + '</div>';
+  }).join('');
+}
+
+function selectCommPlace(id, name, lat, lon) {
+  newPostPlace = { id: id, name: name, lat: lat, lon: lon };
+  document.getElementById('comm-place-input').value = '';
+  document.getElementById('comm-place-results').innerHTML = '';
+  document.getElementById('comm-place-selected-name').textContent = name;
+  document.getElementById('comm-place-selected').style.display = 'inline-flex';
+}
+function clearCommPlace() {
+  newPostPlace = null;
+  document.getElementById('comm-place-selected').style.display = 'none';
+}
+
+async function submitPost() {
+  if (!currentUser) return;
+  var content = (document.getElementById('comm-content-input').value || '').trim();
+  var title = (document.getElementById('comm-title-input').value || '').trim();
+  if (!content) { showToast('Écrivez quelque chose !', 'error'); return; }
+  var name = (currentUser.user_metadata && currentUser.user_metadata.display_name) || currentUser.email.split('@')[0];
+  var row = { user_id: currentUser.id, author_name: name, type: newPostType, content: content, title: title || null, likes_count: 0, replies_count: 0, status: 'ouvert' };
+  if (newPostPlace) { row.place_id = newPostPlace.id; row.place_name = newPostPlace.name; row.place_lat = newPostPlace.lat; row.place_lon = newPostPlace.lon; }
+  var res = await db.from('community_posts').insert(row);
+  if (res.error) { showToast('Erreur lors de la publication', 'error'); return; }
+  closeNewPost();
+  showToast('Publié ! 🎉', 'success');
+  loadCommunity();
+}
+
+function goToCommPlace(lat, lon) {
+  closeSheet('sheet-community');
+  map.setView([parseFloat(lat), parseFloat(lon)], 16);
+}
+
+async function cycleStatus(id) {
+  var post = commPosts.find(function(p) { return p.id === id; });
+  if (!post) return;
+  var next = post.status === 'ouvert' ? 'resolu' : post.status === 'resolu' ? 'prevu' : 'ouvert';
+  await db.from('community_posts').update({ status: next }).eq('id', id);
+  post.status = next;
+  openPostDetail(id);
+}
+
+function renderLeaderboardInComm() {
+  var feed = document.getElementById('comm-feed');
+  feed.innerHTML = '<div class="comm-empty">Chargement classement...</div>';
+  loadLeaderboard('places');
+}
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
