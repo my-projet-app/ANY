@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0f1117">
+<meta name="theme-color" content="#0d1530">
 <link rel="manifest" href="manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="VanLifeMap">
@@ -21,8 +21,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3348;
-  --accent:#6ee7b7;--text:#e8eaf0;--text2:#8b91a8;--danger:#f87171;
+  --bg:#0d1530;--surface:#1a2240;--surface2:#1e2a4a;--border:#2a3558;
+  --accent:#f07800;--text:#f0f2f8;--text2:#8a9bbf;--danger:#f87171;
   --nav-h:64px;--safe-bottom:env(safe-area-inset-bottom,0px);
   --font-head:'Syne',sans-serif;--font-body:'DM Sans',sans-serif;
   --radius:16px;--radius-sm:10px;
@@ -727,8 +727,8 @@ function drawRadiusCircle() {
   radiusCircle = L.circle(radiusCenter, {
     radius: radiusKm * 1000,
     className: 'radius-circle',
-    color: '#6ee7b7',
-    fillColor: '#6ee7b7',
+    color: '#f07800',
+    fillColor: '#f07800',
     fillOpacity: 0.06,
     weight: 2
   }).addTo(map);
@@ -1310,7 +1310,7 @@ function renderMarkers(places) {
   cluster.clearLayers();
   places.forEach(function(p) {
     var cat = p.categories;
-    var color = cat ? cat.color : '#6ee7b7';
+    var color = cat ? cat.color : '#f07800';
     var icon = cat ? cat.icon : '&#128205;';
     var mi = L.divIcon({
       html: '<div class="custom-marker" style="background:' + color + '"><div class="custom-marker-inner">' + icon + '</div></div>',
@@ -1584,7 +1584,7 @@ function sharePlace(id, name, lat, lon) {
 function locateMe() {
   map.locate({ setView: true, maxZoom: 14 });
   map.once('locationfound', function(e) {
-    L.circle(e.latlng, { radius: e.accuracy / 2, color: '#6ee7b7', fillOpacity: 0.15 }).addTo(map);
+    L.circle(e.latlng, { radius: e.accuracy / 2, color: '#f07800', fillOpacity: 0.15 }).addTo(map);
     showToast('Position trouv\u00e9e !', 'success');
   });
   map.once('locationerror', function() { showToast('Localisation impossible', 'error'); });
