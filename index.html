@@ -1572,8 +1572,8 @@ function renderMarkers(places) {
     var color = cat ? cat.color : '#ffd04f';
     var icon = cat ? cat.icon : '📍';
     if (p.category_id === DAB_CAT_ID) {
-      var bankColor = getBankColor(p.name);
-      if (bankColor) color = bankColor;
+      icon = '🏦';
+      color = getBankColor(p.name) || '#1565C0';
     }
     var iconHtml = fluentImg(icon, 22);
     var mi = L.divIcon({
