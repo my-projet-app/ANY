@@ -683,14 +683,7 @@ var currentUser = null;
 var mainCats = [], allCats = [], allPlaces = [];
 var filters = {};
 
-function fluentImg(emoji, size) {
-  var cp = Array.from(emoji)
-    .map(function(c) { return c.codePointAt(0).toString(16); })
-    .filter(function(c) { return c !== 'fe0f'; })
-    .join('-');
-  var url = 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/' + cp + '.svg';
-  return '<img src="' + url + '" width="' + size + '" height="' + size + '" style="object-fit:contain;display:block;" loading="lazy">';
-}
+function fluentImg(emoji, size) { return emoji; }
 var selectedLatLng = null;
 var addingMode = false;
 var radiusMode = false;
