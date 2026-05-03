@@ -111,7 +111,8 @@ input[type=text] { max-width: 100%; }
           </optgroup>
           <optgroup label="── Services & Commerces">
             <option value="laundry">👕 Lavomatiques</option>
-            <option value="electric">⚡ Bornes recharge électrique</option>
+            <option value="electric">⚡ Bornes recharge électrique (voiture)</option>
+            <option value="vae">🛴 Bornes recharge VAE / trottinette</option>
             <option value="fuel">⛽ Stations-service</option>
             <option value="wifi">📶 WiFi public gratuit</option>
             <option value="pharmacy">💊 Pharmacies</option>
@@ -407,7 +408,8 @@ var CAT_NAMES = {
   bike_rental:'Location de vélos en libre-service',
   car_sharing:'Voiture en libre-service',
   moto_rental:'Location de scooters / motos',
-  boat_rental:'Location de kayak / canoë'
+  boat_rental:'Location de kayak / canoë',
+  vae:'Borne de recharge VAE / trottinette'
 };
 
 // ── UI helpers
@@ -550,7 +552,8 @@ function buildQuery(type, b) {
   if (type==='wild')       return t+'node["tourism"="camp_site"]["backcountry"="yes"]('+b+');\nnode["tourism"="camp_site"]["camp_site"="basic"]('+b+');\nnode["tourism"="camp_site"]["informal"="yes"]('+b+');\nnode["tourism"="wilderness_hut"]('+b+');'+ec;
   if (type==='picnic')     return t+'node["tourism"="picnic_site"]('+b+');\nway["tourism"="picnic_site"]('+b+');'+ec;
   if (type==='laundry')    return t+'node["shop"="laundry"]["self_service"="yes"]('+b+');\nnode["shop"="laundry"]["self_service"="only"]('+b+');\nnode["shop"="laundrette"]('+b+');\nnode["amenity"="washing_machine"]('+b+');'+e;
-  if (type==='electric')   return t+'node["amenity"="charging_station"]('+b+');\nway["amenity"="charging_station"]('+b+');'+ec;
+  if (type==='electric')   return t+'node["amenity"="charging_station"]["bicycle"!="yes"]('+b+');\nway["amenity"="charging_station"]["bicycle"!="yes"]('+b+');'+ec;
+  if (type==='vae')        return t+'node["amenity"="charging_station"]["bicycle"="yes"]('+b+');\nnode["amenity"="bicycle_charging_station"]('+b+');\nnode["bicycle_charging"="yes"]('+b+');'+e;
   if (type==='fuel')       return t+'node["amenity"="fuel"]('+b+');\nway["amenity"="fuel"]('+b+');'+ec;
   if (type==='wifi')       return t+'node["internet_access"="wlan"]["internet_access:fee"="no"]('+b+');\nnode["wifi"="free"]('+b+');'+e;
   if (type==='pharmacy')   return t+'node["amenity"="pharmacy"]('+b+');\nway["amenity"="pharmacy"]('+b+');'+ec;

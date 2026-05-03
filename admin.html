@@ -152,7 +152,7 @@ async function loadReports() {
   if (!data.length) { list.innerHTML = '<div class="empty">Aucun signalement</div>'; return; }
   list.innerHTML = data.map(function(r) {
     var place = r.places;
-    var reasons = { closed:'Lieu fermé', wrong_location:'Emplacement incorrect', duplicate:'Doublon', wrong_info:'Infos incorrectes', inappropriate:'Contenu inapproprié', other:'Autre' };
+    var reasons = { closed:'Lieu fermé', maintenance:'En maintenance', wrong_location:'Emplacement incorrect', duplicate:'Doublon', wrong_info:'Infos incorrectes', inappropriate:'Contenu inapproprié', other:'Autre' };
     return '<div class="card" id="rep-' + r.id + '">'
       + '<div class="card-top">'
       + '<div>'

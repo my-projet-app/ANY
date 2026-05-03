@@ -636,6 +636,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
       <select id="report-reason">
         <option value="">-- Choisir --</option>
         <option value="closed">Lieu fermé définitivement</option>
+        <option value="maintenance">En maintenance / Temporairement fermé</option>
         <option value="wrong_location">Emplacement incorrect</option>
         <option value="duplicate">Doublon</option>
         <option value="wrong_info">Informations incorrectes</option>
@@ -1517,6 +1518,7 @@ function makePopup(p) {
     + (p.description ? '<div class="popup-desc">' + p.description + '</div>' : '')
     + '<div class="popup-meta">Par <span>' + (p.user_name || 'Anonyme') + '</span> &middot; ' + (p.disponible_24h ? '&#9989; 24h/24' : '&#8987; Horaires limit\u00e9s') + '</div>'
     + '<div class="popup-meta">&#128077; ' + (p.votes_positifs || 0) + ' &middot; &#128078; ' + (p.votes_negatifs || 0) + '</div>'
+    + '<div id="report-info-' + p.id + '" style="display:none;font-size:11px;color:var(--danger);padding:4px 0 6px;"></div>'
     + '<div class="popup-actions">'
     + '<button class="vote-btn" onclick="vote(\'' + p.id + '\',true)">&#128077; Utile</button>'
     + '<button class="vote-btn" onclick="vote(\'' + p.id + '\',false)">&#128078; Ferm\u00e9</button>'
@@ -1545,6 +1547,7 @@ function makePopup(p) {
     + cmtZone + '</div>';
   loadCmts(p.id);
   loadRating(p.id);
+  loadReportInfo(p.id);
   return el;
 }
 
@@ -1822,6 +1825,20 @@ async function submitReport() {
   closeModal('modal-report');
   showToast('&#9888;&#65039; Signalement envoyé, merci !', 'success');
   reportPlaceId = null;
+}
+
+async function loadReportInfo(pid) {
+  var res = await db.from('reports').select('reason').eq('place_id', pid).limit(20);
+  var el = document.getElementById('report-info-' + pid);
+  if (!el) return;
+  var data = res.data || [];
+  if (!data.length) return;
+  var labels = { closed:'Fermé', maintenance:'En maintenance', wrong_location:'Emplacement incorrect', duplicate:'Doublon', wrong_info:'Infos incorrectes', inappropriate:'Inapproprié', other:'Autre' };
+  var counts = {};
+  data.forEach(function(r) { counts[r.reason] = (counts[r.reason] || 0) + 1; });
+  var top = Object.keys(counts).sort(function(a,b) { return counts[b]-counts[a]; })[0];
+  el.innerHTML = '&#9888;&#65039; ' + data.length + ' signalement' + (data.length > 1 ? 's' : '') + (top ? ' &middot; ' + (labels[top] || top) : '');
+  el.style.display = 'block';
 }
 
 var installPrompt = null;
