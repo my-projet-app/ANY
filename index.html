@@ -1735,9 +1735,9 @@ function toggleNav(pid) {
 var lbPhotos = [], lbIndex = 0;
 
 async function loadPhotos(pid) {
+  var res = await db.from('place_photos').select('url,uploader_name').eq('place_id', pid).order('created_at');
   var el = document.getElementById('photos-' + pid);
   if (!el) return;
-  var res = await db.from('place_photos').select('url,uploader_name').eq('place_id', pid).order('created_at');
   renderPhotos(pid, res.data || []);
 }
 
