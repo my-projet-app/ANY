@@ -1359,14 +1359,23 @@ function signOut() {
 
 async function loadUserProfile() {
   if (!currentUser) return;
-  var res = await db.from('profiles').select('username').eq('id', currentUser.id).maybeSingle();
-  if (res.data && res.data.username) {
-    currentUsername = res.data.username;
+  // Read username from auth user_metadata (no schema cache dependency)
+  var meta = currentUser.user_metadata || {};
+  if (meta.username) {
+    currentUsername = meta.username;
     document.getElementById('auth-info').textContent = currentUsername;
     document.getElementById('btn-auth').textContent = 'Déconnexion';
   } else {
-    currentUsername = currentUser.email.split('@')[0];
-    document.getElementById('auth-info').textContent = currentUsername;
+    // Also try profiles table as fallback
+    try {
+      var res = await db.from('profiles').select('username').eq('id', currentUser.id).maybeSingle();
+      if (res.data && res.data.username) {
+        currentUsername = res.data.username;
+        document.getElementById('auth-info').textContent = currentUsername;
+        document.getElementById('btn-auth').textContent = 'Déconnexion';
+        return;
+      }
+    } catch(e) {}
     document.getElementById('btn-auth').textContent = 'Déconnexion';
     openUsernameModal();
   }
@@ -1394,10 +1403,11 @@ function openUsernameModal() {
     status.style.color = 'var(--text2)';
     status.textContent = 'Vérification...';
     timer = setTimeout(async function() {
-      var chk = await db.from('profiles').select('id').eq('username', v).maybeSingle();
-      if (chk.data) {
+      // Check uniqueness in places table (existing contributors)
+      var chk = await db.from('places').select('user_name').eq('user_name', v).limit(1);
+      if (chk.data && chk.data.length > 0) {
         status.style.color = '#e74c3c';
-        status.textContent = '✗ Pseudo déjà pris';
+        status.textContent = '✗ Pseudo déjà utilisé';
         btn.disabled = true; btn.style.opacity = '0.5';
       } else {
         status.style.color = '#27ae60';
@@ -1412,15 +1422,24 @@ async function saveUsername() {
   var inp = document.getElementById('username-input');
   var v = inp ? inp.value.trim() : '';
   if (!v || !/^[a-zA-Z0-9_]{3,20}$/.test(v)) return;
-  var res = await db.from('profiles').insert({ id: currentUser.id, username: v });
+  var btn = document.getElementById('username-confirm-btn');
+  var status = document.getElementById('username-status');
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.textContent = 'Enregistrement...'; }
+  // Save in auth user_metadata
+  var res = await db.auth.updateUser({ data: { username: v } });
   if (res.error) {
-    var status = document.getElementById('username-status');
     if (status) { status.style.color = '#e74c3c'; status.textContent = '✗ Erreur : ' + res.error.message; }
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.textContent = 'Confirmer'; }
     return;
   }
+  // Refresh currentUser with updated metadata
+  var userRes = await db.auth.getUser();
+  if (userRes.data && userRes.data.user) currentUser = userRes.data.user;
   currentUsername = v;
   document.getElementById('auth-info').textContent = currentUsername;
   document.getElementById('modal-username').style.display = 'none';
+  // Also try profiles table (best-effort, ignore errors)
+  try { await db.from('profiles').upsert({ id: currentUser.id, username: v }, { onConflict: 'id' }); } catch(e) {}
   showToast('Pseudo « ' + v + ' » enregistré !', 'success');
 }
 
