@@ -2508,7 +2508,18 @@ function startRealtimeNotifs() {
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js');
+    navigator.serviceWorker.register('./sw.js').then(function(reg) {
+      reg.update();
+      reg.addEventListener('updatefound', function() {
+        var newSW = reg.installing;
+        newSW.addEventListener('statechange', function() {
+          if (newSW.state === 'activated') { window.location.reload(); }
+        });
+      });
+    });
+    navigator.serviceWorker.addEventListener('controllerchange', function() {
+      window.location.reload();
+    });
   });
 }
 
