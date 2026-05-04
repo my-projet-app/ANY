@@ -1009,6 +1009,7 @@ function processFuelRow(s) {
   var lat = parseFloat((s.latitude  + '').replace(',', '.'));
   var lon = parseFloat((s.longitude + '').replace(',', '.'));
   if (!lat || !lon || isNaN(lat) || isNaN(lon)) return null;
+  if (Math.abs(lat) > 900) { lat = lat / 100000.0; lon = lon / 100000.0; }
   var name = s.nom || ('Station ' + (s.ville || ''));
   var desc = [];
   if (s.adresse) desc.push(s.adresse + (s.cp ? ' ' + s.cp : '') + (s.ville ? ' ' + s.ville : ''));
