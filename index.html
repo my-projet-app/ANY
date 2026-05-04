@@ -363,8 +363,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
 .prof-swatches{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;}
 .prof-swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:border-color 0.15s,transform 0.15s;flex-shrink:0;}
 .prof-swatch:hover,.prof-swatch.sel{border-color:#fff;transform:scale(1.15);}
-.prof-picker-btns{display:flex;gap:8px;}
-.prof-picker-btn{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:var(--font-body);}
+.prof-picker-btn{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:var(--font-body);}
 .prof-picker-btn:hover{background:rgba(255,255,255,0.22);}
 .prof-identity{background:var(--surface);padding:46px 20px 16px;border-bottom:1px solid var(--border);}
 .prof-username{font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px;}
@@ -1142,16 +1141,16 @@ async function renderProfile() {
   var dateStr = months[memberSince.getMonth()] + ' ' + memberSince.getFullYear();
   // Banner style
   var bannerData = JSON.parse(localStorage.getItem('vlm_banner') || 'null');
-  var bannerStyle = bannerData && bannerData.type === 'image' && bannerData.value
-    ? 'background:url(' + bannerData.value + ') center/cover no-repeat'
-    : 'background:linear-gradient(' + (bannerData && bannerData.value ? bannerData.value : '135deg,#0f2460,#1a3a8c,#2d6a9f') + ')';
+  // Clear any stored image banners (image option removed)
+  if (bannerData && bannerData.type === 'image') { localStorage.removeItem('vlm_banner'); bannerData = null; }
+  var bannerStyle = 'background:linear-gradient(' + (bannerData && bannerData.value ? bannerData.value : '135deg,#0a0a0a,#1a1a1a,#2d2d2d') + ')';
   // Avatar
   var avatarImg = localStorage.getItem('vlm_avatar_img');
   var avatarInner = avatarImg
     ? '<img src="' + avatarImg + '" alt="">'
     : initials;
   // Build swatches HTML
-  var PRESETS = [{"k":"b1","g":"135deg,#0f2460,#1a3a8c,#2d6a9f"},{"k":"b2","g":"135deg,#1a0533,#4a1272,#8e44ad"},{"k":"b3","g":"135deg,#0a2e1a,#1a5c2e,#27ae60"},{"k":"b4","g":"135deg,#2e0a0a,#7b1c1c,#c0392b"},{"k":"b5","g":"135deg,#1a0a00,#8B4513,#e67e22"},{"k":"b6","g":"135deg,#1a1400,#7a5900,#d4a017"},{"k":"b7","g":"135deg,#002a2a,#006666,#1abc9c"},{"k":"b8","g":"135deg,#1a1a1a,#333,#555"}];
+  var PRESETS = [{"k":"b1","g":"135deg,#0a0a0a,#1a1a1a,#2d2d2d"},{"k":"b2","g":"135deg,#13110a,#28230a,#3d3510"},{"k":"b3","g":"135deg,#070d1a,#0d1830,#162544"},{"k":"b4","g":"135deg,#0f0814,#1c1228,#2a1a3d"},{"k":"b5","g":"135deg,#080f08,#0f1f0e,#1a2e18"},{"k":"b6","g":"135deg,#140606,#250a0a,#361010"},{"k":"b7","g":"135deg,#060f0f,#0a1c1c,#112828"},{"k":"b8","g":"135deg,#080b12,#10151f,#1a2030"}];
   var selKey = bannerData && bannerData.key ? bannerData.key : 'b1';
   var swatchesHtml = PRESETS.map(function(p) {
     return '<div class="prof-swatch' + (p.k === selKey ? ' sel' : '') + '" data-key="' + p.k + '" data-g="' + p.g + '" style="background:linear-gradient(' + p.g + ')"></div>';
@@ -1163,7 +1162,6 @@ async function renderProfile() {
     + '<div class="prof-banner-picker" id="prof-banner-picker">'
     + '<div class="prof-swatches" id="prof-swatches">' + swatchesHtml + '</div>'
     + '<div class="prof-picker-btns">'
-    + '<button class="prof-picker-btn" id="prof-banner-img-btn">&#128247; Image</button>'
     + '<button class="prof-picker-btn" id="prof-picker-close">&#10005; Fermer</button>'
     + '</div></div>'
     + '<div class="prof-avatar" id="prof-avatar">' + avatarInner + '</div>'
@@ -1222,14 +1220,6 @@ async function renderProfile() {
     if (banner) banner.style.background = 'linear-gradient(' + g + ')';
   });
 
-  // Banner image upload
-  document.getElementById('prof-banner-img-btn').addEventListener('click', function(e) {
-    e.stopPropagation();
-    var inp = document.createElement('input');
-    inp.type = 'file'; inp.accept = 'image/*';
-    inp.onchange = function() { if (inp.files[0]) handleBannerImage(inp.files[0]); };
-    inp.click();
-  });
 
   // Avatar photo upload
   document.getElementById('prof-avatar').addEventListener('click', function(e) {
@@ -1244,25 +1234,6 @@ async function renderProfile() {
   loadProfileStats(username);
 }
 
-function handleBannerImage(file) {
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var img = new Image();
-    img.onload = function() {
-      var canvas = document.createElement('canvas');
-      canvas.width = 360; canvas.height = 110;
-      canvas.getContext('2d').drawImage(img, 0, 0, 360, 110);
-      var dataUrl = canvas.toDataURL('image/jpeg', 0.75);
-      localStorage.setItem('vlm_banner', JSON.stringify({type:'image',key:'',value:dataUrl}));
-      var banner = document.getElementById('prof-banner');
-      if (banner) banner.style.background = 'url(' + dataUrl + ') center/cover no-repeat';
-      var picker = document.getElementById('prof-banner-picker');
-      if (picker) picker.classList.remove('open');
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
 
 function handleAvatarPhoto(file) {
   var reader = new FileReader();
