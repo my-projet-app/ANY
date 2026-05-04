@@ -62,19 +62,21 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
 .chk-sm{width:12px;height:12px;border-radius:3px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:transparent;transition:all 0.15s;}
 .chk-sm.on{background:var(--accent);border-color:var(--accent);color:#000;}
 /* COUNTRY PICKER */
-#country-picker{position:fixed;inset:0;z-index:10000;background:#0a0e1a;display:flex;flex-direction:column;}
-#picker-header{padding:22px 20px 10px;text-align:center;flex-shrink:0;}
+#country-picker{position:fixed;inset:0;z-index:10000;background:var(--bg);display:flex;flex-direction:column;}
+#picker-header{padding:20px 20px 12px;flex-shrink:0;border-bottom:1px solid var(--border);}
 #picker-header h2{font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--accent);margin-bottom:4px;}
 #picker-header p{font-size:12px;color:var(--text2);}
-#picker-map{flex:1;min-height:0;}
-#picker-footer{padding:14px 16px calc(14px + var(--safe-bottom));background:#111;border-top:1px solid #222;flex-shrink:0;display:flex;flex-direction:column;gap:10px;}
-#picker-tags{display:flex;gap:6px;flex-wrap:wrap;min-height:26px;align-items:center;}
-.picker-tag{background:rgba(255,208,79,0.12);border:1px solid var(--accent);color:var(--accent);border-radius:20px;padding:4px 10px 4px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px;}
-.picker-tag-del{background:none;border:none;color:var(--accent);cursor:pointer;font-size:16px;line-height:1;padding:0;}
+#picker-country-grid{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start;}
+.picker-flag-btn{display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--border);color:var(--text);border-radius:12px;padding:10px 14px;font-size:14px;cursor:pointer;transition:all 0.15s;min-width:44px;}
+.picker-flag-btn .pfb-flag{font-size:22px;line-height:1;}
+.picker-flag-btn .pfb-name{font-size:13px;font-weight:600;}
+.picker-flag-btn.sel{background:rgba(255,208,79,0.12);border-color:var(--accent);color:var(--accent);}
+#picker-footer{padding:12px 16px calc(12px + var(--safe-bottom));background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:8px;}
+#picker-selected-label{font-size:11px;color:var(--text2);min-height:16px;}
 #picker-actions{display:flex;gap:8px;}
-#picker-btn-confirm{flex:1;background:var(--accent);color:#000;border:none;border-radius:var(--radius-sm);padding:12px;font-family:var(--font-head);font-size:14px;font-weight:700;cursor:pointer;opacity:0.35;pointer-events:none;transition:opacity 0.2s;}
+#picker-btn-confirm{flex:1;background:var(--accent);color:#000;border:none;border-radius:var(--radius-sm);padding:13px;font-family:var(--font-head);font-size:14px;font-weight:700;cursor:pointer;opacity:0.35;pointer-events:none;transition:opacity 0.2s;}
 #picker-btn-confirm.ready{opacity:1;pointer-events:all;}
-#picker-btn-all{background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;font-size:12px;cursor:pointer;white-space:nowrap;}
+#picker-btn-all{background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px 14px;font-size:12px;cursor:pointer;white-space:nowrap;}
 #btn-change-country{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:var(--radius-sm);padding:9px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
 #btn-change-country:hover{border-color:var(--accent);color:var(--accent);}
 #sidebar-footer{padding:14px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px;flex-shrink:0;}
@@ -124,27 +126,41 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
 #radius-bar button{background:var(--accent);border:none;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;color:#000;}
 #radius-bar .btn-clear{background:var(--surface2);border:1px solid var(--border);color:var(--text2);}
 
-/* LOCATION SEARCH */
+/* SEARCH v2 */
+.srch-input-wrap{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.srch-input-icon{font-size:18px;color:var(--text2);flex-shrink:0;}
+#search-mobile{flex:1;background:none;border:none;color:var(--text);font-size:16px;outline:none;font-family:var(--font-body);}
+#search-mobile::placeholder{color:var(--text2);}
+#srch-clear{background:none;border:none;color:var(--text2);font-size:18px;cursor:pointer;padding:4px;flex-shrink:0;line-height:1;}
+.srch-locme{display:flex;align-items:center;gap:12px;width:100%;background:none;border:none;border-bottom:1px solid var(--border);padding:14px 16px;cursor:pointer;font-family:var(--font-body);text-align:left;-webkit-tap-highlight-color:rgba(255,208,79,0.12);}
+.srch-locme:active{background:var(--surface2);}
+.srch-locme-icon{width:38px;height:38px;background:rgba(255,208,79,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.srch-section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text2);padding:12px 16px 6px;}
+.srch-chips{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 14px;border-bottom:1px solid var(--border);}
+.srch-chip{display:flex;align-items:center;gap:5px;background:var(--surface2);border:1.5px solid var(--border);border-radius:20px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text);white-space:nowrap;-webkit-tap-highlight-color:transparent;}
+.srch-chip:active{background:rgba(255,208,79,0.1);border-color:var(--accent);}
+.srch-result{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--border);-webkit-tap-highlight-color:rgba(255,208,79,0.08);}
+.srch-result:active{background:var(--surface2);}
+.srch-result-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.srch-result-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.srch-result-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+.srch-radius-wrap{padding:14px 16px;border-top:1px solid var(--border);flex-shrink:0;}
+.srch-radius-label{font-size:13px;color:var(--text2);margin-bottom:10px;}
+.radius-pills{display:flex;gap:8px;flex-wrap:wrap;}
+.radius-pill{background:var(--surface2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text);transition:all 0.15s;white-space:nowrap;min-height:40px;display:flex;align-items:center;-webkit-tap-highlight-color:transparent;}
+.radius-pill.active{background:var(--accent);border-color:var(--accent);color:#000;}
+/* LOCATION SEARCH desktop */
 .loc-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text2);margin-bottom:10px;}
 .loc-input-wrap{position:relative;display:flex;align-items:center;}
 .loc-input-wrap input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:14px 14px 14px 44px;color:var(--text);font-size:16px;outline:none;font-family:var(--font-body);transition:border-color 0.2s;box-sizing:border-box;-webkit-appearance:none;}
 .loc-input-wrap input:focus{border-color:var(--accent);}
 .loc-input-icon{position:absolute;left:14px;font-size:17px;pointer-events:none;z-index:1;}
-/* Dropdown inline (pas absolute) pour éviter le clipping dans le sheet scroll */
 .loc-dropdown{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.25);overflow:hidden;display:none;margin-top:8px;}
-.loc-dropdown-item{padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--border);-webkit-tap-highlight-color:rgba(110,231,183,0.15);transition:background 0.1s;}
+.loc-dropdown-item{padding:14px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background 0.1s;}
 .loc-dropdown-item:last-child{border-bottom:none;}
-.loc-dropdown-item:active{background:var(--surface2);}
+.loc-dropdown-item:active,.loc-dropdown-item:hover{background:var(--surface2);}
 .loc-dropdown-item .loc-city{font-size:15px;font-weight:600;color:var(--text);}
 .loc-dropdown-item .loc-region{font-size:12px;color:var(--text2);margin-top:3px;}
-.loc-chip-wrap{display:none;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;}
-.loc-chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#000;border-radius:20px;padding:8px 10px 8px 16px;font-size:14px;font-weight:700;}
-.loc-chip-x{background:rgba(0,0,0,0.18);border:none;border-radius:50%;min-width:26px;min-height:26px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;color:#000;flex-shrink:0;}
-.radius-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
-.radius-pill{background:var(--surface2);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text);transition:all 0.15s;white-space:nowrap;min-height:40px;display:flex;align-items:center;-webkit-tap-highlight-color:transparent;}
-.radius-pill.active{background:var(--accent);border-color:var(--accent);color:#000;}
-.loc-divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
-.loc-me-btn{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:14px;font-size:15px;cursor:pointer;color:var(--text);font-family:var(--font-body);display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;font-weight:500;min-height:48px;-webkit-tap-highlight-color:transparent;box-sizing:border-box;}
 /* SIDEBAR LOCATION PILLS */
 .rpill-desk{background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;color:var(--text);white-space:nowrap;}
 .rpill-desk.active{background:var(--accent);border-color:var(--accent);color:#000;}
@@ -500,54 +516,38 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
   </div>
 </div>
 
-<div class="sheet-overlay" id="sheet-search" onclick="closeSheet('sheet-search')">
-  <div class="sheet" onclick="event.stopPropagation()">
+<div class="sheet-overlay" id="sheet-search">
+  <div class="sheet" style="max-height:90vh;">
     <div class="sheet-handle"></div>
-    <div class="sheet-header">
-      <span class="sheet-title">&#128269; Recherche</span>
-      <button class="sheet-close" onclick="closeSheet('sheet-search')">&#10005;</button>
+    <div class="srch-input-wrap">
+      <button onclick="closeSheet('sheet-search')" style="background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;padding:2px 6px 2px 0;flex-shrink:0;line-height:1;">&#8592;</button>
+      <input type="text" id="search-mobile" placeholder="Lieu, ville, commune..." autocomplete="off">
+      <button id="srch-clear" onclick="clearSearch()" style="display:none">&#10005;</button>
     </div>
-    <div class="sheet-content" style="padding:16px">
-
-      <!-- Recherche dans les lieux -->
-      <p class="loc-section-title">&#128270; Lieux sur la carte</p>
-      <input type="text" id="search-mobile" placeholder="Camping, douche, eau..." style="width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;color:var(--text);font-size:15px;outline:none;font-family:var(--font-body);box-sizing:border-box;">
-      <div id="search-results" style="margin-top:10px"></div>
-
-      <hr class="loc-divider">
-
-      <!-- Recherche par localisation style leboncoin -->
-      <p class="loc-section-title">&#128205; Localisation</p>
-      <div class="loc-input-wrap">
-        <span class="loc-input-icon">&#128269;</span>
-        <input type="text" id="loc-input" placeholder="Ville, commune, département..." oninput="onLocationInput(this.value)" autocomplete="off">
+    <div style="flex:1;overflow-y:auto;overflow-x:hidden;min-height:0;">
+      <div id="srch-default">
+        <button class="srch-locme" onclick="locateMeLocation()">
+          <div class="srch-locme-icon">&#128205;</div>
+          <div>
+            <div style="font-weight:600;font-size:14px;color:var(--text);">Ma position actuelle</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px;">Centrer la carte sur moi</div>
+          </div>
+        </button>
+        <div class="srch-section-label">Cat&#233;gories</div>
+        <div class="srch-chips" id="srch-chips"></div>
       </div>
-      <div class="loc-dropdown" id="loc-dropdown"></div>
-
-      <!-- Chip ville sélectionnée -->
-      <div class="loc-chip-wrap" id="loc-chip-wrap">
-        <div class="loc-chip">
-          <span>&#128205;</span>
-          <span id="loc-chip-text"></span>
-          <button class="loc-chip-x" onclick="clearLocation()">&#10005;</button>
-        </div>
+      <div id="search-results" style="display:none;"></div>
+    </div>
+    <div id="loc-radius-wrap" style="display:none" class="srch-radius-wrap">
+      <div class="srch-radius-label">&#128205; Rayon autour de <b id="srch-city-name">ce lieu</b></div>
+      <div class="radius-pills">
+        <button class="radius-pill active" data-km="0" onclick="setLocationRadius(0)">Exact</button>
+        <button class="radius-pill" data-km="10" onclick="setLocationRadius(10)">10 km</button>
+        <button class="radius-pill" data-km="20" onclick="setLocationRadius(20)">20 km</button>
+        <button class="radius-pill" data-km="50" onclick="setLocationRadius(50)">50 km</button>
+        <button class="radius-pill" data-km="100" onclick="setLocationRadius(100)">100 km</button>
       </div>
-
-      <!-- Sélecteur de rayon -->
-      <div id="loc-radius-wrap" style="display:none">
-        <p style="font-size:12px;color:var(--text2);margin:12px 0 0;font-weight:500;">Rayon de recherche :</p>
-        <div class="radius-pills">
-          <button class="radius-pill active" data-km="0" onclick="setLocationRadius(0)">Exact</button>
-          <button class="radius-pill" data-km="10" onclick="setLocationRadius(10)">+10 km</button>
-          <button class="radius-pill" data-km="20" onclick="setLocationRadius(20)">+20 km</button>
-          <button class="radius-pill" data-km="50" onclick="setLocationRadius(50)">+50 km</button>
-          <button class="radius-pill" data-km="100" onclick="setLocationRadius(100)">+100 km</button>
-          <button class="radius-pill" data-km="200" onclick="setLocationRadius(200)">+200 km</button>
-        </div>
-      </div>
-
-      <button class="loc-me-btn" onclick="locateMeLocation()">&#127759; Utiliser ma position actuelle</button>
-
+      <button onclick="closeSheet('sheet-search')" style="width:100%;margin-top:12px;background:var(--accent);color:#000;border:none;border-radius:var(--radius-sm);padding:13px;font-family:var(--font-head);font-size:14px;font-weight:700;cursor:pointer;">&#10003; Valider</button>
     </div>
   </div>
 </div>
@@ -828,11 +828,6 @@ function setupListeners(hasSharedLocation, sharedLat, sharedLon, sharedZoom) {
   document.getElementById('btn-auth').addEventListener('click', onAuthBtn);
   document.getElementById('btn-add-desk').addEventListener('click', onAddBtn);
   document.getElementById('btn-locate').addEventListener('click', locateMe);
-  document.addEventListener('touchstart', function(e) {
-    var dd = document.getElementById('loc-dropdown');
-    var inp = document.getElementById('loc-input');
-    if (dd && inp && !dd.contains(e.target) && e.target !== inp) dd.style.display = 'none';
-  }, { passive: true });
   applyFilters();
 }
 
@@ -1029,8 +1024,9 @@ function navTo(tab) {
   document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active'); });
   var btn = document.getElementById('nav-' + tab);
   if (btn) btn.classList.add('active');
-  if (tab === 'cats') { saveFiltersSnapshot(); renderSheetCats(); openSheet('sheet-cats'); }
-  else if (tab === 'search') { openSheet('sheet-search'); setTimeout(function() { document.getElementById('search-mobile').focus(); }, 300); }
+  if (tab === 'map') { openCountryPicker(); }
+  else if (tab === 'cats') { saveFiltersSnapshot(); renderSheetCats(); openSheet('sheet-cats'); }
+  else if (tab === 'search') { renderSrchChips(); openSheet('sheet-search'); setTimeout(function() { document.getElementById('search-mobile').focus(); }, 300); }
   else if (tab === 'rank') { openSheet('sheet-rank'); loadLeaderboard('places'); }
   else if (tab === 'profile') { renderProfile(); openSheet('sheet-profile'); }
   else if (tab === 'community') { openSheet('sheet-community'); loadCommunity(); document.getElementById('comm-new-btn').style.display = 'flex'; }
@@ -1080,6 +1076,24 @@ function toggleCatSheet(id, hdr) {
   if (a) a.classList.toggle('open');
 }
 
+function getZoneBlock() {
+  var noFilter = localStorage.getItem('vlm_no_filter');
+  var zoneText, zoneDetail;
+  if (noFilter || !selectedCountries.length) {
+    zoneText = '🌍 Monde entier';
+    zoneDetail = 'Tous les pays affichés';
+  } else {
+    zoneText = selectedCountries.map(function(id) { return EU_COUNTRIES[id] ? EU_COUNTRIES[id].flag + ' ' + EU_COUNTRIES[id].name : ''; }).filter(Boolean).join(', ');
+    zoneDetail = selectedCountries.length + ' pays sélectionné' + (selectedCountries.length > 1 ? 's' : '');
+  }
+  return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:10px;">'
+    + '<div style="font-size:10px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;">Zone actuelle</div>'
+    + '<div style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:2px;">' + zoneText + '</div>'
+    + '<div style="font-size:11px;color:var(--text2);">' + zoneDetail + '</div>'
+    + '</div>'
+    + '<button class="btn-s" onclick="closeSheet(\'sheet-profile\');openCountryPicker()" style="margin-bottom:16px;">&#127758; Changer de zone</button>';
+}
+
 function renderProfile() {
   var el = document.getElementById('profile-content');
   if (currentUser) {
@@ -1088,15 +1102,17 @@ function renderProfile() {
       + '<p style="font-family:var(--font-head);font-size:16px;font-weight:700;margin-bottom:4px">' + currentUser.email.split('@')[0] + '</p>'
       + '<p style="font-size:12px;color:var(--text2)">' + currentUser.email + '</p>'
       + '</div>'
-      + '<button class="btn-p" onclick="closeSheet(\'sheet-profile\');openSheet(\'sheet-settings\')" style="margin-top:8px">&#9881;&#65039; Param&egrave;tres</button>'
+      + getZoneBlock()
+      + '<button class="btn-p" onclick="closeSheet(\'sheet-profile\');openSheet(\'sheet-settings\')" style="margin-top:0">&#9881;&#65039; Param&egrave;tres</button>'
       + '<button class="btn-s" onclick="signOut()">&#128682; Se d&eacute;connecter</button>';
   } else {
-    el.innerHTML = '<div style="text-align:center;padding:30px 0">'
+    el.innerHTML = '<div style="text-align:center;padding:20px 0">'
       + '<div style="font-size:48px;margin-bottom:16px">&#128100;</div>'
       + '<p style="font-family:var(--font-head);font-size:18px;font-weight:700;margin-bottom:8px">Rejoindre la communaut&eacute;</p>'
-      + '<p style="font-size:13px;color:var(--text2);margin-bottom:24px">Connecte-toi pour ajouter des lieux, voter, commenter et acc&eacute;der &agrave; la vue satellite</p>'
-      + '<button class="btn-p" onclick="closeSheet(\'sheet-profile\');openModal(\'modal-auth\')">Se connecter / S\'inscrire</button>'
-      + '</div>';
+      + '<p style="font-size:13px;color:var(--text2);margin-bottom:20px">Connecte-toi pour ajouter des lieux, voter, commenter et acc&eacute;der &agrave; la vue satellite</p>'
+      + '<button class="btn-p" onclick="closeSheet(\'sheet-profile\');openModal(\'modal-auth\')" style="margin-bottom:16px">Se connecter / S\'inscrire</button>'
+      + '</div>'
+      + getZoneBlock();
   }
 }
 
@@ -1112,76 +1128,148 @@ function signOut() {
   showToast('D\u00e9connect\u00e9', 'success');
 }
 
-// ===== LOCATION SEARCH (leboncoin style) =====
-var locationTimer = null;
+// ===== LOCATION SEARCH (mobile) =====
 var selectedLocation = null;
 var selectedLocRadius = 0;
+var srchTimer = null;
+var srchNominatimResults = [];
 
-function onLocationInput(q) {
-  var dd = document.getElementById('loc-dropdown');
-  if (!q || q.length < 2) { dd.style.display = 'none'; return; }
-  if (locationTimer) clearTimeout(locationTimer);
-  locationTimer = setTimeout(async function() {
-    try {
-      var url = 'https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=json&limit=6&accept-language=fr&addressdetails=1';
-      var resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
-      var data = await resp.json();
-      renderLocationDropdown(data);
-    } catch(e) {}
-  }, 350);
+function hexToRgba(hex, alpha) {
+  hex = (hex || '#888888').replace('#','');
+  if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+  var r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+  return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
 }
 
-function renderLocationDropdown(results) {
-  var dd = document.getElementById('loc-dropdown');
-  if (!results.length) { dd.style.display = 'none'; return; }
-  dd._results = results;
-  dd.innerHTML = results.map(function(r, i) {
-    var addr = r.address || {};
-    var city = addr.city || addr.town || addr.village || addr.municipality || addr.hamlet || r.display_name.split(',')[0];
-    var dept = addr.county || addr.state_district || '';
-    var region = addr.state || '';
-    var sub = [dept, region].filter(Boolean).join(' · ');
-    return '<div class="loc-dropdown-item" onclick="selectLocationIdx(' + i + ')">'
-      + '<div class="loc-city">' + city + '</div>'
-      + (sub ? '<div class="loc-region">' + sub + '</div>' : '')
-      + '</div>';
+function renderSrchChips() {
+  var el = document.getElementById('srch-chips');
+  if (!el || !mainCats.length) return;
+  el.innerHTML = mainCats.map(function(mc) {
+    return '<button class="srch-chip" onclick="filterToCategory(\'' + mc.id + '\')">'
+      + mc.icon + ' ' + mc.name + '</button>';
   }).join('');
-  dd.style.display = 'block';
 }
 
-function selectLocationIdx(idx) {
-  var dd = document.getElementById('loc-dropdown');
-  var r = dd._results[idx];
-  var addr = r.address || {};
-  var city = addr.city || addr.town || addr.village || addr.municipality || addr.hamlet || r.display_name.split(',')[0];
-  var dept = addr.county || addr.state_district || '';
-  var region = addr.state || '';
-  var sub = [dept, region].filter(Boolean).join(' · ');
-  document.getElementById('loc-input').value = city + (sub ? ', ' + sub : '');
-  document.getElementById('loc-dropdown').style.display = 'none';
-  document.getElementById('loc-chip-text').textContent = city;
-  document.getElementById('loc-chip-wrap').style.display = 'flex';
-  document.getElementById('loc-radius-wrap').style.display = 'block';
-  selectedLocation = { lat: parseFloat(r.lat), lon: parseFloat(r.lon) };
-  selectedLocRadius = 0;
-  document.querySelectorAll('.radius-pill').forEach(function(b) {
-    b.classList.toggle('active', parseInt(b.dataset.km) === 0);
+function filterToCategory(mcId) {
+  mainCats.forEach(function(mc) {
+    var on = mc.id === mcId;
+    filters[mc.id].on = on;
+    ['chk-' + mc.id, 'chk-sm-' + mc.id].forEach(function(cid) {
+      var el = document.getElementById(cid);
+      if (el) { el.className = 'chk' + (on ? ' on' : ''); el.innerHTML = on ? '&#10003;' : ''; }
+    });
+    Object.keys(filters[mc.id].subs).forEach(function(sid) {
+      filters[mc.id].subs[sid] = on;
+      ['chk-sub-' + sid, 'chk-ss-' + sid].forEach(function(cid2) {
+        var el2 = document.getElementById(cid2);
+        if (el2) { el2.className = 'chk-sm' + (on ? ' on' : ''); el2.innerHTML = on ? '&#10003;' : ''; }
+      });
+    });
   });
-  map.setView([selectedLocation.lat, selectedLocation.lon], 13);
+  renderMapFilterBar();
+  applyFilters();
   closeSheet('sheet-search');
 }
 
-function clearLocation() {
-  selectedLocation = null;
+function clearSearch() {
+  var inp = document.getElementById('search-mobile');
+  if (inp) inp.value = '';
+  var clearBtn = document.getElementById('srch-clear');
+  if (clearBtn) clearBtn.style.display = 'none';
+  var def = document.getElementById('srch-default');
+  var res = document.getElementById('search-results');
+  var rw = document.getElementById('loc-radius-wrap');
+  if (def) def.style.display = 'block';
+  if (res) { res.style.display = 'none'; res.innerHTML = ''; }
+  if (rw) rw.style.display = 'none';
+}
+
+async function srchNominatim(q) {
+  try {
+    var url = 'https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q) + '&format=json&limit=4&accept-language=fr&addressdetails=1';
+    var resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    return await resp.json();
+  } catch(e) { return []; }
+}
+
+function selectSrchLocation(idx) {
+  var r = srchNominatimResults[idx];
+  if (!r) return;
+  if (srchTimer) { clearTimeout(srchTimer); srchTimer = null; }
+  _searchCloseLocked = true;
+  setTimeout(function() { _searchCloseLocked = false; }, 1200);
+  var addr = r.address || {};
+  var city = addr.city || addr.town || addr.village || addr.municipality || addr.hamlet || r.display_name.split(',')[0];
+  selectedLocation = { lat: parseFloat(r.lat), lon: parseFloat(r.lon) };
   selectedLocRadius = 0;
-  document.getElementById('loc-input').value = '';
-  document.getElementById('loc-dropdown').style.display = 'none';
-  document.getElementById('loc-chip-wrap').style.display = 'none';
-  document.getElementById('loc-radius-wrap').style.display = 'none';
-  clearRadius();
+  var inp = document.getElementById('search-mobile');
+  if (inp) inp.value = city;
+  var clearBtn = document.getElementById('srch-clear');
+  if (clearBtn) clearBtn.style.display = 'block';
+  var srchDefault = document.getElementById('srch-default');
+  var srchResults = document.getElementById('search-results');
+  if (srchDefault) srchDefault.style.display = 'none';
+  if (srchResults) {
+    srchResults.style.display = 'block';
+    srchResults.innerHTML = '<div style="padding:24px 16px;text-align:center;">'
+      + '<div style="font-size:36px;margin-bottom:10px;">&#128205;</div>'
+      + '<div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px;">' + escHtml(city) + '</div>'
+      + '<div style="font-size:13px;color:var(--text2);">Choisissez un rayon ci-dessous</div>'
+      + '</div>';
+  }
+  var cn = document.getElementById('srch-city-name');
+  if (cn) cn.textContent = city;
+  var rw = document.getElementById('loc-radius-wrap');
+  if (rw) rw.style.display = 'block';
+  document.querySelectorAll('.radius-pill').forEach(function(b) {
+    b.classList.toggle('active', parseInt(b.dataset.km) === 0);
+  });
+  // Le déplacement carte se fait dans setLocationRadius, pas ici
+}
+
+function renderSrchResults(places, cities) {
+  srchNominatimResults = cities;
+  var el = document.getElementById('search-results');
+  if (!el) return;
+  var html = '';
+  if (places.length) {
+    html += '<div class="srch-section-label">Lieux sur la carte</div>';
+    html += places.map(function(p) {
+      var cat = p.categories;
+      var color = cat ? (cat.color || '#ffd04f') : '#ffd04f';
+      var icon = cat ? cat.icon : '&#128205;';
+      return '<div class="srch-result" onclick="goToPlace(' + p.latitude + ',' + p.longitude + ')">'
+        + '<div class="srch-result-icon" style="background:' + hexToRgba(color, 0.15) + ';color:' + color + ';">' + icon + '</div>'
+        + '<div style="min-width:0;flex:1;">'
+        + '<div class="srch-result-name">' + escHtml(p.name) + '</div>'
+        + '<div class="srch-result-sub">' + escHtml(cat ? cat.name : '') + '</div>'
+        + '</div></div>';
+    }).join('');
+  }
+  if (cities.length) {
+    html += '<div class="srch-section-label">Villes &amp; communes</div>';
+    html += cities.map(function(r, i) {
+      var addr = r.address || {};
+      var city = addr.city || addr.town || addr.village || addr.municipality || addr.hamlet || r.display_name.split(',')[0];
+      var dept = addr.county || addr.state_district || '';
+      var region = addr.state || '';
+      var sub = [dept, region].filter(Boolean).join(' · ');
+      return '<div class="srch-result" onclick="event.stopPropagation();selectSrchLocation(' + i + ')">'
+        + '<div class="srch-result-icon" style="background:rgba(255,208,79,0.1);color:var(--accent);">&#128205;</div>'
+        + '<div style="min-width:0;flex:1;">'
+        + '<div class="srch-result-name">' + escHtml(city) + '</div>'
+        + (sub ? '<div class="srch-result-sub">' + escHtml(sub) + '</div>' : '')
+        + '</div></div>';
+    }).join('');
+  }
+  if (!places.length && !cities.length) {
+    html = '<div style="padding:24px 16px;text-align:center;color:var(--text2);font-size:13px;">Aucun résultat</div>';
+  }
+  el.innerHTML = html;
 }
 
 function setLocationRadius(km) {
+  _searchCloseLocked = false;
   selectedLocRadius = km;
   document.querySelectorAll('.radius-pill').forEach(function(b) {
     b.classList.toggle('active', parseInt(b.dataset.km) === km);
@@ -1200,24 +1288,23 @@ function setLocationRadius(km) {
     map.setView(radiusCenter, getZoomForRadius(km));
     loadPlacesInRadius();
   }
-  closeSheet('sheet-search');
 }
 
 function locateMeLocation() {
+  _searchCloseLocked = true;
+  setTimeout(function() { _searchCloseLocked = false; }, 4000);
   map.locate({ setView: false });
   map.once('locationfound', function(e) {
     selectedLocation = { lat: e.latlng.lat, lon: e.latlng.lng };
-    document.getElementById('loc-input').value = 'Ma position';
-    document.getElementById('loc-dropdown').style.display = 'none';
-    document.getElementById('loc-chip-text').textContent = 'Ma position';
-    document.getElementById('loc-chip-wrap').style.display = 'flex';
-    document.getElementById('loc-radius-wrap').style.display = 'block';
     selectedLocRadius = 0;
+    var cn = document.getElementById('srch-city-name');
+    if (cn) cn.textContent = 'ma position';
+    var rw = document.getElementById('loc-radius-wrap');
+    if (rw) rw.style.display = 'block';
     document.querySelectorAll('.radius-pill').forEach(function(b) {
       b.classList.toggle('active', parseInt(b.dataset.km) === 0);
     });
     map.setView([selectedLocation.lat, selectedLocation.lon], 13);
-    closeSheet('sheet-search');
   });
   map.once('locationerror', function() { showToast('Localisation impossible', 'error'); });
 }
@@ -1336,22 +1423,32 @@ function locateMeLocationDesk() {
 }
 
 // ===== SEARCH IN PLACES =====
-var geocodeTimer = null;
 function onSearchMobile(e) {
-  var q = e.target.value.toLowerCase();
-  var res = document.getElementById('search-results');
-  if (!q) { res.innerHTML = ''; return; }
+  var q = (e.target ? e.target.value : '').trim();
+  var clearBtn = document.getElementById('srch-clear');
+  var srchDefault = document.getElementById('srch-default');
+  var srchResults = document.getElementById('search-results');
+  if (clearBtn) clearBtn.style.display = q ? 'block' : 'none';
+  if (!q) {
+    if (srchDefault) srchDefault.style.display = 'block';
+    if (srchResults) { srchResults.style.display = 'none'; srchResults.innerHTML = ''; }
+    return;
+  }
+  if (srchDefault) srchDefault.style.display = 'none';
+  if (srchResults) srchResults.style.display = 'block';
+  var ql = q.toLowerCase();
   var found = allPlaces.filter(function(p) {
-    return p.name.toLowerCase().indexOf(q) >= 0 || (p.description || '').toLowerCase().indexOf(q) >= 0;
+    return p.name.toLowerCase().indexOf(ql) >= 0 || (p.description || '').toLowerCase().indexOf(ql) >= 0;
   });
-  var placesHtml = found.slice(0, 8).map(function(p) {
-    var cat = p.categories;
-    return '<div onclick="goToPlace(' + p.latitude + ',' + p.longitude + ')" style="padding:12px;border-radius:10px;background:var(--surface2);margin-bottom:8px;cursor:pointer">'
-      + '<div style="font-size:12px;color:var(--text2)">' + (cat ? cat.icon + ' ' + cat.name : '') + '</div>'
-      + '<div style="font-size:14px;font-weight:500;margin-top:2px">' + p.name + '</div>'
-      + '</div>';
-  }).join('');
-  res.innerHTML = placesHtml || '<p style="font-size:12px;color:var(--text2);padding:4px 0">Aucun lieu trouv\u00e9</p>';
+  renderSrchResults(found.slice(0, 6), []);
+  if (srchTimer) clearTimeout(srchTimer);
+  srchTimer = setTimeout(async function() {
+    var cities = await srchNominatim(q);
+    var freshFound = allPlaces.filter(function(p) {
+      return p.name.toLowerCase().indexOf(ql) >= 0 || (p.description || '').toLowerCase().indexOf(ql) >= 0;
+    });
+    renderSrchResults(freshFound.slice(0, 6), cities);
+  }, 400);
 }
 
 function goToPlace(lat, lng) {
@@ -2408,52 +2505,8 @@ if ('serviceWorker' in navigator) {
 
 // ===== COUNTRY PICKER =====
 var selectedCountries = [];
-var pickerMapObj = null;
-var pickerGeoLayer = null;
 var maskLayer = null;
 var worldGeoData = null;
-
-var EU_COUNTRIES = {
-  '250':{'name':'France','flag':'🇫🇷','bbox':[[42.0,-5.0],[51.5,9.5]]},
-  '724':{'name':'Espagne','flag':'🇪🇸','bbox':[[35.9,-9.4],[43.8,4.4]]},
-  '620':{'name':'Portugal','flag':'🇵🇹','bbox':[[36.8,-9.5],[42.2,-6.2]]},
-  '380':{'name':'Italie','flag':'🇮🇹','bbox':[[36.5,6.6],[47.1,18.5]]},
-  '276':{'name':'Allemagne','flag':'🇩🇪','bbox':[[47.3,5.9],[55.1,15.0]]},
-  '56':{'name':'Belgique','flag':'🇧🇪','bbox':[[49.5,2.5],[51.5,6.4]]},
-  '528':{'name':'Pays-Bas','flag':'🇳🇱','bbox':[[50.8,3.3],[53.5,7.2]]},
-  '756':{'name':'Suisse','flag':'🇨🇭','bbox':[[45.8,6.0],[47.8,10.5]]},
-  '40':{'name':'Autriche','flag':'🇦🇹','bbox':[[46.4,9.5],[49.0,17.2]]},
-  '191':{'name':'Croatie','flag':'🇭🇷','bbox':[[42.4,13.5],[46.6,19.4]]},
-  '300':{'name':'Grèce','flag':'🇬🇷','bbox':[[34.8,19.4],[42.0,28.3]]},
-  '826':{'name':'Royaume-Uni','flag':'🇬🇧','bbox':[[49.9,-8.6],[60.9,1.8]]},
-  '372':{'name':'Irlande','flag':'🇮🇪','bbox':[[51.4,-10.5],[55.4,-5.9]]},
-  '208':{'name':'Danemark','flag':'🇩🇰','bbox':[[54.6,8.1],[57.8,15.2]]},
-  '752':{'name':'Suède','flag':'🇸🇪','bbox':[[55.3,10.9],[69.1,24.2]]},
-  '578':{'name':'Norvège','flag':'🇳🇴','bbox':[[57.9,4.5],[71.2,31.1]]},
-  '246':{'name':'Finlande','flag':'🇫🇮','bbox':[[59.8,19.1],[70.1,31.6]]},
-  '348':{'name':'Hongrie','flag':'🇭🇺','bbox':[[45.7,16.1],[48.6,22.9]]},
-  '203':{'name':'Tchéquie','flag':'🇨🇿','bbox':[[48.5,12.1],[51.1,18.9]]},
-  '616':{'name':'Pologne','flag':'🇵🇱','bbox':[[49.0,14.1],[54.9,24.2]]},
-  '705':{'name':'Slovénie','flag':'🇸🇮','bbox':[[45.4,13.4],[46.9,16.6]]},
-  '703':{'name':'Slovaquie','flag':'🇸🇰','bbox':[[47.7,16.8],[49.6,22.6]]},
-  '642':{'name':'Roumanie','flag':'🇷🇴','bbox':[[43.6,20.3],[48.3,30.0]]},
-  '100':{'name':'Bulgarie','flag':'🇧🇬','bbox':[[41.2,22.4],[44.2,28.6]]},
-  '688':{'name':'Serbie','flag':'🇷🇸','bbox':[[42.2,18.8],[46.2,23.0]]},
-  '499':{'name':'Monténégro','flag':'🇲🇪','bbox':[[41.9,18.5],[43.6,20.4]]},
-  '8':{'name':'Albanie','flag':'🇦🇱','bbox':[[39.6,19.3],[42.7,21.1]]},
-  '792':{'name':'Turquie','flag':'🇹🇷','bbox':[[35.8,26.0],[42.1,44.8]]},
-  '504':{'name':'Maroc','flag':'🇲🇦','bbox':[[27.7,-13.2],[35.9,-1.0]]},
-  '788':{'name':'Tunisie','flag':'🇹🇳','bbox':[[30.2,7.5],[37.5,11.6]]},
-  '12':{'name':'Algérie','flag':'🇩🇿','bbox':[[19.0,-8.7],[37.1,12.0]]},
-  '72':{'name':'Botswana','flag':'🇧🇼','bbox':[[-26.9,19.9],[-17.8,29.4]]},
-  '76':{'name':'Brésil','flag':'🇧🇷','bbox':[[-33.7,-73.6],[5.3,-34.8]]},
-  '124':{'name':'Canada','flag':'🇨🇦','bbox':[[42.0,-141.0],[83.0,-52.0]]},
-  '840':{'name':'États-Unis','flag':'🇺🇸','bbox':[[24.4,-124.8],[49.4,-66.9]]},
-  '36':{'name':'Australie','flag':'🇦🇺','bbox':[[-43.6,113.3],[-10.7,153.6]]},
-  '554':{'name':'Nouvelle-Zélande','flag':'🇳🇿','bbox':[[-46.6,166.4],[-34.4,178.6]]},
-  '392':{'name':'Japon','flag':'🇯🇵','bbox':[[30.9,130.0],[45.5,145.8]]},
-  '76':{'name':'Brésil','flag':'🇧🇷','bbox':[[-33.7,-73.6],[5.3,-34.8]]},
-};
 
 async function loadWorldGeo() {
   if (worldGeoData) return;
@@ -2461,68 +2514,81 @@ async function loadWorldGeo() {
   worldGeoData = topojson.feature(topo, topo.objects.countries);
 }
 
-async function openCountryPicker() {
-  var el = document.getElementById('country-picker');
-  el.style.display = 'flex';
-  await loadWorldGeo();
+var EU_COUNTRIES = {
+  '250':{'name':'France','flag':'🇫🇷','bbox':[[42.0,-5.0],[51.5,9.5]]},
+  '724':{'name':'Espagne','flag':'🇪🇸','bbox':[[35.9,-9.4],[43.8,4.4]]},
+  '56': {'name':'Belgique','flag':'🇧🇪','bbox':[[49.5,2.5],[51.5,6.4]]},
+  '276':{'name':'Allemagne','flag':'🇩🇪','bbox':[[47.3,5.9],[55.1,15.0]]},
+  '380':{'name':'Italie','flag':'🇮🇹','bbox':[[36.5,6.6],[47.1,18.5]]},
+  '620':{'name':'Portugal','flag':'🇵🇹','bbox':[[36.8,-9.5],[42.2,-6.2]]},
+  '528':{'name':'Pays-Bas','flag':'🇳🇱','bbox':[[50.8,3.3],[53.5,7.2]]},
+  '756':{'name':'Suisse','flag':'🇨🇭','bbox':[[45.8,6.0],[47.8,10.5]]},
+  '826':{'name':'Royaume-Uni','flag':'🇬🇧','bbox':[[49.9,-8.6],[60.9,1.8]]},
+  '40': {'name':'Autriche','flag':'🇦🇹','bbox':[[46.4,9.5],[49.0,17.2]]},
+  '191':{'name':'Croatie','flag':'🇭🇷','bbox':[[42.4,13.5],[46.6,19.4]]},
+  '300':{'name':'Grèce','flag':'🇬🇷','bbox':[[34.8,19.4],[42.0,28.3]]},
+  '372':{'name':'Irlande','flag':'🇮🇪','bbox':[[51.4,-10.5],[55.4,-5.9]]},
+  '208':{'name':'Danemark','flag':'🇩🇰','bbox':[[54.6,8.1],[57.8,15.2]]},
+  '752':{'name':'Suède','flag':'🇸🇪','bbox':[[55.3,10.9],[69.1,24.2]]},
+  '578':{'name':'Norvège','flag':'🇳🇴','bbox':[[57.9,4.5],[71.2,31.1]]},
+  '246':{'name':'Finlande','flag':'🇫🇮','bbox':[[59.8,19.1],[70.1,31.6]]},
+  '616':{'name':'Pologne','flag':'🇵🇱','bbox':[[49.0,14.1],[54.9,24.2]]},
+  '203':{'name':'Tchéquie','flag':'🇨🇿','bbox':[[48.5,12.1],[51.1,18.9]]},
+  '348':{'name':'Hongrie','flag':'🇭🇺','bbox':[[45.7,16.1],[48.6,22.9]]},
+  '642':{'name':'Roumanie','flag':'🇷🇴','bbox':[[43.6,20.3],[48.3,30.0]]},
+  '705':{'name':'Slovénie','flag':'🇸🇮','bbox':[[45.4,13.4],[46.9,16.6]]},
+  '703':{'name':'Slovaquie','flag':'🇸🇰','bbox':[[47.7,16.8],[49.6,22.6]]},
+  '100':{'name':'Bulgarie','flag':'🇧🇬','bbox':[[41.2,22.4],[44.2,28.6]]},
+  '688':{'name':'Serbie','flag':'🇷🇸','bbox':[[42.2,18.8],[46.2,23.0]]},
+  '499':{'name':'Monténégro','flag':'🇲🇪','bbox':[[41.9,18.5],[43.6,20.4]]},
+  '8':  {'name':'Albanie','flag':'🇦🇱','bbox':[[39.6,19.3],[42.7,21.1]]},
+  '792':{'name':'Turquie','flag':'🇹🇷','bbox':[[35.8,26.0],[42.1,44.8]]},
+  '504':{'name':'Maroc','flag':'🇲🇦','bbox':[[27.7,-13.2],[35.9,-1.0]]},
+  '788':{'name':'Tunisie','flag':'🇹🇳','bbox':[[30.2,7.5],[37.5,11.6]]},
+  '12': {'name':'Algérie','flag':'🇩🇿','bbox':[[19.0,-8.7],[37.1,12.0]]},
+  '840':{'name':'États-Unis','flag':'🇺🇸','bbox':[[24.4,-124.8],[49.4,-66.9]]},
+  '124':{'name':'Canada','flag':'🇨🇦','bbox':[[42.0,-141.0],[83.0,-52.0]]},
+  '76': {'name':'Brésil','flag':'🇧🇷','bbox':[[-33.7,-73.6],[5.3,-34.8]]},
+  '36': {'name':'Australie','flag':'🇦🇺','bbox':[[-43.6,113.3],[-10.7,153.6]]},
+  '392':{'name':'Japon','flag':'🇯🇵','bbox':[[30.9,130.0],[45.5,145.8]]},
+};
 
-  if (!pickerMapObj) {
-    pickerMapObj = L.map('picker-map', { center:[48,10], zoom:4, zoomControl:false, attributionControl:false });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', { maxZoom:10 }).addTo(pickerMapObj);
-  }
-  renderPickerLayer();
-  renderPickerTags();
-  setTimeout(function() { pickerMapObj.invalidateSize(); }, 100);
+// Ordre d'affichage explicite — indépendant du tri numérique des clés JS
+var PICKER_ORDER = ['250','724','56','276','380','620','528','756','826','40','191','300','372','208','752','578','246','616','203','348','642','705','703','100','688','499','8','792','504','788','12','840','124','76','36','392'];
+
+function openCountryPicker() {
+  document.getElementById('country-picker').style.display = 'flex';
+  renderPickerCountryGrid();
+  updatePickerFooter();
 }
 
-function renderPickerLayer() {
-  if (pickerGeoLayer) pickerMapObj.removeLayer(pickerGeoLayer);
-  pickerGeoLayer = L.geoJSON(worldGeoData, {
-    style: function(f) {
-      var isEU = !!EU_COUNTRIES[String(f.id)];
-      var isSel = selectedCountries.indexOf(String(f.id)) >= 0;
-      if (isSel) return { fillColor:'#ffd04f', fillOpacity:0.45, color:'#ffd04f', weight:2 };
-      if (isEU) return { fillColor:'#1e2e1e', fillOpacity:0.8, color:'#3a5a3a', weight:1 };
-      return { fillColor:'#111', fillOpacity:0.6, color:'#222', weight:0.5 };
-    },
-    onEachFeature: function(f, layer) {
-      if (!EU_COUNTRIES[String(f.id)]) return;
-      var c = EU_COUNTRIES[String(f.id)];
-      layer.bindTooltip(c.flag + ' ' + c.name, { permanent:false, direction:'center', className:'picker-tooltip' });
-      layer.on('click', function() { togglePickerCountry(String(f.id)); });
-      layer.on('mouseover', function() {
-        if (selectedCountries.indexOf(String(f.id)) < 0) layer.setStyle({ fillColor:'#444', fillOpacity:0.7 });
-      });
-      layer.on('mouseout', function() {
-        if (selectedCountries.indexOf(String(f.id)) < 0) layer.setStyle({ fillColor:'#1e2e1e', fillOpacity:0.8, color:'#3a5a3a', weight:1 });
-      });
-    }
-  }).addTo(pickerMapObj);
+function renderPickerCountryGrid() {
+  PICKER_ORDER.forEach(function(id) {
+    var btn = document.getElementById('pfb-' + id);
+    if (btn) btn.className = 'picker-flag-btn' + (selectedCountries.indexOf(id) >= 0 ? ' sel' : '');
+  });
 }
 
 function togglePickerCountry(id) {
   var idx = selectedCountries.indexOf(id);
   if (idx >= 0) selectedCountries.splice(idx, 1);
   else selectedCountries.push(id);
-  renderPickerLayer();
-  renderPickerTags();
-  var btn = document.getElementById('picker-btn-confirm');
-  if (selectedCountries.length > 0) btn.classList.add('ready');
-  else btn.classList.remove('ready');
+  var gridBtn = document.getElementById('pfb-' + id);
+  if (gridBtn) gridBtn.className = 'picker-flag-btn' + (selectedCountries.indexOf(id) >= 0 ? ' sel' : '');
+  updatePickerFooter();
 }
 
-function renderPickerTags() {
-  var el = document.getElementById('picker-tags');
+function updatePickerFooter() {
+  var lbl = document.getElementById('picker-selected-label');
+  var btn = document.getElementById('picker-btn-confirm');
   if (!selectedCountries.length) {
-    el.innerHTML = '<span style="font-size:12px;color:var(--text2)">Cliquez sur un ou plusieurs pays</span>';
-    return;
+    if (lbl) lbl.textContent = 'Aucun pays sélectionné';
+    if (btn) { btn.classList.remove('ready'); }
+  } else {
+    var names = selectedCountries.map(function(id) { return EU_COUNTRIES[id] ? EU_COUNTRIES[id].flag + ' ' + EU_COUNTRIES[id].name : ''; }).filter(Boolean).join(', ');
+    if (lbl) lbl.textContent = names;
+    if (btn) btn.classList.add('ready');
   }
-  el.innerHTML = selectedCountries.map(function(id) {
-    var c = EU_COUNTRIES[id];
-    if (!c) return '';
-    return '<div class="picker-tag">' + c.flag + ' ' + c.name
-      + '<button class="picker-tag-del" onclick="togglePickerCountry(\'' + id + '\')">×</button></div>';
-  }).join('');
 }
 
 function confirmCountries(all) {
@@ -2539,6 +2605,9 @@ function confirmCountries(all) {
   }
   applyMaskLayer();
   document.getElementById('country-picker').style.display = 'none';
+  document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active'); });
+  var nm = document.getElementById('nav-map');
+  if (nm) nm.classList.add('active');
   if (!document.getElementById('search-input')._listenerAdded) {
     document.getElementById('search-input')._listenerAdded = true;
     setupListeners(false, 0, 0, 6);
@@ -2588,14 +2657,51 @@ function applyMaskLayer() {
 <div id="country-picker" style="display:none">
   <div id="picker-header">
     <h2>🗺️ Où voyagez-vous ?</h2>
-    <p>Cliquez sur un ou plusieurs pays · Multi-sélection possible pour les road trips</p>
+    <p>Sélectionnez un ou plusieurs pays</p>
   </div>
-  <div id="picker-map"></div>
+  <div id="picker-country-grid">
+    <button class="picker-flag-btn" id="pfb-250" onclick="togglePickerCountry('250')"><span class="pfb-flag">🇫🇷</span><span class="pfb-name">France</span></button>
+    <button class="picker-flag-btn" id="pfb-724" onclick="togglePickerCountry('724')"><span class="pfb-flag">🇪🇸</span><span class="pfb-name">Espagne</span></button>
+    <button class="picker-flag-btn" id="pfb-56"  onclick="togglePickerCountry('56')"><span class="pfb-flag">🇧🇪</span><span class="pfb-name">Belgique</span></button>
+    <button class="picker-flag-btn" id="pfb-276" onclick="togglePickerCountry('276')"><span class="pfb-flag">🇩🇪</span><span class="pfb-name">Allemagne</span></button>
+    <button class="picker-flag-btn" id="pfb-380" onclick="togglePickerCountry('380')"><span class="pfb-flag">🇮🇹</span><span class="pfb-name">Italie</span></button>
+    <button class="picker-flag-btn" id="pfb-620" onclick="togglePickerCountry('620')"><span class="pfb-flag">🇵🇹</span><span class="pfb-name">Portugal</span></button>
+    <button class="picker-flag-btn" id="pfb-528" onclick="togglePickerCountry('528')"><span class="pfb-flag">🇳🇱</span><span class="pfb-name">Pays-Bas</span></button>
+    <button class="picker-flag-btn" id="pfb-756" onclick="togglePickerCountry('756')"><span class="pfb-flag">🇨🇭</span><span class="pfb-name">Suisse</span></button>
+    <button class="picker-flag-btn" id="pfb-826" onclick="togglePickerCountry('826')"><span class="pfb-flag">🇬🇧</span><span class="pfb-name">Royaume-Uni</span></button>
+    <button class="picker-flag-btn" id="pfb-40"  onclick="togglePickerCountry('40')"><span class="pfb-flag">🇦🇹</span><span class="pfb-name">Autriche</span></button>
+    <button class="picker-flag-btn" id="pfb-191" onclick="togglePickerCountry('191')"><span class="pfb-flag">🇭🇷</span><span class="pfb-name">Croatie</span></button>
+    <button class="picker-flag-btn" id="pfb-300" onclick="togglePickerCountry('300')"><span class="pfb-flag">🇬🇷</span><span class="pfb-name">Grèce</span></button>
+    <button class="picker-flag-btn" id="pfb-372" onclick="togglePickerCountry('372')"><span class="pfb-flag">🇮🇪</span><span class="pfb-name">Irlande</span></button>
+    <button class="picker-flag-btn" id="pfb-208" onclick="togglePickerCountry('208')"><span class="pfb-flag">🇩🇰</span><span class="pfb-name">Danemark</span></button>
+    <button class="picker-flag-btn" id="pfb-752" onclick="togglePickerCountry('752')"><span class="pfb-flag">🇸🇪</span><span class="pfb-name">Suède</span></button>
+    <button class="picker-flag-btn" id="pfb-578" onclick="togglePickerCountry('578')"><span class="pfb-flag">🇳🇴</span><span class="pfb-name">Norvège</span></button>
+    <button class="picker-flag-btn" id="pfb-246" onclick="togglePickerCountry('246')"><span class="pfb-flag">🇫🇮</span><span class="pfb-name">Finlande</span></button>
+    <button class="picker-flag-btn" id="pfb-616" onclick="togglePickerCountry('616')"><span class="pfb-flag">🇵🇱</span><span class="pfb-name">Pologne</span></button>
+    <button class="picker-flag-btn" id="pfb-203" onclick="togglePickerCountry('203')"><span class="pfb-flag">🇨🇿</span><span class="pfb-name">Tchéquie</span></button>
+    <button class="picker-flag-btn" id="pfb-348" onclick="togglePickerCountry('348')"><span class="pfb-flag">🇭🇺</span><span class="pfb-name">Hongrie</span></button>
+    <button class="picker-flag-btn" id="pfb-642" onclick="togglePickerCountry('642')"><span class="pfb-flag">🇷🇴</span><span class="pfb-name">Roumanie</span></button>
+    <button class="picker-flag-btn" id="pfb-705" onclick="togglePickerCountry('705')"><span class="pfb-flag">🇸🇮</span><span class="pfb-name">Slovénie</span></button>
+    <button class="picker-flag-btn" id="pfb-703" onclick="togglePickerCountry('703')"><span class="pfb-flag">🇸🇰</span><span class="pfb-name">Slovaquie</span></button>
+    <button class="picker-flag-btn" id="pfb-100" onclick="togglePickerCountry('100')"><span class="pfb-flag">🇧🇬</span><span class="pfb-name">Bulgarie</span></button>
+    <button class="picker-flag-btn" id="pfb-688" onclick="togglePickerCountry('688')"><span class="pfb-flag">🇷🇸</span><span class="pfb-name">Serbie</span></button>
+    <button class="picker-flag-btn" id="pfb-499" onclick="togglePickerCountry('499')"><span class="pfb-flag">🇲🇪</span><span class="pfb-name">Monténégro</span></button>
+    <button class="picker-flag-btn" id="pfb-8"   onclick="togglePickerCountry('8')"><span class="pfb-flag">🇦🇱</span><span class="pfb-name">Albanie</span></button>
+    <button class="picker-flag-btn" id="pfb-792" onclick="togglePickerCountry('792')"><span class="pfb-flag">🇹🇷</span><span class="pfb-name">Turquie</span></button>
+    <button class="picker-flag-btn" id="pfb-504" onclick="togglePickerCountry('504')"><span class="pfb-flag">🇲🇦</span><span class="pfb-name">Maroc</span></button>
+    <button class="picker-flag-btn" id="pfb-788" onclick="togglePickerCountry('788')"><span class="pfb-flag">🇹🇳</span><span class="pfb-name">Tunisie</span></button>
+    <button class="picker-flag-btn" id="pfb-12"  onclick="togglePickerCountry('12')"><span class="pfb-flag">🇩🇿</span><span class="pfb-name">Algérie</span></button>
+    <button class="picker-flag-btn" id="pfb-840" onclick="togglePickerCountry('840')"><span class="pfb-flag">🇺🇸</span><span class="pfb-name">États-Unis</span></button>
+    <button class="picker-flag-btn" id="pfb-124" onclick="togglePickerCountry('124')"><span class="pfb-flag">🇨🇦</span><span class="pfb-name">Canada</span></button>
+    <button class="picker-flag-btn" id="pfb-76"  onclick="togglePickerCountry('76')"><span class="pfb-flag">🇧🇷</span><span class="pfb-name">Brésil</span></button>
+    <button class="picker-flag-btn" id="pfb-36"  onclick="togglePickerCountry('36')"><span class="pfb-flag">🇦🇺</span><span class="pfb-name">Australie</span></button>
+    <button class="picker-flag-btn" id="pfb-392" onclick="togglePickerCountry('392')"><span class="pfb-flag">🇯🇵</span><span class="pfb-name">Japon</span></button>
+  </div>
   <div id="picker-footer">
-    <div id="picker-tags"></div>
+    <div id="picker-selected-label">Aucun pays sélectionné</div>
     <div id="picker-actions">
       <button id="picker-btn-all" onclick="confirmCountries(true)">&#127758; Voir tout</button>
-      <button id="picker-btn-confirm" onclick="confirmCountries(false)">Valider mon choix ✓</button>
+      <button id="picker-btn-confirm" onclick="confirmCountries(false)">Valider ✓</button>
     </div>
   </div>
 </div>
