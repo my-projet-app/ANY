@@ -443,15 +443,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
     <button id="btn-open-sidebar" onclick="openSidebar()" title="Filtres">&#9776;</button>
     <div id="map"></div>
     <div id="info-adding">&#128205; Clique sur la carte pour placer le lieu</div>
-    <button id="map-filter-toggle" onclick="toggleFilterPanel()" title="Filtres">&#127914;</button>
-    <div id="map-filter-panel">
-      <input type="text" id="map-filter-search" placeholder="&#128269; Rechercher une catégorie..." oninput="filterMapBarSearch(this.value)">
-      <div id="map-filter-cats"></div>
-      <div class="filter-actions">
-        <button onclick="toggleAllFilters(true);renderMapFilterBar();">&#128065; Tout</button>
-        <button onclick="toggleAllFilters(false);renderMapFilterBar();">&#10005; Aucun</button>
-      </div>
-    </div>
     <button id="btn-satellite" onclick="toggleSat()" title="Vue satellite">&#128752;</button>
     <button id="btn-locate">&#128205;</button>
     <div id="places-count">Lieux : <span id="count-num">0</span></div>
