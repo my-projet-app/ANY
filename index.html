@@ -964,6 +964,16 @@ function haversineDistance(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
+function isInSelectedCountries(lat, lng) {
+  var noFilter = localStorage.getItem('vlm_no_filter');
+  if (noFilter || !selectedCountries.length) return true;
+  return selectedCountries.some(function(id) {
+    var c = EU_COUNTRIES[id];
+    if (!c || !c.bbox) return false;
+    return lat >= c.bbox[0][0] && lat <= c.bbox[1][0] && lng >= c.bbox[0][1] && lng <= c.bbox[1][1];
+  });
+}
+
 async function loadPlacesInRadius() {
   if (!radiusCenter) return;
   var ok = new Set();
@@ -989,7 +999,8 @@ async function loadPlacesInRadius() {
 
   var raw = result.data || [];
   allPlaces = raw.filter(function(p) {
-    return haversineDistance(radiusCenter.lat, radiusCenter.lng, p.latitude, p.longitude) <= radiusKm;
+    return haversineDistance(radiusCenter.lat, radiusCenter.lng, p.latitude, p.longitude) <= radiusKm
+      && isInSelectedCountries(p.latitude, p.longitude);
   });
   renderMarkers(allPlaces);
   var label = radiusKm >= 99999 ? 'France' : radiusKm + 'km';
@@ -1797,7 +1808,9 @@ async function loadPlaces() {
     .in('category_id', Array.from(ok))
     .limit(2000);
 
-  allPlaces = result.data || [];
+  allPlaces = (result.data || []).filter(function(p) {
+    return isInSelectedCountries(p.latitude, p.longitude);
+  });
   renderMarkers(allPlaces);
   document.getElementById('count-num').textContent = allPlaces.length;
 }
