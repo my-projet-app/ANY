@@ -2517,44 +2517,16 @@ async function loadWorldGeo() {
 var EU_COUNTRIES = {
   '250':{'name':'France','flag':'🇫🇷','bbox':[[42.0,-5.0],[51.5,9.5]]},
   '724':{'name':'Espagne','flag':'🇪🇸','bbox':[[35.9,-9.4],[43.8,4.4]]},
-  '56': {'name':'Belgique','flag':'🇧🇪','bbox':[[49.5,2.5],[51.5,6.4]]},
-  '276':{'name':'Allemagne','flag':'🇩🇪','bbox':[[47.3,5.9],[55.1,15.0]]},
   '380':{'name':'Italie','flag':'🇮🇹','bbox':[[36.5,6.6],[47.1,18.5]]},
   '620':{'name':'Portugal','flag':'🇵🇹','bbox':[[36.8,-9.5],[42.2,-6.2]]},
-  '528':{'name':'Pays-Bas','flag':'🇳🇱','bbox':[[50.8,3.3],[53.5,7.2]]},
   '756':{'name':'Suisse','flag':'🇨🇭','bbox':[[45.8,6.0],[47.8,10.5]]},
-  '826':{'name':'Royaume-Uni','flag':'🇬🇧','bbox':[[49.9,-8.6],[60.9,1.8]]},
-  '40': {'name':'Autriche','flag':'🇦🇹','bbox':[[46.4,9.5],[49.0,17.2]]},
-  '191':{'name':'Croatie','flag':'🇭🇷','bbox':[[42.4,13.5],[46.6,19.4]]},
-  '300':{'name':'Grèce','flag':'🇬🇷','bbox':[[34.8,19.4],[42.0,28.3]]},
-  '372':{'name':'Irlande','flag':'🇮🇪','bbox':[[51.4,-10.5],[55.4,-5.9]]},
-  '208':{'name':'Danemark','flag':'🇩🇰','bbox':[[54.6,8.1],[57.8,15.2]]},
-  '752':{'name':'Suède','flag':'🇸🇪','bbox':[[55.3,10.9],[69.1,24.2]]},
-  '578':{'name':'Norvège','flag':'🇳🇴','bbox':[[57.9,4.5],[71.2,31.1]]},
-  '246':{'name':'Finlande','flag':'🇫🇮','bbox':[[59.8,19.1],[70.1,31.6]]},
-  '616':{'name':'Pologne','flag':'🇵🇱','bbox':[[49.0,14.1],[54.9,24.2]]},
-  '203':{'name':'Tchéquie','flag':'🇨🇿','bbox':[[48.5,12.1],[51.1,18.9]]},
-  '348':{'name':'Hongrie','flag':'🇭🇺','bbox':[[45.7,16.1],[48.6,22.9]]},
-  '642':{'name':'Roumanie','flag':'🇷🇴','bbox':[[43.6,20.3],[48.3,30.0]]},
-  '705':{'name':'Slovénie','flag':'🇸🇮','bbox':[[45.4,13.4],[46.9,16.6]]},
-  '703':{'name':'Slovaquie','flag':'🇸🇰','bbox':[[47.7,16.8],[49.6,22.6]]},
-  '100':{'name':'Bulgarie','flag':'🇧🇬','bbox':[[41.2,22.4],[44.2,28.6]]},
-  '688':{'name':'Serbie','flag':'🇷🇸','bbox':[[42.2,18.8],[46.2,23.0]]},
-  '499':{'name':'Monténégro','flag':'🇲🇪','bbox':[[41.9,18.5],[43.6,20.4]]},
-  '8':  {'name':'Albanie','flag':'🇦🇱','bbox':[[39.6,19.3],[42.7,21.1]]},
-  '792':{'name':'Turquie','flag':'🇹🇷','bbox':[[35.8,26.0],[42.1,44.8]]},
-  '504':{'name':'Maroc','flag':'🇲🇦','bbox':[[27.7,-13.2],[35.9,-1.0]]},
-  '788':{'name':'Tunisie','flag':'🇹🇳','bbox':[[30.2,7.5],[37.5,11.6]]},
-  '12': {'name':'Algérie','flag':'🇩🇿','bbox':[[19.0,-8.7],[37.1,12.0]]},
-  '840':{'name':'États-Unis','flag':'🇺🇸','bbox':[[24.4,-124.8],[49.4,-66.9]]},
-  '124':{'name':'Canada','flag':'🇨🇦','bbox':[[42.0,-141.0],[83.0,-52.0]]},
-  '76': {'name':'Brésil','flag':'🇧🇷','bbox':[[-33.7,-73.6],[5.3,-34.8]]},
-  '36': {'name':'Australie','flag':'🇦🇺','bbox':[[-43.6,113.3],[-10.7,153.6]]},
-  '392':{'name':'Japon','flag':'🇯🇵','bbox':[[30.9,130.0],[45.5,145.8]]},
+  '276':{'name':'Allemagne','flag':'🇩🇪','bbox':[[47.3,5.9],[55.1,15.0]]},
+  '528':{'name':'Pays-Bas','flag':'🇳🇱','bbox':[[50.8,3.3],[53.5,7.2]]},
+  '56': {'name':'Belgique','flag':'🇧🇪','bbox':[[49.5,2.5],[51.5,6.4]]},
+  '826':{'name':'Grande-Bretagne','flag':'🇬🇧','bbox':[[49.9,-8.6],[60.9,1.8]]},
 };
 
-// Ordre d'affichage explicite — indépendant du tri numérique des clés JS
-var PICKER_ORDER = ['250','724','56','276','380','620','528','756','826','40','191','300','372','208','752','578','246','616','203','348','642','705','703','100','688','499','8','792','504','788','12','840','124','76','36','392'];
+var PICKER_ORDER = ['250','724','380','620','756','276','528','56','826'];
 
 function openCountryPicker() {
   document.getElementById('country-picker').style.display = 'flex';
@@ -2662,40 +2634,13 @@ function applyMaskLayer() {
   <div id="picker-country-grid">
     <button class="picker-flag-btn" id="pfb-250" onclick="togglePickerCountry('250')"><span class="pfb-flag">🇫🇷</span><span class="pfb-name">France</span></button>
     <button class="picker-flag-btn" id="pfb-724" onclick="togglePickerCountry('724')"><span class="pfb-flag">🇪🇸</span><span class="pfb-name">Espagne</span></button>
-    <button class="picker-flag-btn" id="pfb-56"  onclick="togglePickerCountry('56')"><span class="pfb-flag">🇧🇪</span><span class="pfb-name">Belgique</span></button>
-    <button class="picker-flag-btn" id="pfb-276" onclick="togglePickerCountry('276')"><span class="pfb-flag">🇩🇪</span><span class="pfb-name">Allemagne</span></button>
     <button class="picker-flag-btn" id="pfb-380" onclick="togglePickerCountry('380')"><span class="pfb-flag">🇮🇹</span><span class="pfb-name">Italie</span></button>
     <button class="picker-flag-btn" id="pfb-620" onclick="togglePickerCountry('620')"><span class="pfb-flag">🇵🇹</span><span class="pfb-name">Portugal</span></button>
-    <button class="picker-flag-btn" id="pfb-528" onclick="togglePickerCountry('528')"><span class="pfb-flag">🇳🇱</span><span class="pfb-name">Pays-Bas</span></button>
     <button class="picker-flag-btn" id="pfb-756" onclick="togglePickerCountry('756')"><span class="pfb-flag">🇨🇭</span><span class="pfb-name">Suisse</span></button>
-    <button class="picker-flag-btn" id="pfb-826" onclick="togglePickerCountry('826')"><span class="pfb-flag">🇬🇧</span><span class="pfb-name">Royaume-Uni</span></button>
-    <button class="picker-flag-btn" id="pfb-40"  onclick="togglePickerCountry('40')"><span class="pfb-flag">🇦🇹</span><span class="pfb-name">Autriche</span></button>
-    <button class="picker-flag-btn" id="pfb-191" onclick="togglePickerCountry('191')"><span class="pfb-flag">🇭🇷</span><span class="pfb-name">Croatie</span></button>
-    <button class="picker-flag-btn" id="pfb-300" onclick="togglePickerCountry('300')"><span class="pfb-flag">🇬🇷</span><span class="pfb-name">Grèce</span></button>
-    <button class="picker-flag-btn" id="pfb-372" onclick="togglePickerCountry('372')"><span class="pfb-flag">🇮🇪</span><span class="pfb-name">Irlande</span></button>
-    <button class="picker-flag-btn" id="pfb-208" onclick="togglePickerCountry('208')"><span class="pfb-flag">🇩🇰</span><span class="pfb-name">Danemark</span></button>
-    <button class="picker-flag-btn" id="pfb-752" onclick="togglePickerCountry('752')"><span class="pfb-flag">🇸🇪</span><span class="pfb-name">Suède</span></button>
-    <button class="picker-flag-btn" id="pfb-578" onclick="togglePickerCountry('578')"><span class="pfb-flag">🇳🇴</span><span class="pfb-name">Norvège</span></button>
-    <button class="picker-flag-btn" id="pfb-246" onclick="togglePickerCountry('246')"><span class="pfb-flag">🇫🇮</span><span class="pfb-name">Finlande</span></button>
-    <button class="picker-flag-btn" id="pfb-616" onclick="togglePickerCountry('616')"><span class="pfb-flag">🇵🇱</span><span class="pfb-name">Pologne</span></button>
-    <button class="picker-flag-btn" id="pfb-203" onclick="togglePickerCountry('203')"><span class="pfb-flag">🇨🇿</span><span class="pfb-name">Tchéquie</span></button>
-    <button class="picker-flag-btn" id="pfb-348" onclick="togglePickerCountry('348')"><span class="pfb-flag">🇭🇺</span><span class="pfb-name">Hongrie</span></button>
-    <button class="picker-flag-btn" id="pfb-642" onclick="togglePickerCountry('642')"><span class="pfb-flag">🇷🇴</span><span class="pfb-name">Roumanie</span></button>
-    <button class="picker-flag-btn" id="pfb-705" onclick="togglePickerCountry('705')"><span class="pfb-flag">🇸🇮</span><span class="pfb-name">Slovénie</span></button>
-    <button class="picker-flag-btn" id="pfb-703" onclick="togglePickerCountry('703')"><span class="pfb-flag">🇸🇰</span><span class="pfb-name">Slovaquie</span></button>
-    <button class="picker-flag-btn" id="pfb-100" onclick="togglePickerCountry('100')"><span class="pfb-flag">🇧🇬</span><span class="pfb-name">Bulgarie</span></button>
-    <button class="picker-flag-btn" id="pfb-688" onclick="togglePickerCountry('688')"><span class="pfb-flag">🇷🇸</span><span class="pfb-name">Serbie</span></button>
-    <button class="picker-flag-btn" id="pfb-499" onclick="togglePickerCountry('499')"><span class="pfb-flag">🇲🇪</span><span class="pfb-name">Monténégro</span></button>
-    <button class="picker-flag-btn" id="pfb-8"   onclick="togglePickerCountry('8')"><span class="pfb-flag">🇦🇱</span><span class="pfb-name">Albanie</span></button>
-    <button class="picker-flag-btn" id="pfb-792" onclick="togglePickerCountry('792')"><span class="pfb-flag">🇹🇷</span><span class="pfb-name">Turquie</span></button>
-    <button class="picker-flag-btn" id="pfb-504" onclick="togglePickerCountry('504')"><span class="pfb-flag">🇲🇦</span><span class="pfb-name">Maroc</span></button>
-    <button class="picker-flag-btn" id="pfb-788" onclick="togglePickerCountry('788')"><span class="pfb-flag">🇹🇳</span><span class="pfb-name">Tunisie</span></button>
-    <button class="picker-flag-btn" id="pfb-12"  onclick="togglePickerCountry('12')"><span class="pfb-flag">🇩🇿</span><span class="pfb-name">Algérie</span></button>
-    <button class="picker-flag-btn" id="pfb-840" onclick="togglePickerCountry('840')"><span class="pfb-flag">🇺🇸</span><span class="pfb-name">États-Unis</span></button>
-    <button class="picker-flag-btn" id="pfb-124" onclick="togglePickerCountry('124')"><span class="pfb-flag">🇨🇦</span><span class="pfb-name">Canada</span></button>
-    <button class="picker-flag-btn" id="pfb-76"  onclick="togglePickerCountry('76')"><span class="pfb-flag">🇧🇷</span><span class="pfb-name">Brésil</span></button>
-    <button class="picker-flag-btn" id="pfb-36"  onclick="togglePickerCountry('36')"><span class="pfb-flag">🇦🇺</span><span class="pfb-name">Australie</span></button>
-    <button class="picker-flag-btn" id="pfb-392" onclick="togglePickerCountry('392')"><span class="pfb-flag">🇯🇵</span><span class="pfb-name">Japon</span></button>
+    <button class="picker-flag-btn" id="pfb-276" onclick="togglePickerCountry('276')"><span class="pfb-flag">🇩🇪</span><span class="pfb-name">Allemagne</span></button>
+    <button class="picker-flag-btn" id="pfb-528" onclick="togglePickerCountry('528')"><span class="pfb-flag">🇳🇱</span><span class="pfb-name">Pays-Bas</span></button>
+    <button class="picker-flag-btn" id="pfb-56"  onclick="togglePickerCountry('56')"><span class="pfb-flag">🇧🇪</span><span class="pfb-name">Belgique</span></button>
+    <button class="picker-flag-btn" id="pfb-826" onclick="togglePickerCountry('826')"><span class="pfb-flag">🇬🇧</span><span class="pfb-name">Grande-Bretagne</span></button>
   </div>
   <div id="picker-footer">
     <div id="picker-selected-label">Aucun pays sélectionné</div>
