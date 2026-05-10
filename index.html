@@ -365,6 +365,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
 .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
+/* VALIDATION COMMUNAUTAIRE */
+.pv2-val-section{padding:8px 14px;border-bottom:1px solid var(--border);border-top:1px solid var(--border);}
+
 /* MOD ACTIONS POPUP */
 .pv2-mod-actions{padding:8px 14px;border-top:2px dashed var(--border);display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:rgba(0,0,0,0.15);}
 .pv2-mod-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text2);width:100%;margin-bottom:2px;}
@@ -672,14 +675,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
         <div class="toggle" id="toggle-sat" onclick="toggleSatSetting()"></div>
       </div>
       <div id="admin-validators-section" style="display:none;border-top:1px solid var(--border);padding-top:14px;margin-top:6px;">
-        <div class="setting-label" style="margin-bottom:10px;">&#128737;&#65039; Gestion des validateurs</div>
+        <div class="setting-label" style="margin-bottom:10px;">&#128737;&#65039; Gestion des mod&#233;rateurs</div>
         <div id="validators-list" style="margin-bottom:10px;font-size:13px;color:var(--text2);">Chargement...</div>
         <div style="display:flex;gap:8px;margin-bottom:8px;">
           <input type="text" id="validator-username-input" placeholder="Pseudo de l'utilisateur..." style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:var(--font-body);">
-          <select id="validator-role-select" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 10px;color:var(--text);font-size:13px;font-family:var(--font-body);cursor:pointer;">
-            <option value="validator">✅ Validateur</option>
-            <option value="moderator">🛡️ Modérateur</option>
-          </select>
         </div>
         <button onclick="addValidator()" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-family:var(--font-body);font-size:13px;">+ Ajouter</button>
       </div>
@@ -794,7 +793,7 @@ var layerStreet, layerSat, layerLabels, isSat = false;
 var currentUser = null;
 var currentUsername = '';
 var ADMINS = ['mypoiuytreza@gmail.com', 'unverredericard@gmail.com'];
-var isAdmin = false, isModerator = false, isValidator = false;
+var isAdmin = false, isModerator = false;
 var mainCats = [], allCats = [], allPlaces = [];
 var filters = {};
 
@@ -1347,7 +1346,7 @@ async function loadProfileStats(username) {
       db.from('comments').select('*', { count: 'exact', head: true }).eq('user_name', username),
       db.from('votes').select('*', { count: 'exact', head: true }).eq('user_id', uid),
       db.from('places').select('id').eq('user_name', username),
-      db.from('places').select('*', { count: 'exact', head: true }).eq('validated_by', username)
+      db.from('place_validations').select('*', { count: 'exact', head: true }).eq('user_id', uid)
     ]);
     var lbData = res[0].data || [];
     var commentsCount = res[1].count || 0;
@@ -1386,7 +1385,6 @@ async function loadProfileStats(username) {
     if (badge) {
       if (isAdmin) badge.textContent = '\ud83d\udc51 Administrateur';
       else if (isModerator) badge.textContent = '\ud83d\udee1\ufe0f Mod\u00e9rateur';
-      else if (isValidator) badge.textContent = '\u2705 Validateur';
       else {
         var lvl = placesCount >= 100 ? '\ud83e\udd47 Expert' : placesCount >= 30 ? '\ud83e\udd48 Explorateur' : placesCount >= 10 ? '\ud83e\udd49 D\u00e9butant' : '\u2b50 Membre';
         badge.textContent = lvl;
@@ -1411,7 +1409,7 @@ function signOut() {
   db.auth.signOut();
   currentUser = null;
   currentUsername = '';
-  isAdmin = false; isModerator = false; isValidator = false;
+  isAdmin = false; isModerator = false;
   userPrefs = { satellite: false };
   applySat(false);
   updateSatBtn();
@@ -1424,17 +1422,15 @@ function signOut() {
 async function loadUserRole() {
   isAdmin = !!(currentUser && ADMINS.includes(currentUser.email));
   isModerator = false;
-  isValidator = false;
   if (currentUser && !isAdmin) {
     try {
       var res = await db.from('trusted_users').select('role').eq('user_id', currentUser.id).maybeSingle();
       if (res.data) {
         isModerator = res.data.role === 'moderator';
-        isValidator = res.data.role === 'validator' || isModerator;
       }
     } catch(e) {}
   }
-  if (isAdmin) { isModerator = true; isValidator = true; }
+  if (isAdmin) { isModerator = true; }
 }
 
 async function loadUserProfile() {
@@ -2223,20 +2219,13 @@ function makePopup(p) {
     return '<span class="star" onclick="ratePlace(\'' + safeId + '\',' + n + ')" onmouseover="hoverStars(\'' + safeId + '\',' + n + ')" onmouseout="resetStars(\'' + safeId + '\')">&#9733;</span>';
   }).join('');
 
-  // Mod actions HTML
+  // Mod actions HTML (mod\u00e9rateurs et admins uniquement)
   var modHtml = '';
-  if (isAdmin || isModerator || isValidator) {
+  if (isModerator || isAdmin) {
     var modBtns = '<div class="pv2-mod-label">&#128737;&#65039; Mod\u00e9ration</div>';
-    if (isValidator || isModerator || isAdmin) {
-      modBtns += p.validated_at
-        ? '<button class="pv2-mod-btn pv2-mod-validated">&#9989; Valid\u00e9</button>'
-        : '<button class="pv2-mod-btn pv2-mod-validate" onclick="validatePlace(\'' + safeId + '\')">&#9989; Valider</button>';
-    }
-    if (isModerator || isAdmin) {
-      modBtns += p.hidden
-        ? '<button class="pv2-mod-btn pv2-mod-show" onclick="showPlace(\'' + safeId + '\')">&#128065;&#65039; R\u00e9activer</button>'
-        : '<button class="pv2-mod-btn pv2-mod-hide" onclick="hidePlace(\'' + safeId + '\')">&#128683; Masquer</button>';
-    }
+    modBtns += p.hidden
+      ? '<button class="pv2-mod-btn pv2-mod-show" onclick="showPlace(\'' + safeId + '\')">&#128065;&#65039; R\u00e9activer</button>'
+      : '<button class="pv2-mod-btn pv2-mod-hide" onclick="hidePlace(\'' + safeId + '\')">&#128683; Masquer</button>';
     if (isAdmin) {
       modBtns += '<button class="pv2-mod-btn pv2-mod-delete" onclick="deletePlace(\'' + safeId + '\',\'' + safeName + '\')">&#128465;&#65039; Supprimer</button>';
     }
@@ -2256,7 +2245,7 @@ function makePopup(p) {
     + '<div class="pv2-body">'
     + '<div class="pv2-badges">'
     + availBadge
-    + (p.validated_at ? '<span class="pv2-badge" style="background:rgba(39,174,96,0.15);color:#27ae60;">&#9989; Valid\u00e9</span>' : '')
+    + '<span id="val-badge-' + safeId + '"></span>'
     + '<span class="pv2-badge pv2-badge-user">&#128100; ' + escHtml(p.user_name || 'Anonyme') + '</span>'
     + '</div>'
     + (fuel ? makeFuelHtml(fuel) : (p.description ? '<div class="pv2-desc">' + escHtml(p.description) + '</div>' : ''))
@@ -2273,6 +2262,7 @@ function makePopup(p) {
     + (currentUser && currentUser.id === p.user_id ? '<button onclick="openEditPlace(\'' + safeId + '\',\'' + safeName + '\',\'' + (p.description||'').replace(/'/g,"\\'") + '\')" class="pv2-nav-btn pv2-btn-edit" title="Modifier">&#9998;</button>' : '')
     + '<button onclick="sharePlace(\'' + safeId + '\',\'' + safeName + '\',' + p.latitude + ',' + p.longitude + ')" class="pv2-nav-btn pv2-btn-share" title="Partager"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>'
     + '</div>'
+    + (currentUser ? '<div id="val-section-' + safeId + '" class="pv2-val-section"><div class="pv2-val-loading">&#8230;</div></div>' : '')
     + '<div class="pv2-apps" id="nav-' + safeId + '" style="display:none;">'
     + '<a href="https://waze.com/ul?ll=' + p.latitude + ',' + p.longitude + '&navigate=yes" target="_blank" class="pv2-app-btn pv2-app-waze">→ Waze</a>'
     + '<a href="https://www.google.com/maps/dir/?api=1&destination=' + p.latitude + ',' + p.longitude + '" target="_blank" class="pv2-app-btn pv2-app-google">→ Google Maps</a>'
@@ -2305,7 +2295,7 @@ function makePopup(p) {
     loadRating(p.id);
   }
   loadReportInfo(p.id);
-  if (currentUser) checkFavorite(p.id);
+  if (currentUser) { checkFavorite(p.id); loadValidationSection(p.id); }
   return el;
 }
 
@@ -2362,12 +2352,46 @@ function closePlaceSheet() {
   document.getElementById('pbs-bd').classList.remove('open');
 }
 
+async function loadValidationSection(pid) {
+  var el = document.getElementById('val-section-' + pid);
+  if (!el || !currentUser) return;
+  var THRESHOLD = 3;
+  var safeId = pid.replace(/-/g,'_');
+  var [countRes, myRes] = await Promise.all([
+    db.from('place_validations').select('*', { count: 'exact', head: true }).eq('place_id', pid),
+    db.from('place_validations').select('id').eq('place_id', pid).eq('user_id', currentUser.id).maybeSingle()
+  ]);
+  var count = countRes.count || 0;
+  var hasValidated = !!(myRes.data);
+  var validated = count >= THRESHOLD;
+  var badge = document.getElementById('val-badge-' + safeId);
+  if (badge) {
+    badge.innerHTML = validated ? '<span class="pv2-badge" style="background:rgba(39,174,96,0.15);color:#27ae60;">&#9989; Validé</span>' : '';
+  }
+  var btnStyle = hasValidated
+    ? 'background:rgba(39,174,96,0.15);color:#27ae60;border:1px solid rgba(39,174,96,0.4);'
+    : 'background:var(--surface2);color:var(--text2);border:1px solid var(--border);';
+  var btnLabel = hasValidated ? '&#9989; Confirmé par moi' : '&#9989; Confirmer ce lieu';
+  var onclick = hasValidated ? 'unvalidatePlace(\'' + pid + '\')' : 'validatePlace(\'' + pid + '\')';
+  el.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">'
+    + '<span style="font-size:12px;color:' + (validated ? '#27ae60' : 'var(--text2)') + ';">&#9989; ' + count + '/' + THRESHOLD + ' confirmations</span>'
+    + '<button onclick="' + onclick + '" style="' + btnStyle + 'border-radius:7px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);">' + btnLabel + '</button>'
+    + '</div>';
+}
+
 async function validatePlace(pid) {
-  if (!currentUser || (!isValidator && !isModerator && !isAdmin)) return;
-  var res = await db.from('places').update({ validated_by: currentUsername || currentUser.email, validated_at: new Date().toISOString() }).eq('id', pid);
+  if (!currentUser) { showToast('Connectez-vous pour confirmer', 'error'); return; }
+  var res = await db.from('place_validations').insert({ place_id: pid, user_id: currentUser.id });
   if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
-  showToast('&#9989; Lieu validé !', 'success');
-  scheduleLoad();
+  showToast('&#9989; Confirmation enregistrée !', 'success');
+  loadValidationSection(pid);
+}
+
+async function unvalidatePlace(pid) {
+  if (!currentUser) return;
+  await db.from('place_validations').delete().eq('place_id', pid).eq('user_id', currentUser.id);
+  showToast('Confirmation retirée', '');
+  loadValidationSection(pid);
 }
 
 async function hidePlace(pid) {
@@ -2536,16 +2560,15 @@ function toggleProfValidated() {
 
 async function loadUserValidated() {
   var panel = document.getElementById('prof-validated-panel');
-  if (!panel) return;
-  var uname = currentUsername;
-  if (!uname) return;
+  if (!panel || !currentUser) return;
   panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;">Chargement...</div>';
-  var res = await db.from('places').select('id,name,latitude,longitude,validated_at,categories(icon,name)').eq('validated_by', uname).order('validated_at', { ascending: false }).limit(50);
-  var data = res.data || [];
-  if (!data.length) { panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">Aucun lieu validé</div>'; return; }
-  panel.innerHTML = data.map(function(p) {
+  var res = await db.from('place_validations').select('created_at,places(id,name,latitude,longitude,categories(icon,name))').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(50);
+  var data = (res.data || []).filter(function(r) { return r.places; });
+  if (!data.length) { panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">Aucun lieu confirmé</div>'; return; }
+  panel.innerHTML = data.map(function(r) {
+    var p = r.places;
     var cat = p.categories || {};
-    var d = p.validated_at ? new Date(p.validated_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+    var d = r.created_at ? new Date(r.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
     return '<div onclick="goToFavorite(' + p.latitude + ',' + p.longitude + ')" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
       + '<div style="width:34px;height:34px;border-radius:10px;background:rgba(39,174,96,0.12);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">&#9989;</div>'
       + '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(p.name) + '</div>'
@@ -2557,15 +2580,14 @@ async function loadUserValidated() {
 async function loadValidatorsList() {
   var el = document.getElementById('validators-list');
   if (!el) return;
-  var res = await db.from('trusted_users').select('user_id,role,profiles(username)').in('role', ['validator', 'moderator']);
+  var res = await db.from('trusted_users').select('user_id,role,profiles(username)').eq('role', 'moderator');
   var data = res.data || [];
-  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);">Aucun validateur pour l\'instant</div>'; return; }
+  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);">Aucun modérateur pour l\'instant</div>'; return; }
   el.innerHTML = data.map(function(u) {
     var uname = (u.profiles && u.profiles.username) || u.user_id;
-    var roleLabel = u.role === 'moderator' ? '🛡️ Modérateur' : '✅ Validateur';
     return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">'
       + '<div><span style="font-size:13px;font-weight:600;color:var(--text);">' + escHtml(uname) + '</span>'
-      + '<span style="font-size:11px;color:var(--text2);margin-left:8px;">' + roleLabel + '</span></div>'
+      + '<span style="font-size:11px;color:var(--text2);margin-left:8px;">&#128737;&#65039; Modérateur</span></div>'
       + '<button onclick="removeValidator(\'' + u.user_id + '\')" style="background:rgba(231,76,60,0.12);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:var(--font-body);">Retirer</button>'
       + '</div>';
   }).join('');
@@ -2573,23 +2595,20 @@ async function loadValidatorsList() {
 
 async function addValidator() {
   var inp = document.getElementById('validator-username-input');
-  var sel = document.getElementById('validator-role-select');
   var uname = (inp ? inp.value.trim() : '');
-  var role = sel ? sel.value : 'validator';
   if (!uname) return;
   var res = await db.from('profiles').select('id').eq('username', uname).maybeSingle();
   if (!res.data) { showToast('Utilisateur introuvable', 'error'); return; }
   var uid = res.data.id;
-  await db.from('trusted_users').upsert({ user_id: uid, role: role }, { onConflict: 'user_id' });
+  await db.from('trusted_users').upsert({ user_id: uid, role: 'moderator' }, { onConflict: 'user_id' });
   if (inp) inp.value = '';
-  var label = role === 'moderator' ? 'modérateur' : 'validateur';
-  showToast(uname + ' ajouté comme ' + label, 'success');
+  showToast(uname + ' ajouté comme modérateur', 'success');
   loadValidatorsList();
 }
 
 async function removeValidator(uid) {
   await db.from('trusted_users').delete().eq('user_id', uid);
-  showToast('Validateur retiré', '');
+  showToast('Modérateur retiré', '');
   loadValidatorsList();
 }
 
