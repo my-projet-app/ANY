@@ -1209,9 +1209,8 @@ async function renderProfile() {
   }
   var username = currentUsername || currentUser.email.split('@')[0];
   var initials = username.slice(0, 2).toUpperCase();
-  var months = ['jan.','f\u00e9v.','mars','avr.','mai','juin','juil.','ao\u00fbt','sept.','oct.','nov.','d\u00e9c.'];
   var memberSince = new Date(currentUser.created_at);
-  var dateStr = months[memberSince.getMonth()] + ' ' + memberSince.getFullYear();
+  var dateStr = memberSince.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
   // Banner style
   var bannerData = JSON.parse(localStorage.getItem('vlm_banner') || 'null');
   // Clear any stored image banners (image option removed)
