@@ -255,6 +255,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
 .pv2-btn-goto{background:var(--accent);color:#000;}
 .pv2-btn-share{background:var(--surface2);border:1px solid var(--border) !important;color:var(--text);flex:0 0 42px;}
 .pv2-btn-edit{background:var(--surface2);border:1px solid var(--border) !important;color:var(--text);flex:0 0 42px;}
+.pv2-btn-fav{background:var(--surface2);border:1px solid var(--border) !important;color:var(--text2);flex:0 0 42px;}
+.pv2-btn-fav.active{background:rgba(231,76,60,0.12);border-color:rgba(231,76,60,0.5) !important;color:#e74c3c;}
 .pv2-apps{padding:8px 14px;border-bottom:1px solid var(--border);display:flex;gap:6px;}
 .pv2-app-btn{flex:1;text-decoration:none;text-align:center;border-radius:6px;padding:7px 2px;font-size:12px;font-weight:700;font-family:var(--font-body);}
 .pv2-app-waze{background:#33ccff22;border:1px solid #33ccff55;color:#33ccff;}
@@ -1239,6 +1241,13 @@ async function renderProfile() {
     + '<div class="prof-rank-val" id="prof-rank">\u2014</div>'
     + '<div class="prof-rank-bar"><div class="prof-rank-fill" id="prof-rank-fill" style="width:0%"></div></div></div>'
     + '</div>'
+    + '<div style="padding:14px 16px 6px;border-top:1px solid var(--border);">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toggleProfFavs(this)">'
+    + '<div style="font-size:14px;font-weight:700;color:var(--text);">&#10084; Mes favoris <span id="prof-fav-count" style="font-size:12px;font-weight:400;color:var(--text2);"></span></div>'
+    + '<span style="color:var(--text2);font-size:18px;" id="prof-fav-arrow">\u203a</span>'
+    + '</div>'
+    + '<div id="prof-favs-list" style="display:none;"></div>'
+    + '</div>'
     + '<div class="prof-actions">'
     + '<button class="prof-btn-main" id="prof-btn-zone">&#127758; Changer de zone</button>'
     + '<button class="prof-btn-sec" id="prof-btn-settings">&#9881;&#65039; Param\u00e8tres</button>'
@@ -1909,6 +1918,7 @@ async function checkAuth() {
     await loadUserProfile();
     loadNotifCount();
     startRealtimeNotifs();
+    loadUserFavorites();
   } else {
     updateSatBtn();
   }
@@ -2235,6 +2245,7 @@ function makePopup(p) {
 
     + '<div class="pv2-nav">'
     + '<button onclick="toggleNav(\'' + safeId + '\')" class="pv2-nav-btn pv2-btn-goto">&#128205; M\'y rendre</button>'
+    + (currentUser ? '<button id="btn-fav-' + safeId + '" onclick="toggleFavorite(\'' + safeId + '\')" class="pv2-nav-btn pv2-btn-fav" title="Favoris">&#9825;</button>' : '')
     + (currentUser && currentUser.id === p.user_id ? '<button onclick="openEditPlace(\'' + safeId + '\',\'' + safeName + '\',\'' + (p.description||'').replace(/'/g,"\\'") + '\')" class="pv2-nav-btn pv2-btn-edit" title="Modifier">&#9998;</button>' : '')
     + '<button onclick="sharePlace(\'' + safeId + '\',\'' + safeName + '\',' + p.latitude + ',' + p.longitude + ')" class="pv2-nav-btn pv2-btn-share" title="Partager"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>'
     + '</div>'
@@ -2270,6 +2281,7 @@ function makePopup(p) {
     loadRating(p.id);
   }
   loadReportInfo(p.id);
+  if (currentUser) checkFavorite(p.id);
   return el;
 }
 
@@ -2446,6 +2458,83 @@ function openSidebar() {
 function toggleNav(pid) {
   var el = document.getElementById('nav-' + pid);
   if (el) el.style.display = el.style.display === 'none' ? 'flex' : 'none';
+}
+
+// ===== FAVORIS =====
+var userFavs = {};
+
+async function loadUserFavorites() {
+  if (!currentUser) return;
+  var res = await db.from('favorites').select('place_id').eq('user_id', currentUser.id);
+  userFavs = {};
+  (res.data || []).forEach(function(f) { userFavs[f.place_id] = true; });
+}
+
+function checkFavorite(placeId) {
+  var btn = document.getElementById('btn-fav-' + placeId);
+  if (!btn) return;
+  if (userFavs[placeId]) {
+    btn.classList.add('active');
+    btn.innerHTML = '&#10084;';
+    btn.title = 'Retirer des favoris';
+  } else {
+    btn.classList.remove('active');
+    btn.innerHTML = '&#9825;';
+    btn.title = 'Ajouter aux favoris';
+  }
+}
+
+async function toggleFavorite(placeId) {
+  if (!currentUser) { showToast('Connectez-vous pour ajouter aux favoris', 'error'); return; }
+  var btn = document.getElementById('btn-fav-' + placeId);
+  if (userFavs[placeId]) {
+    await db.from('favorites').delete().eq('user_id', currentUser.id).eq('place_id', placeId);
+    delete userFavs[placeId];
+    showToast('Retiré des favoris', '');
+  } else {
+    await db.from('favorites').insert({ user_id: currentUser.id, place_id: placeId });
+    userFavs[placeId] = true;
+    showToast('Ajouté aux favoris ❤️', 'success');
+  }
+  checkFavorite(placeId);
+}
+
+function toggleProfFavs(header) {
+  var list = document.getElementById('prof-favs-list');
+  var arrow = document.getElementById('prof-fav-arrow');
+  var open = list.style.display === 'block';
+  list.style.display = open ? 'none' : 'block';
+  arrow.textContent = open ? '›' : '˅';
+  if (!open) {
+    var count = Object.keys(userFavs).length;
+    var el = document.getElementById('prof-fav-count');
+    if (el) el.textContent = count ? '(' + count + ')' : '';
+    loadFavoritesInProfile();
+  }
+}
+
+async function loadFavoritesInProfile() {
+  var el = document.getElementById('prof-favs-list');
+  if (!el) return;
+  el.innerHTML = '<div style="padding:12px 0;color:var(--text2);font-size:13px;">Chargement...</div>';
+  var ids = Object.keys(userFavs);
+  if (!ids.length) { el.innerHTML = '<div style="padding:12px 0;color:var(--text2);font-size:13px;text-align:center;">Aucun favori pour l\'instant</div>'; return; }
+  var res = await db.from('places').select('id,name,latitude,longitude,categories(icon,name,color)').in('id', ids);
+  var places = res.data || [];
+  el.innerHTML = places.map(function(p) {
+    var cat = p.categories || {};
+    return '<div onclick="goToFavorite(' + p.latitude + ',' + p.longitude + ')" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
+      + '<div style="width:34px;height:34px;border-radius:10px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">' + (cat.icon || '📍') + '</div>'
+      + '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(p.name) + '</div>'
+      + '<div style="font-size:11px;color:var(--text2);">' + escHtml(cat.name || '') + '</div></div>'
+      + '<button onclick="event.stopPropagation();toggleFavorite(\'' + p.id + '\');this.closest(\'div\').remove();if(!document.getElementById(\'prof-favs-list\').children.length)loadFavoritesInProfile();" style="background:none;border:none;color:#e74c3c;font-size:18px;cursor:pointer;padding:4px;">&#10084;</button>'
+      + '</div>';
+  }).join('');
+}
+
+function goToFavorite(lat, lng) {
+  closeSheet('sheet-profile');
+  map.flyTo([lat, lng], 16, { duration: 0.8 });
 }
 
 // ===== PHOTOS =====
