@@ -671,6 +671,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
         </div>
         <div class="toggle" id="toggle-sat" onclick="toggleSatSetting()"></div>
       </div>
+      <div id="admin-validators-section" style="display:none;border-top:1px solid var(--border);padding-top:14px;margin-top:6px;">
+        <div class="setting-label" style="margin-bottom:10px;">&#128737;&#65039; Gestion des validateurs</div>
+        <div id="validators-list" style="margin-bottom:10px;font-size:13px;color:var(--text2);">Chargement...</div>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="validator-username-input" placeholder="Pseudo de l'utilisateur..." style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:var(--font-body);">
+          <button onclick="addValidator()" style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer;font-family:var(--font-body);font-size:13px;white-space:nowrap;">+ Ajouter</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1228,7 +1236,7 @@ async function renderProfile() {
     + '</div>'
     + '<div class="prof-stats"><div class="prof-stats-grid">'
     + '<div class="prof-stat" onclick="toggleProfPlaces()" style="cursor:pointer;" title="Voir mes lieux"><div class="prof-stat-icon pic-green">&#128205;</div><div style="flex:1"><div class="prof-stat-val" id="prof-places">\u2014</div><div class="prof-stat-lbl">Lieux ajout\u00e9s</div></div><span id="prof-places-arrow" style="color:var(--text2);font-size:16px;">\u203a</span></div>'
-    + '<div class="prof-stat soon"><div class="prof-stat-icon pic-teal">&#9989;</div><div><div class="prof-stat-val">\u2014</div><div class="prof-stat-lbl">Lieux valid\u00e9s</div></div><div class="prof-soon-tag">Bient\u00f4t</div></div>'
+    + '<div class="prof-stat" onclick="toggleProfValidated()" style="cursor:pointer;" title="Voir mes lieux valid\u00e9s"><div class="prof-stat-icon pic-teal">&#9989;</div><div style="flex:1"><div class="prof-stat-val" id="prof-validated">\u2014</div><div class="prof-stat-lbl">Lieux valid\u00e9s</div></div><span id="prof-validated-arrow" style="color:var(--text2);font-size:16px;">\u203a</span></div>'
     + '<div class="prof-stat" onclick="toggleProfComments()" style="cursor:pointer;" title="Voir mes commentaires"><div class="prof-stat-icon pic-blue">&#128172;</div><div style="flex:1"><div class="prof-stat-val" id="prof-comments">\u2014</div><div class="prof-stat-lbl">Commentaires</div></div><span id="prof-cmts-arrow" style="color:var(--text2);font-size:16px;">\u203a</span></div>'
     + '<div class="prof-stat" onclick="toggleProfVotes()" style="cursor:pointer;" title="Voir mes votes"><div class="prof-stat-icon pic-yellow">&#128077;</div><div style="flex:1"><div class="prof-stat-val" id="prof-votes">\u2014</div><div class="prof-stat-lbl">Votes donn\u00e9s</div></div><span id="prof-votes-arrow" style="color:var(--text2);font-size:16px;">\u203a</span></div>'
     + '<div class="prof-stat" onclick="toggleProfFavs()" style="cursor:pointer;" title="Voir mes favoris"><div class="prof-stat-icon" style="background:rgba(231,76,60,0.12);">&#10084;</div><div style="flex:1"><div class="prof-stat-val" id="prof-favs-count">\u2014</div><div class="prof-stat-lbl">Favoris</div></div><span id="prof-favs-arrow" style="color:var(--text2);font-size:16px;">\u203a</span></div>'
@@ -1237,6 +1245,7 @@ async function renderProfile() {
     + '<div class="prof-stat-lbl" id="prof-rating-lbl">Note moyenne re\u00e7ue</div></div></div>'
     + '</div></div>'
     + '<div id="prof-places-panel" style="display:none;padding:0 16px 4px;"></div>'
+    + '<div id="prof-validated-panel" style="display:none;padding:0 16px 4px;"></div>'
     + '<div id="prof-cmts-panel" style="display:none;padding:0 16px 4px;"></div>'
     + '<div id="prof-votes-panel" style="display:none;padding:0 16px 4px;"></div>'
     + '<div class="prof-ranking" onclick="closeSheet(\'sheet-profile\');openSheet(\'sheet-rank\');loadLeaderboard(\'places\')" style="cursor:pointer;" title="Voir le classement g\u00e9n\u00e9ral">'
@@ -1255,7 +1264,7 @@ async function renderProfile() {
 
   // Action buttons
   document.getElementById('prof-btn-zone').addEventListener('click', function() { closeSheet('sheet-profile'); openCountryPicker(); });
-  document.getElementById('prof-btn-settings').addEventListener('click', function() { closeSheet('sheet-profile'); openSheet('sheet-settings'); });
+  document.getElementById('prof-btn-settings').addEventListener('click', function() { closeSheet('sheet-profile'); openSheet('sheet-settings'); if (isAdmin) { document.getElementById('admin-validators-section').style.display = 'block'; loadValidatorsList(); } });
   document.getElementById('prof-btn-signout').addEventListener('click', function() { signOut(); });
 
   // Banner edit button
@@ -1327,12 +1336,14 @@ async function loadProfileStats(username) {
       db.from('leaderboard_places').select('*'),
       db.from('comments').select('*', { count: 'exact', head: true }).eq('user_name', username),
       db.from('votes').select('*', { count: 'exact', head: true }).eq('user_id', uid),
-      db.from('places').select('id').eq('user_name', username)
+      db.from('places').select('id').eq('user_name', username),
+      db.from('places').select('*', { count: 'exact', head: true }).eq('validated_by', username)
     ]);
     var lbData = res[0].data || [];
     var commentsCount = res[1].count || 0;
     var votesCount = res[2].count || 0;
     var placeIds = (res[3].data || []).map(function(p) { return p.id; });
+    var validatedCount = res[4].count || 0;
     var myIdx = lbData.findIndex(function(u) { return u.user_name === username; });
     var myRank = myIdx + 1;
     var total = lbData.length;
@@ -1351,6 +1362,8 @@ async function loadProfileStats(username) {
     if (vEl) vEl.textContent = votesCount;
     var fEl = document.getElementById('prof-favs-count');
     if (fEl) fEl.textContent = Object.keys(userFavs).length;
+    var vdEl = document.getElementById('prof-validated');
+    if (vdEl) vdEl.textContent = validatedCount;
     if (rankEl) {
       if (myRank > 0) {
         rankEl.textContent = '#' + myRank + ' / ' + total;
@@ -2498,6 +2511,73 @@ async function toggleFavorite(placeId) {
     showToast('Ajouté aux favoris ❤️', 'success');
   }
   checkFavorite(placeId);
+}
+
+var _profValidatedOpen = false;
+function toggleProfValidated() {
+  var panel = document.getElementById('prof-validated-panel');
+  var arrow = document.getElementById('prof-validated-arrow');
+  if (!panel) return;
+  _profValidatedOpen = !_profValidatedOpen;
+  panel.style.display = _profValidatedOpen ? 'block' : 'none';
+  if (arrow) arrow.textContent = _profValidatedOpen ? '˅' : '›';
+  if (_profValidatedOpen) loadUserValidated();
+}
+
+async function loadUserValidated() {
+  var panel = document.getElementById('prof-validated-panel');
+  if (!panel) return;
+  var uname = currentUsername;
+  if (!uname) return;
+  panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;">Chargement...</div>';
+  var res = await db.from('places').select('id,name,latitude,longitude,validated_at,categories(icon,name)').eq('validated_by', uname).order('validated_at', { ascending: false }).limit(50);
+  var data = res.data || [];
+  if (!data.length) { panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">Aucun lieu validé</div>'; return; }
+  panel.innerHTML = data.map(function(p) {
+    var cat = p.categories || {};
+    var d = p.validated_at ? new Date(p.validated_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+    return '<div onclick="goToFavorite(' + p.latitude + ',' + p.longitude + ')" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
+      + '<div style="width:34px;height:34px;border-radius:10px;background:rgba(39,174,96,0.12);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">&#9989;</div>'
+      + '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(p.name) + '</div>'
+      + '<div style="font-size:11px;color:var(--text2);">' + escHtml(cat.name || '') + (d ? ' · ' + d : '') + '</div></div>'
+      + '<span style="color:var(--text2);font-size:16px;">›</span></div>';
+  }).join('');
+}
+
+async function loadValidatorsList() {
+  var el = document.getElementById('validators-list');
+  if (!el) return;
+  var res = await db.from('trusted_users').select('user_id,role,profiles(username)').in('role', ['validator', 'moderator']);
+  var data = res.data || [];
+  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);">Aucun validateur pour l\'instant</div>'; return; }
+  el.innerHTML = data.map(function(u) {
+    var uname = (u.profiles && u.profiles.username) || u.user_id;
+    var roleLabel = u.role === 'moderator' ? '🛡️ Modérateur' : '✅ Validateur';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">'
+      + '<div><span style="font-size:13px;font-weight:600;color:var(--text);">' + escHtml(uname) + '</span>'
+      + '<span style="font-size:11px;color:var(--text2);margin-left:8px;">' + roleLabel + '</span></div>'
+      + '<button onclick="removeValidator(\'' + u.user_id + '\')" style="background:rgba(231,76,60,0.12);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:var(--font-body);">Retirer</button>'
+      + '</div>';
+  }).join('');
+}
+
+async function addValidator() {
+  var inp = document.getElementById('validator-username-input');
+  var uname = (inp ? inp.value.trim() : '');
+  if (!uname) return;
+  var res = await db.from('profiles').select('id').eq('username', uname).maybeSingle();
+  if (!res.data) { showToast('Utilisateur introuvable', 'error'); return; }
+  var uid = res.data.id;
+  await db.from('trusted_users').upsert({ user_id: uid, role: 'validator' }, { onConflict: 'user_id' });
+  if (inp) inp.value = '';
+  showToast(uname + ' ajouté comme validateur', 'success');
+  loadValidatorsList();
+}
+
+async function removeValidator(uid) {
+  await db.from('trusted_users').delete().eq('user_id', uid);
+  showToast('Validateur retiré', '');
+  loadValidatorsList();
 }
 
 var _profVotesOpen = false;
