@@ -52,7 +52,7 @@ Les utilisateurs trouvent et partagent des services en libre-service 24h/24.
 - Distributeur de croquettes animaux 🐾
 - Distributeur de livres 📚
 - Distributeur de CBD 🌿
-- Autre distributeur 📍
+- Distributeur de préservatif 🛡️
 
 ### Sous-catégories Spots Van & Camping
 - Aire de camping-car officielle 🅿️

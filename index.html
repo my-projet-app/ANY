@@ -209,7 +209,13 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
 /* POPUP v2 */
 .leaflet-popup-content-wrapper{background:var(--surface) !important;border:1px solid var(--border) !important;border-radius:14px !important;box-shadow:0 8px 32px rgba(0,0,0,0.6) !important;color:var(--text) !important;padding:0 !important;overflow:hidden !important;transform:translateZ(0) !important;}
 .leaflet-popup-tip{background:var(--surface) !important;}
-.leaflet-popup-content{margin:0 !important;width:300px !important;overflow:hidden !important;border-radius:14px !important;}
+.leaflet-popup-content{margin:0 !important;width:min(360px,calc(100vw - 40px)) !important;max-height:calc(85dvh - 80px) !important;overflow-y:auto !important;border-radius:14px !important;}
+/* PLACE BOTTOM SHEET (mobile) */
+#pbs-bd{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:4000;display:none;touch-action:none;}
+#pbs-bd.open{display:block;}
+#pbs{position:fixed;bottom:0;left:0;right:0;z-index:4001;background:var(--surface);border-radius:22px 22px 0 0;max-height:88dvh;overflow-y:auto;transform:translateY(110%);transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);box-shadow:0 -8px 40px rgba(0,0,0,0.65);padding-bottom:calc(var(--safe-bottom) + 20px);}
+#pbs.open{transform:translateY(0);}
+#pbs-handle{width:36px;height:4px;background:var(--border);border-radius:3px;margin:10px auto 0;}
 .pv2-header{border-radius:14px 14px 0 0;}
 .pv2-header{padding:14px 16px;display:flex;align-items:center;gap:12px;}
 .pv2-emoji{font-size:32px;line-height:1;flex-shrink:0;}
@@ -225,9 +231,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
 .pv2-desc{font-size:12px;color:var(--text2);line-height:1.5;margin-top:8px;}
 .pv2-fuel{margin-top:10px;}
 .pv2-fuel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:6px;}
-.pv2-fuel-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 4px;text-align:center;}
-.pv2-fuel-type{font-size:10px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:0.4px;}
-.pv2-fuel-price{font-size:14px;font-weight:700;color:var(--accent);margin-top:2px;}
+.pv2-fuel-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 6px;text-align:center;}
+.pv2-fuel-type{font-size:12px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:0.3px;}
+.pv2-fuel-price{font-size:17px;font-weight:800;color:var(--accent);margin-top:3px;}
 .pv2-fuel-note{font-size:10px;color:var(--text2);margin-top:6px;text-align:right;}
 .pv2-photos{padding:10px 14px;border-bottom:1px solid var(--border);}
 .pv2-photos-strip{display:flex;gap:6px;align-items:center;overflow-x:auto;padding-bottom:2px;justify-content:center;}
@@ -1822,6 +1828,7 @@ function goToPlace(lat, lng) {
 }
 
 function onMapClick(e) {
+  closePlaceSheet();
   if (radiusMode) { setRadiusCenter(e.latlng); return; }
   if (!addingMode) return;
   selectedLatLng = e.latlng;
@@ -2078,7 +2085,7 @@ function renderMarkers(places) {
       className: '', iconSize: [36,44], iconAnchor: [18,44], popupAnchor: [0,-46]
     });
     var mk = L.marker([p.latitude, p.longitude], { icon: mi });
-    mk.bindPopup(function() { return makePopup(p); }, { maxWidth: 300 });
+    mk.on('click', function(e) { L.DomEvent.stopPropagation(e); openPlaceDetail(p, mk); });
     cluster.addLayer(mk);
   });
 }
@@ -2117,6 +2124,8 @@ function makePopup(p) {
   var el = document.createElement('div');
   var safeId = p.id;
   var safeName = p.name.replace(/'/g, "\\'");
+  var fuel = parseFuelPrices(p.description);
+  var isFuel = !!fuel;
   var cmtZone = currentUser
     ? '<div class="comment-input-zone"><input class="c-input" id="ci-' + safeId + '" placeholder="Ajouter un commentaire..."><button class="c-send" onclick="addCmt(\'' + safeId + '\')">&#8594;</button></div>'
     : '<p style="font-size:11px;color:var(--text2);margin-top:6px">Connectez-vous pour commenter</p>';
@@ -2163,17 +2172,13 @@ function makePopup(p) {
     + (p.validated_at ? '<span class="pv2-badge" style="background:rgba(39,174,96,0.15);color:#27ae60;">&#9989; Valid\u00e9</span>' : '')
     + '<span class="pv2-badge pv2-badge-user">&#128100; ' + escHtml(p.user_name || 'Anonyme') + '</span>'
     + '</div>'
-    + (function() {
-        var fuel = parseFuelPrices(p.description);
-        if (fuel) return makeFuelHtml(fuel);
-        return p.description ? '<div class="pv2-desc">' + escHtml(p.description) + '</div>' : '';
-      })()
+    + (fuel ? makeFuelHtml(fuel) : (p.description ? '<div class="pv2-desc">' + escHtml(p.description) + '</div>' : ''))
     + '<div id="report-info-' + safeId + '" style="display:none;font-size:11px;color:var(--danger);padding:4px 0 0;"></div>'
     + '</div>'
 
-    + '<div class="pv2-photos"><div class="pv2-photos-strip" id="photos-' + safeId + '">'
+    + (!isFuel ? '<div class="pv2-photos"><div class="pv2-photos-strip" id="photos-' + safeId + '">'
     + '<span style="font-size:11px;color:var(--text2);">Chargement...</span>'
-    + '</div></div>'
+    + '</div></div>' : '')
 
     + '<div class="pv2-nav">'
     + '<button onclick="toggleNav(\'' + safeId + '\')" class="pv2-nav-btn pv2-btn-goto">&#128205; M\'y rendre</button>'
@@ -2192,25 +2197,54 @@ function makePopup(p) {
     + '</div>'
     + modHtml
 
-    + '<div class="pv2-rating">'
+    + (!isFuel ? '<div class="pv2-rating">'
     + '<div class="pv2-rating-label">&#11088; Votre note</div>'
     + '<div class="pv2-rating-row">'
     + '<div class="stars" id="stars-' + safeId + '">' + starHtml + '</div>'
     + '<div class="pv2-rating-avg" id="rating-avg-' + safeId + '"></div>'
     + '</div>'
     + '</div>'
-
     + '<div class="pv2-comments">'
     + '<div class="pv2-comments-title">&#128172; Commentaires</div>'
     + '<div id="cmt-' + safeId + '">Chargement...</div>'
     + cmtZone
-    + '</div>';
+    + '</div>' : '');
 
-  loadPhotos(p.id, p.category_id);
-  loadCmts(p.id);
-  loadRating(p.id);
+  if (!isFuel) {
+    loadPhotos(p.id, p.category_id);
+    loadCmts(p.id);
+    loadRating(p.id);
+  }
   loadReportInfo(p.id);
   return el;
+}
+
+function openPlaceDetail(p, marker) {
+  if (window.innerWidth < 768) {
+    openPlaceSheet(p);
+  } else {
+    map.closePopup();
+    var el = makePopup(p);
+    L.popup({ maxWidth: 360, offset: L.point(0, -44) })
+      .setLatLng(marker.getLatLng())
+      .setContent(el)
+      .openOn(map);
+  }
+}
+
+function openPlaceSheet(p) {
+  var sheet = document.getElementById('pbs');
+  var body = document.getElementById('pbs-content');
+  body.innerHTML = '';
+  body.appendChild(makePopup(p));
+  sheet.scrollTop = 0;
+  sheet.classList.add('open');
+  document.getElementById('pbs-bd').classList.add('open');
+}
+
+function closePlaceSheet() {
+  document.getElementById('pbs').classList.remove('open');
+  document.getElementById('pbs-bd').classList.remove('open');
 }
 
 async function validatePlace(pid) {
@@ -3145,6 +3179,11 @@ function applyMaskLayer() {
 </div>
 
 <!-- LIGHTBOX -->
+<div id="pbs-bd" onclick="closePlaceSheet()"></div>
+<div id="pbs">
+  <div id="pbs-handle"></div>
+  <div id="pbs-content"></div>
+</div>
 <div id="lightbox" onclick="closeLightbox()">
   <button id="lb-close" onclick="closeLightbox()">&#x2715;</button>
   <button id="lb-prev" onclick="event.stopPropagation();lbPrev()">&#8249;</button>
