@@ -2220,6 +2220,7 @@ function scheduleLoad() {
 async function goToSoloPlace(placeId, lat, lng) {
   closeSheet('sheet-profile');
   soloPlaceId = placeId;
+  soloReturnTo = 'profile';
   var nav = document.getElementById('bottom-nav');
   if (nav) nav.style.display = 'none';
   var banner = document.getElementById('solo-banner');
@@ -2236,8 +2237,17 @@ function clearSoloMode() {
   var nav = document.getElementById('bottom-nav');
   if (nav) nav.style.display = 'block';
   scheduleLoad();
-  renderProfile();
-  openSheet('sheet-profile');
+  if (soloReturnTo === 'settings') {
+    soloReturnTo = 'profile';
+    openSheet('sheet-settings');
+  } else {
+    soloReturnTo = 'profile';
+    renderProfile();
+    openSheet('sheet-profile');
+  }
+  // Reset button label
+  var banner2 = document.getElementById('solo-banner');
+  if (banner2) { var btn = banner2.querySelector('button:first-child'); if (btn) btn.textContent = '← Retour au Profil'; }
 }
 
 function exitSoloToMap() {
@@ -2969,7 +2979,7 @@ async function loadReportedPlaces() {
   var el = document.getElementById('reported-places-list');
   if (!el) return;
   el.innerHTML = '<div style="color:var(--text2);">Chargement...</div>';
-  var res = await db.from('reports').select('place_id,reason,details,user_id,profiles(username),places(id,name,user_name)').order('created_at', { ascending: false });
+  var res = await db.from('reports').select('place_id,reason,details,user_id,profiles(username),places(id,name,user_name,latitude,longitude)').order('created_at', { ascending: false });
   var data = res.data || [];
   if (!data.length) { el.innerHTML = '<div style="color:var(--text2);">Aucun signalement</div>'; return; }
   var grouped = {};
@@ -2992,7 +3002,8 @@ async function loadReportedPlaces() {
       + '</div>'
       + '<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;">&#128205; ' + escHtml(place.name || pid) + '</div>'
       + reportsList
-      + '<div style="display:flex;gap:6px;margin-top:8px;">'
+      + '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">'
+      + (place.latitude ? '<button onclick="viewReportedPlace(\'' + pid + '\',' + place.latitude + ',' + place.longitude + ')" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);">&#128205; Voir sur la carte</button>' : '')
       + '<button onclick="hidePlace(\'' + pid + '\');dismissPlaceReport(\'' + pid + '\')" style="flex:1;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);color:#e74c3c;border-radius:6px;padding:5px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);">&#128683; Masquer</button>'
       + '<button onclick="dismissPlaceReport(\'' + pid + '\')" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:5px;font-size:12px;cursor:pointer;font-family:var(--font-body);">&#10003; Ignorer</button>'
       + '</div></div>';
@@ -3003,6 +3014,26 @@ async function dismissPlaceReport(pid) {
   await db.from('reports').delete().eq('place_id', pid);
   showToast('Signalement ignoré', '');
   loadReportedPlaces();
+}
+
+var soloReturnTo = 'profile'; // 'profile' ou 'settings'
+
+function viewReportedPlace(pid, lat, lng) {
+  closeSheet('sheet-settings');
+  soloPlaceId = pid;
+  soloReturnTo = 'settings';
+  var nav = document.getElementById('bottom-nav');
+  if (nav) nav.style.display = 'none';
+  var banner = document.getElementById('solo-banner');
+  if (banner) {
+    banner.style.display = 'flex';
+    var btnLeft = banner.querySelector('button:first-child');
+    if (btnLeft) btnLeft.textContent = '← Retour aux signalements';
+  }
+  map.flyTo([lat, lng], 16, { duration: 0.8 });
+  db.from('places').select('*, categories(name,icon,color), main_categories(name,icon)').eq('id', pid).maybeSingle().then(function(res) {
+    if (res.data) { allPlaces = [res.data]; renderMarkers([res.data]); }
+  });
 }
 
 async function loadReportedComments() {
