@@ -16,9 +16,9 @@ Les utilisateurs trouvent et partagent des services en libre-service 24h/24.
 - Clé publique : sb_publishable_lB89hOOAXUCIheGRbS2wEQ_L7uVajNV
 - Projet ID : xssfehwbmvrxtxmocowc
 
-## URL Netlify
-- App : https://zesty-dango-9f2db0.netlify.app
-- Import : https://zesty-dango-9f2db0.netlify.app/import.html
+## URL
+- App : https://projet-vanlifemap.github.io/VanLifeMap/
+- Import : https://projet-vanlifemap.github.io/VanLifeMap/import.html
 
 ## Structure base de données
 
