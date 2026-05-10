@@ -1348,6 +1348,8 @@ async function loadProfileStats(username) {
     if (pEl) pEl.textContent = placesCount;
     if (cEl) cEl.textContent = commentsCount;
     if (vEl) vEl.textContent = votesCount;
+    var fEl = document.getElementById('prof-favs-count');
+    if (fEl) fEl.textContent = Object.keys(userFavs).length;
     if (rankEl) {
       if (myRank > 0) {
         rankEl.textContent = '#' + myRank + ' / ' + total;
@@ -2466,8 +2468,6 @@ async function loadUserFavorites() {
   var res = await db.from('favorites').select('place_id').eq('user_id', currentUser.id);
   userFavs = {};
   (res.data || []).forEach(function(f) { userFavs[f.place_id] = true; });
-  var el = document.getElementById('prof-favs-count');
-  if (el) el.textContent = Object.keys(userFavs).length || '0';
 }
 
 function checkFavorite(placeId) {
