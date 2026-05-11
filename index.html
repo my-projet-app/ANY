@@ -3739,6 +3739,7 @@ async function loadCmts(pid) {
       + (isOwn ? '<button onclick="editCmt(\'' + c.id + '\',\'' + pid + '\')" style="margin-left:auto;background:none;border:none;color:var(--text2);cursor:pointer;font-size:12px;padding:0 2px;">&#9998;</button>' : '')
       + '</div>'
       + '<div class="comment-text" id="cmt-text-' + c.id + '">' + escHtml(c.content) + '</div>'
+      + '<span id="trl-cmt-' + c.id + '" data-orig="' + escHtml(c.content) + '" onclick="translateText(\'cmt-text-' + c.id + '\',\'trl-cmt-' + c.id + '\',this.dataset.orig)" style="font-size:11px;color:var(--text2);cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Traduire</span>'
       + (currentUser ? '<div style="display:flex;align-items:center;gap:4px;margin-top:5px;">'
         + '<button onclick="voteComment(\'' + c.id + '\',true,\'' + pid + '\')" style="' + likeStyle + '">&#128077; ' + (likes[c.id] || 0) + '</button>'
         + '<button onclick="voteComment(\'' + c.id + '\',false,\'' + pid + '\')" style="' + dislikeStyle + '">&#128078; ' + (dislikes[c.id] || 0) + '</button>'
@@ -4423,6 +4424,36 @@ function renderPostCard(p) {
 
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+async function translateText(divId, linkId, original) {
+  var lang = (navigator.language || 'fr').split('-')[0];
+  var link = document.getElementById(linkId);
+  var div = document.getElementById(divId);
+  if (!div || !link) return;
+  if (link.dataset.translated === '1') {
+    div.textContent = original;
+    link.textContent = 'Traduire';
+    link.dataset.translated = '0';
+    return;
+  }
+  link.textContent = '...';
+  try {
+    var resp = await fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(original) + '&langpair=auto|' + lang);
+    var json = await resp.json();
+    var translated = json.responseData && json.responseData.translatedText;
+    if (translated && translated !== original) {
+      div.textContent = translated;
+      link.textContent = 'Voir l\'original';
+      link.dataset.translated = '1';
+    } else {
+      link.textContent = 'Traduire';
+      showToast('Traduction non disponible', 'error');
+    }
+  } catch(e) {
+    link.textContent = 'Traduire';
+    showToast('Erreur de traduction', 'error');
+  }
+}
+
 function filterComm(type, btn) {
   commFilter = type;
   document.querySelectorAll('.comm-filter').forEach(function(b) { b.classList.remove('active'); });
@@ -4486,7 +4517,10 @@ async function loadReplies(postId) {
       + '<div style="display:flex;justify-content:space-between;margin-bottom:6px;">'
       + '<span style="font-size:12px;font-weight:700;color:var(--accent);">' + escHtml(r.author_name || 'Anonyme') + '</span>'
       + '<span style="font-size:11px;color:var(--text2);">' + d + '</span>'
-      + '</div><div style="font-size:13px;color:var(--text);line-height:1.5;">' + escHtml(r.content) + '</div></div>';
+      + '</div>'
+      + '<div id="reply-text-' + r.id + '" style="font-size:13px;color:var(--text);line-height:1.5;">' + escHtml(r.content) + '</div>'
+      + '<span id="trl-reply-' + r.id + '" data-orig="' + escHtml(r.content) + '" onclick="translateText(\'reply-text-' + r.id + '\',\'trl-reply-' + r.id + '\',this.dataset.orig)" style="font-size:11px;color:var(--text2);cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Traduire</span>'
+      + '</div>';
   }).join('');
 }
 
