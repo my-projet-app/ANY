@@ -735,6 +735,15 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
     <div class="form-group"><label>Sous-cat&#233;gorie *</label><select id="add-sub-cat"><option value="">-- Choisir la cat&#233;gorie d'abord --</option></select></div>
     <div class="form-group"><label>Description</label><textarea id="add-desc" placeholder="Infos utiles : horaires, &#233;tat, prix..."></textarea></div>
     <div class="form-group"><label>Disponible 24h/24 ?</label><select id="add-24h"><option value="true">Oui</option><option value="false">Non</option></select></div>
+    <div class="form-group">
+      <label>Photo <span style="color:var(--text2);font-weight:400;">(optionnel)</span></label>
+      <input type="file" id="add-photo-input" accept="image/*" style="display:none" onchange="previewAddPhoto(this)">
+      <label for="add-photo-input" id="add-photo-btn" style="display:flex;align-items:center;gap:8px;justify-content:center;padding:10px;border:2px dashed var(--border);border-radius:var(--radius-sm);cursor:pointer;color:var(--text2);font-size:13px;">&#128247; Ajouter une photo</label>
+      <div id="add-photo-preview" style="display:none;position:relative;margin-top:8px;">
+        <img id="add-photo-img" style="width:100%;max-height:180px;object-fit:cover;border-radius:8px;display:block;">
+        <button onclick="clearAddPhoto()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);border:none;color:#fff;border-radius:50%;width:26px;height:26px;font-size:14px;cursor:pointer;line-height:1;">&#10005;</button>
+      </div>
+    </div>
     <button class="btn-p" onclick="submitPlace()">Publier le lieu</button>
     <button class="btn-s" onclick="closeModal('modal-add')">Annuler</button>
   </div>
@@ -3368,6 +3377,24 @@ function onAddBtn() {
   showToast('&#128205; Clique sur la carte pour placer le lieu', 'success');
 }
 
+function previewAddPhoto(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('add-photo-img').src = e.target.result;
+    document.getElementById('add-photo-preview').style.display = 'block';
+    document.getElementById('add-photo-btn').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearAddPhoto() {
+  document.getElementById('add-photo-input').value = '';
+  document.getElementById('add-photo-preview').style.display = 'none';
+  document.getElementById('add-photo-btn').style.display = 'flex';
+}
+
 async function submitPlace() {
   var name = document.getElementById('add-name').value.trim();
   var mainId = document.getElementById('add-main-cat').value;
@@ -3382,8 +3409,23 @@ async function submitPlace() {
     main_category_id: mainId, category_id: catId,
     user_id: currentUser.id, user_name: currentUsername || currentUser.email.split('@')[0],
     disponible_24h: is24h, approved: true
-  });
+  }).select('id').single();
   if (result.error) { showToast('Erreur : ' + result.error.message, 'error'); return; }
+  var newId = result.data.id;
+
+  var photoInput = document.getElementById('add-photo-input');
+  if (photoInput && photoInput.files[0]) {
+    showToast('Upload photo...', 'success');
+    var file = photoInput.files[0];
+    var ext = file.name.split('.').pop().toLowerCase() || 'jpg';
+    var path = newId + '/' + Date.now() + '.' + ext;
+    var upRes = await db.storage.from('place-photos').upload(path, file, { contentType: file.type });
+    if (!upRes.error) {
+      var url = db.storage.from('place-photos').getPublicUrl(path).data.publicUrl;
+      await db.from('place_photos').insert({ place_id: newId, url: url, uploaded_by: currentUser.id, uploader_name: currentUsername || currentUser.email.split('@')[0] });
+    }
+  }
+
   closeModal('modal-add');
   addingMode = false;
   document.getElementById('info-adding').style.display = 'none';
