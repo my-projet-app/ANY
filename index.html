@@ -908,6 +908,27 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
   </div>
 </div>
 
+<div id="modal-approve-place" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-approve-place')">&#10005;</button>
+    <h2>&#9989; Valider ce lieu</h2>
+    <p style="font-size:14px;color:var(--text2);margin:12px 0;">Publier <strong id="approve-place-name"></strong> sur la carte ?</p>
+    <button class="btn-p" style="background:#27ae60;border-color:#27ae60;" onclick="confirmApprovePlace()">&#9989; Valider et publier</button>
+    <button class="btn-s" onclick="closeModal('modal-approve-place')">Annuler</button>
+  </div>
+</div>
+
+<div id="modal-reject-place" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-reject-place')">&#10005;</button>
+    <h2>&#10060; Refuser ce lieu</h2>
+    <div class="info-box" style="color:#e74c3c;">&#9888;&#65039; Le lieu sera <strong>supprimé définitivement</strong>.</div>
+    <p style="font-size:14px;color:var(--text2);margin:12px 0;">Refuser <strong id="reject-place-name"></strong> ?</p>
+    <button class="btn-p" style="background:#e74c3c;border-color:#e74c3c;" onclick="confirmRejectPlace()">&#10060; Refuser et supprimer</button>
+    <button class="btn-s" onclick="closeModal('modal-reject-place')">Annuler</button>
+  </div>
+</div>
+
 <div id="modal-delete-comment" class="modal-overlay" style="display:none">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-delete-comment')">&#10005;</button>
@@ -2986,33 +3007,59 @@ async function loadValidationCount(pid) {
   }
 }
 
-async function validatePlace(pid) {
+var _pendingPlaceAction = null;
+
+function validatePlace(pid) {
   if (!currentUser || (!isModerator && !isAdmin && !isTrusted)) return;
-  var placeRes = await db.from('places').select('user_id, name').eq('id', pid).maybeSingle();
-  var res = await db.from('places').update({ status: 'active' }).eq('id', pid);
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
-  if (placeRes.data) {
-    insertPlaceNotif(placeRes.data.user_id, 'place_validated', '✅ Votre lieu « ' + placeRes.data.name + ' » a été validé et publié !', pid);
-    sendPush([placeRes.data.user_id], '✅ Lieu validé !', 'Votre lieu « ' + placeRes.data.name + ' » a été publié sur la carte', '/');
-  }
-  showToast('✅ Lieu validé et publié !', 'success');
-  closePlaceSheet();
-  scheduleLoad();
+  _pendingPlaceAction = { type: 'approve', pid: pid, source: 'popup' };
+  document.getElementById('approve-place-name').textContent = '« ce lieu »';
+  openModal('modal-approve-place');
 }
 
-async function rejectPlace(pid, name) {
+function rejectPlace(pid, name) {
   if (!currentUser || (!isModerator && !isAdmin)) return;
-  if (!confirm('Refuser et supprimer « ' + name + ' » ?')) return;
-  var placeRes = await db.from('places').select('user_id').eq('id', pid).maybeSingle();
-  var res = await db.from('places').delete().eq('id', pid);
+  _pendingPlaceAction = { type: 'reject', pid: pid, name: name, source: 'popup' };
+  document.getElementById('reject-place-name').textContent = '« ' + name + ' »';
+  openModal('modal-reject-place');
+}
+
+async function confirmApprovePlace() {
+  if (!_pendingPlaceAction || _pendingPlaceAction.type !== 'approve') return;
+  var a = _pendingPlaceAction; _pendingPlaceAction = null;
+  closeModal('modal-approve-place');
+  var placeRes = await db.from('places').select('user_id, name').eq('id', a.pid).maybeSingle();
+  var res = await db.from('places').update({ status: 'active' }).eq('id', a.pid);
   if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
   if (placeRes.data) {
-    insertPlaceNotif(placeRes.data.user_id, 'place_rejected', '❌ Votre lieu « ' + name + ' » a été refusé par un modérateur', null);
-    sendPush([placeRes.data.user_id], '❌ Lieu refusé', 'Votre lieu « ' + name + ' » a été refusé par un modérateur', '/');
+    insertPlaceNotif(placeRes.data.user_id, 'place_validated', '&#10003; Votre lieu « ' + placeRes.data.name + ' » a été validé et publié !', a.pid);
+    sendPush([placeRes.data.user_id], '&#10003; Lieu validé !', 'Votre lieu « ' + placeRes.data.name + ' » a été publié sur la carte', '/');
   }
-  showToast('❌ Lieu refusé et supprimé', 'success');
-  closePlaceSheet();
-  scheduleLoad();
+  showToast('&#9989; Lieu validé et publié !', 'success');
+  if (a.source === 'popup') { closePlaceSheet(); scheduleLoad(); }
+  else {
+    var item = document.getElementById('pending-item-' + a.pid); if (item) item.remove();
+    var badge = document.getElementById('pending-count-badge'); if (badge) badge.textContent = Math.max(0, parseInt(badge.textContent || '0') - 1);
+    scheduleLoad();
+  }
+}
+
+async function confirmRejectPlace() {
+  if (!_pendingPlaceAction || _pendingPlaceAction.type !== 'reject') return;
+  var a = _pendingPlaceAction; _pendingPlaceAction = null;
+  closeModal('modal-reject-place');
+  var placeRes = await db.from('places').select('user_id').eq('id', a.pid).maybeSingle();
+  var res = await db.from('places').delete().eq('id', a.pid);
+  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
+  if (placeRes.data) {
+    insertPlaceNotif(placeRes.data.user_id, 'place_rejected', '&#10007; Votre lieu « ' + a.name + ' » a été refusé par un modérateur', null);
+    sendPush([placeRes.data.user_id], '&#10007; Lieu refusé', 'Votre lieu « ' + a.name + ' » a été refusé par un modérateur', '/');
+  }
+  showToast('&#10060; Lieu refusé et supprimé', 'success');
+  if (a.source === 'popup') { closePlaceSheet(); scheduleLoad(); }
+  else {
+    var item = document.getElementById('pending-item-' + a.pid); if (item) item.remove();
+    var badge = document.getElementById('pending-count-badge'); if (badge) badge.textContent = Math.max(0, parseInt(badge.textContent || '0') - 1);
+  }
 }
 
 async function hidePlace(pid) {
@@ -3781,36 +3828,16 @@ async function loadPendingPlaces() {
   }).join('');
 }
 
-async function approvePendingPlace(pid, name) {
-  var placeRes = await db.from('places').select('user_id').eq('id', pid).maybeSingle();
-  var res = await db.from('places').update({ status: 'active' }).eq('id', pid);
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
-  if (placeRes.data) {
-    insertPlaceNotif(placeRes.data.user_id, 'place_validated', '&#10003; Votre lieu « ' + name + ' » a été validé et publié !', pid);
-    sendPush([placeRes.data.user_id], '&#10003; Lieu validé !', 'Votre lieu « ' + name + ' » a été publié sur la carte', '/');
-  }
-  showToast('&#10003; Lieu validé et publié !', 'success');
-  var item = document.getElementById('pending-item-' + pid);
-  if (item) item.remove();
-  var badge = document.getElementById('pending-count-badge');
-  if (badge) badge.textContent = Math.max(0, parseInt(badge.textContent || '0') - 1);
-  scheduleLoad();
+function approvePendingPlace(pid, name) {
+  _pendingPlaceAction = { type: 'approve', pid: pid, name: name, source: 'list' };
+  document.getElementById('approve-place-name').textContent = '« ' + name + ' »';
+  openModal('modal-approve-place');
 }
 
-async function rejectPendingPlace(pid, name) {
-  if (!confirm('Refuser et supprimer « ' + name + ' » ?')) return;
-  var placeRes = await db.from('places').select('user_id').eq('id', pid).maybeSingle();
-  var res = await db.from('places').delete().eq('id', pid);
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
-  if (placeRes.data) {
-    insertPlaceNotif(placeRes.data.user_id, 'place_rejected', '&#10007; Votre lieu « ' + name + ' » a été refusé par un modérateur', null);
-    sendPush([placeRes.data.user_id], '&#10007; Lieu refusé', 'Votre lieu « ' + name + ' » a été refusé par un modérateur', '/');
-  }
-  showToast('&#10007; Lieu refusé et supprimé', 'success');
-  var item = document.getElementById('pending-item-' + pid);
-  if (item) item.remove();
-  var badge = document.getElementById('pending-count-badge');
-  if (badge) badge.textContent = Math.max(0, parseInt(badge.textContent || '0') - 1);
+function rejectPendingPlace(pid, name) {
+  _pendingPlaceAction = { type: 'reject', pid: pid, name: name, source: 'list' };
+  document.getElementById('reject-place-name').textContent = '« ' + name + ' »';
+  openModal('modal-reject-place');
 }
 
 function viewPendingPlace(pid, lat, lng) {
