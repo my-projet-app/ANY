@@ -820,6 +820,7 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
         <option value="duplicate">Doublon</option>
         <option value="wrong_info">Informations incorrectes</option>
         <option value="inappropriate">Contenu inapproprié</option>
+        <option value="bad_photo">Photo inappropriée / incorrecte</option>
         <option value="other">Autre</option>
       </select>
     </div>
@@ -1009,7 +1010,7 @@ fr:{
   report_details_ph:'Décrivez le problème...', report_details:'Précisions (optionnel)', report_submit:'Envoyer le signalement',
   report_reason_closed:'Lieu fermé définitivement', report_reason_maintenance:'En maintenance / Temporairement fermé',
   report_reason_location:'Emplacement incorrect', report_reason_duplicate:'Doublon',
-  report_reason_info:'Informations incorrectes', report_reason_inappropriate:'Contenu inapproprié', report_reason_other:'Autre',
+  report_reason_info:'Informations incorrectes', report_reason_inappropriate:'Contenu inapproprié', report_reason_bad_photo:'Photo inappropriée / incorrecte', report_reason_other:'Autre',
   dash_title:'🛡️ Tableau de bord', dash_pending:'À valider', dash_reports:'Signalements',
   dash_members:'Membres', dash_stats:'Lieux actifs', dash_team:'Équipe', dash_bans:'Sanctions',
   dash_reported_places:'📍 Lieux signalés', dash_reported_comments:'💬 Commentaires signalés',
@@ -1132,7 +1133,7 @@ en:{
   report_details_ph:'Describe the issue...', report_details:'Details (optional)', report_submit:'Send report',
   report_reason_closed:'Permanently closed', report_reason_maintenance:'Under maintenance / Temporarily closed',
   report_reason_location:'Wrong location', report_reason_duplicate:'Duplicate',
-  report_reason_info:'Incorrect information', report_reason_inappropriate:'Inappropriate content', report_reason_other:'Other',
+  report_reason_info:'Incorrect information', report_reason_inappropriate:'Inappropriate content', report_reason_bad_photo:'Inappropriate / incorrect photo', report_reason_other:'Other',
   dash_title:'🛡️ Dashboard', dash_pending:'To validate', dash_reports:'Reports',
   dash_members:'Members', dash_stats:'Active places', dash_team:'Team', dash_bans:'Bans',
   dash_reported_places:'📍 Reported places', dash_reported_comments:'💬 Reported comments',
@@ -1254,7 +1255,7 @@ es:{
   report_details_ph:'Describe el problema...', report_details:'Detalles (opcional)', report_submit:'Enviar informe',
   report_reason_closed:'Cerrado permanentemente', report_reason_maintenance:'En mantenimiento / Cerrado temporalmente',
   report_reason_location:'Ubicación incorrecta', report_reason_duplicate:'Duplicado',
-  report_reason_info:'Información incorrecta', report_reason_inappropriate:'Contenido inapropiado', report_reason_other:'Otro',
+  report_reason_info:'Información incorrecta', report_reason_inappropriate:'Contenido inapropiado', report_reason_bad_photo:'Foto inapropiada / incorrecta', report_reason_other:'Otro',
   dash_title:'🛡️ Panel de control', dash_pending:'Por validar', dash_reports:'Informes',
   dash_members:'Miembros', dash_stats:'Lugares activos', dash_team:'Equipo', dash_bans:'Sanciones',
   dash_reported_places:'📍 Lugares reportados', dash_reported_comments:'💬 Comentarios reportados',
@@ -1376,7 +1377,7 @@ de:{
   report_details_ph:'Beschreibe das Problem...', report_details:'Details (optional)', report_submit:'Meldung senden',
   report_reason_closed:'Dauerhaft geschlossen', report_reason_maintenance:'In Wartung / Vorübergehend geschlossen',
   report_reason_location:'Falsche Position', report_reason_duplicate:'Duplikat',
-  report_reason_info:'Falsche Informationen', report_reason_inappropriate:'Unangemessener Inhalt', report_reason_other:'Sonstiges',
+  report_reason_info:'Falsche Informationen', report_reason_inappropriate:'Unangemessener Inhalt', report_reason_bad_photo:'Unangemessenes / falsches Foto', report_reason_other:'Sonstiges',
   dash_title:'🛡️ Dashboard', dash_pending:'Zu validieren', dash_reports:'Meldungen',
   dash_members:'Mitglieder', dash_stats:'Aktive Orte', dash_team:'Team', dash_bans:'Sperren',
   dash_reported_places:'📍 Gemeldete Orte', dash_reported_comments:'💬 Gemeldete Kommentare',
@@ -1498,7 +1499,7 @@ it:{
   report_details_ph:'Descrivi il problema...', report_details:'Dettagli (opzionale)', report_submit:'Invia segnalazione',
   report_reason_closed:'Chiuso definitivamente', report_reason_maintenance:'In manutenzione / Chiuso temporaneamente',
   report_reason_location:'Posizione errata', report_reason_duplicate:'Duplicato',
-  report_reason_info:'Informazioni errate', report_reason_inappropriate:'Contenuto inappropriato', report_reason_other:'Altro',
+  report_reason_info:'Informazioni errate', report_reason_inappropriate:'Contenuto inappropriato', report_reason_bad_photo:'Foto inappropriata / errata', report_reason_other:'Altro',
   dash_title:'🛡️ Dashboard', dash_pending:'Da validare', dash_reports:'Segnalazioni',
   dash_members:'Membri', dash_stats:'Luoghi attivi', dash_team:'Squadra', dash_bans:'Sanzioni',
   dash_reported_places:'📍 Luoghi segnalati', dash_reported_comments:'💬 Commenti segnalati',
@@ -1620,7 +1621,7 @@ pt:{
   report_details_ph:'Descreva o problema...', report_details:'Detalhes (opcional)', report_submit:'Enviar relatório',
   report_reason_closed:'Fechado permanentemente', report_reason_maintenance:'Em manutenção / Temporariamente fechado',
   report_reason_location:'Localização incorreta', report_reason_duplicate:'Duplicado',
-  report_reason_info:'Informação incorreta', report_reason_inappropriate:'Conteúdo inapropriado', report_reason_other:'Outro',
+  report_reason_info:'Informação incorreta', report_reason_inappropriate:'Conteúdo inapropriado', report_reason_bad_photo:'Foto inapropriada / incorreta', report_reason_other:'Outro',
   dash_title:'🛡️ Painel', dash_pending:'Para validar', dash_reports:'Relatórios',
   dash_members:'Membros', dash_stats:'Locais ativos', dash_team:'Equipe', dash_bans:'Sanções',
   dash_reported_places:'📍 Locais reportados', dash_reported_comments:'💬 Comentários reportados',
@@ -1742,7 +1743,7 @@ nl:{
   report_details_ph:'Beschrijf het probleem...', report_details:'Details (optioneel)', report_submit:'Melding versturen',
   report_reason_closed:'Permanent gesloten', report_reason_maintenance:'In onderhoud / Tijdelijk gesloten',
   report_reason_location:'Verkeerde locatie', report_reason_duplicate:'Duplicaat',
-  report_reason_info:'Onjuiste informatie', report_reason_inappropriate:'Ongepaste inhoud', report_reason_other:'Anders',
+  report_reason_info:'Onjuiste informatie', report_reason_inappropriate:'Ongepaste inhoud', report_reason_bad_photo:'Ongepaste / onjuiste foto', report_reason_other:'Anders',
   dash_title:'🛡️ Dashboard', dash_pending:'Te valideren', dash_reports:'Meldingen',
   dash_members:'Leden', dash_stats:'Actieve locaties', dash_team:'Team', dash_bans:'Bans',
   dash_reported_places:'📍 Gemelde locaties', dash_reported_comments:'💬 Gemelde reacties',
@@ -4949,7 +4950,7 @@ async function loadReportedPlaces() {
     if (!grouped[r.place_id]) grouped[r.place_id] = { place: r.places, reports: [] };
     grouped[r.place_id].reports.push({ reason: r.reason, details: r.details, photo_url: r.photo_url, user: (r.profiles && r.profiles.username) || r.user_id });
   });
-  var reasons = { closed: 'Fermé', wrong_info: 'Infos incorrectes', duplicate: 'Doublon', inappropriate: 'Inapproprié', other: 'Autre', maintenance: 'En maintenance', wrong_location: 'Emplacement incorrect' };
+  var reasons = { closed: 'Fermé', wrong_info: 'Infos incorrectes', duplicate: 'Doublon', inappropriate: 'Inapproprié', bad_photo: 'Photo inappropriée', other: 'Autre', maintenance: 'En maintenance', wrong_location: 'Emplacement incorrect' };
   el.innerHTML = Object.entries(grouped).map(function(entry) {
     var pid = entry[0], g = entry[1];
     var place = g.place || {};
@@ -5463,7 +5464,7 @@ async function loadReportInfo(pid) {
   if (!el) return;
   var data = res.data || [];
   if (!data.length) return;
-  var labels = { closed:'Fermé', maintenance:'En maintenance', wrong_location:'Emplacement incorrect', duplicate:'Doublon', wrong_info:'Infos incorrectes', inappropriate:'Inapproprié', other:'Autre' };
+  var labels = { closed:'Fermé', maintenance:'En maintenance', wrong_location:'Emplacement incorrect', duplicate:'Doublon', wrong_info:'Infos incorrectes', inappropriate:'Inapproprié', bad_photo:'Photo inappropriée', other:'Autre' };
   var counts = {};
   data.forEach(function(r) { counts[r.reason] = (counts[r.reason] || 0) + 1; });
   var top = Object.keys(counts).sort(function(a,b) { return counts[b]-counts[a]; })[0];
