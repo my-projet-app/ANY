@@ -452,6 +452,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
 .dash-tile-badge{position:absolute;top:8px;right:8px;background:#e74c3c;color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:2px 6px;}
 .dash-tile.urgent{border-color:rgba(231,76,60,0.35);background:rgba(231,76,60,0.05);}
 .dash-tile.admin-only{border-color:rgba(255,208,79,0.35);background:rgba(255,208,79,0.04);}
+.dash-tile.week{border-color:rgba(39,174,96,0.3);background:rgba(39,174,96,0.04);}
+.dash-tile.week .dash-tile-val{color:#27ae60;}
+.dash-tile-week-label{font-size:9px;color:var(--text2);margin-top:1px;text-transform:uppercase;letter-spacing:0.4px;}
 </style>
 </head>
 <body>
@@ -5709,38 +5712,61 @@ function showDashDetail(title, renderFn) {
   renderFn();
 }
 
+function getWeekStartISO() {
+  var now = new Date();
+  var day = now.getDay();
+  var diff = day === 0 ? -6 : 1 - day;
+  var monday = new Date(now);
+  monday.setDate(now.getDate() + diff);
+  monday.setHours(0, 0, 0, 0);
+  return monday.toISOString();
+}
+
 async function loadDashboardTiles() {
   var grid = document.getElementById('dash-grid');
   if (!grid) return;
+  var weekStart = getWeekStartISO();
   var results = await Promise.all([
     db.from('profiles').select('id', { count: 'exact', head: true }).not('username', 'is', null),
+    db.from('profiles').select('id', { count: 'exact', head: true }).not('username', 'is', null).gte('registered_at', weekStart),
     db.from('places').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+    db.from('places').select('id', { count: 'exact', head: true }).gte('created_at', weekStart),
     db.from('places').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
     db.from('reports').select('id', { count: 'exact', head: true }),
     db.from('comment_reports').select('id', { count: 'exact', head: true })
   ]);
-  var totalMembers = results[0].count || 0;
-  var totalPlaces = results[1].count || 0;
-  var pendingCount = results[2].count || 0;
-  var reportedPlaces = results[3].count || 0;
-  var reportedComments = results[4].count || 0;
-  var totalReports = reportedPlaces + reportedComments;
-  var urgent = pendingCount + totalReports;
+  var totalMembers   = results[0].count || 0;
+  var newMembers     = results[1].count || 0;
+  var totalPlaces    = results[2].count || 0;
+  var newPlaces      = results[3].count || 0;
+  var pendingCount   = results[4].count || 0;
+  var reportedPlaces = results[5].count || 0;
+  var reportedCmts   = results[6].count || 0;
+  var urgent = pendingCount + reportedPlaces + reportedCmts;
   var nb = document.getElementById('dash-nav-badge');
   if (nb) { nb.textContent = urgent > 99 ? '99+' : urgent; nb.style.display = urgent > 0 ? 'block' : 'none'; }
-  function tile(icon, label, val, onclick, badge, cls) {
+
+  function tile(icon, label, val, onclick, badge, cls, weekLabel) {
     var badgeHtml = (badge > 0) ? '<div class="dash-tile-badge">' + (badge > 99 ? '99+' : badge) + '</div>' : '';
-    return '<div class="dash-tile' + (cls ? ' ' + cls : '') + '" onclick="' + onclick + '">'
+    var weekHtml = weekLabel ? '<div class="dash-tile-week-label">' + weekLabel + '</div>' : '';
+    return '<div class="dash-tile' + (cls ? ' ' + cls : '') + '"' + (onclick ? ' onclick="' + onclick + '"' : '') + '>'
       + badgeHtml
       + '<div class="dash-tile-icon">' + icon + '</div>'
       + (val !== '' ? '<div class="dash-tile-val">' + val + '</div>' : '')
       + '<div class="dash-tile-lbl">' + label + '</div>'
+      + weekHtml
       + '</div>';
   }
-  var html = tile('&#9203;', '&Agrave; valider', pendingCount, 'showDashPending()', pendingCount, pendingCount > 0 ? 'urgent' : '')
-    + tile('&#9888;&#65039;', 'Signalements', totalReports, 'showDashReports()', totalReports, totalReports > 0 ? 'urgent' : '')
-    + tile('&#128101;', 'Membres', totalMembers, 'showDashMembers()')
-    + tile('&#128205;', 'Lieux actifs', totalPlaces, 'showDashStats()');
+
+  var html = tile('&#128101;', 'Membres', totalMembers, 'showDashMembers()')
+    + tile('&#127381;', 'Nouveaux membres', newMembers, 'showDashNewMembers()', 0, 'week', 'cette semaine')
+    + tile('&#128205;', 'Lieux actifs', totalPlaces, 'showDashStats()')
+    + tile('&#10024;', 'Nouveaux lieux', newPlaces, 'showDashNewPlaces()', 0, 'week', 'cette semaine')
+    + tile('&#9888;&#65039;', 'Lieux signal&eacute;s', reportedPlaces, 'showDashReportedPlaces()', reportedPlaces, reportedPlaces > 0 ? 'urgent' : '')
+    + tile('&#128172;', 'Commentaires signal&eacute;s', reportedCmts, 'showDashReportedComments()', reportedCmts, reportedCmts > 0 ? 'urgent' : '');
+  if (isAdmin || isModerator) {
+    html += tile('&#9203;', '&Agrave; valider', pendingCount, 'showDashPending()', pendingCount, pendingCount > 0 ? 'urgent' : '');
+  }
   if (isAdmin) {
     html += tile('&#128737;&#65039;', '&Eacute;quipe', '', 'showDashTeam()', 0, 'admin-only')
       + tile('&#128296;', 'Sanctions', '', 'showDashBan()', 0, 'admin-only');
@@ -5753,6 +5779,76 @@ function showDashPending() {
     var c = document.getElementById('dash-detail-content');
     c.innerHTML = '<div id="pending-places-list"><div style="color:var(--text2);">Chargement...</div></div>';
     loadPendingPlaces();
+  });
+}
+
+function showDashReportedPlaces() {
+  showDashDetail('&#9888;&#65039; Lieux signalés', function() {
+    var c = document.getElementById('dash-detail-content');
+    c.innerHTML = '<div id="reported-places-list"><div style="color:var(--text2);">Chargement...</div></div>';
+    loadReportedPlaces();
+  });
+}
+
+function showDashReportedComments() {
+  showDashDetail('&#128172; Commentaires signalés', function() {
+    var c = document.getElementById('dash-detail-content');
+    c.innerHTML = '<div id="reported-comments-list"><div style="color:var(--text2);">Chargement...</div></div>';
+    loadReportedComments();
+  });
+}
+
+function showDashNewMembers() {
+  showDashDetail('&#127381; Nouveaux membres cette semaine', function() {
+    var c = document.getElementById('dash-detail-content');
+    c.innerHTML = '<div id="dash-new-members-list"><div style="color:var(--text2);font-size:13px;">Chargement...</div></div>';
+    (async function() {
+      var el = document.getElementById('dash-new-members-list');
+      if (!el) return;
+      var weekStart = getWeekStartISO();
+      var res = await db.from('profiles').select('user_id,username,registered_at').not('username', 'is', null).gte('registered_at', weekStart).order('registered_at', { ascending: false });
+      var members = res.data || [];
+      if (!members.length) { el.innerHTML = '<div style="color:var(--text2);font-size:13px;text-align:center;padding:16px 0;">Aucun nouveau membre cette semaine</div>'; return; }
+      el.innerHTML = '<div style="font-size:11px;color:var(--text2);margin-bottom:10px;">' + members.length + ' nouveau' + (members.length > 1 ? 'x' : '') + ' membre' + (members.length > 1 ? 's' : '') + ' cette semaine</div>'
+        + members.map(function(m) {
+          var date = m.registered_at ? new Date(m.registered_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
+          return '<div onclick="closeSheet(\'sheet-dashboard\');openPublicProfile(\'' + escHtml(m.username).replace(/'/g,"\\'") + '\')" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
+            + '<div style="width:30px;height:30px;border-radius:50%;background:rgba(39,174,96,0.15);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">&#127381;</div>'
+            + '<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--text);">' + escHtml(m.username) + '</div>'
+            + (date ? '<div style="font-size:11px;color:var(--text2);">Inscrit le ' + date + '</div>' : '') + '</div>'
+            + '<span style="color:var(--text2);font-size:16px;">&#8250;</span></div>';
+        }).join('');
+    })();
+  });
+}
+
+function showDashNewPlaces() {
+  showDashDetail('&#10024; Nouveaux lieux cette semaine', function() {
+    var c = document.getElementById('dash-detail-content');
+    c.innerHTML = '<div id="dash-new-places-list"><div style="color:var(--text2);font-size:13px;">Chargement...</div></div>';
+    (async function() {
+      var el = document.getElementById('dash-new-places-list');
+      if (!el) return;
+      var weekStart = getWeekStartISO();
+      var res = await db.from('places').select('id,name,user_name,status,created_at,latitude,longitude,categories(icon,name)').gte('created_at', weekStart).order('created_at', { ascending: false });
+      var places = res.data || [];
+      if (!places.length) { el.innerHTML = '<div style="color:var(--text2);font-size:13px;text-align:center;padding:16px 0;">Aucun lieu ajouté cette semaine</div>'; return; }
+      el.innerHTML = '<div style="font-size:11px;color:var(--text2);margin-bottom:10px;">' + places.length + ' lieu' + (places.length > 1 ? 'x' : '') + ' ajouté' + (places.length > 1 ? 's' : '') + ' cette semaine</div>'
+        + places.map(function(p) {
+          var icon = (p.categories && p.categories.icon) || '📍';
+          var statusColor = p.status === 'active' ? '#27ae60' : p.status === 'pending' ? '#f39c12' : '#e74c3c';
+          var statusLabel = p.status === 'active' ? 'Actif' : p.status === 'pending' ? 'En attente' : 'Masqué';
+          var date = p.created_at ? new Date(p.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
+          return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">'
+            + '<div style="font-size:22px;flex-shrink:0;">' + icon + '</div>'
+            + '<div style="flex:1;min-width:0;">'
+            + '<div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(p.name || 'Sans nom') + '</div>'
+            + '<div style="font-size:11px;color:var(--text2);">' + escHtml(p.user_name || 'Anonyme') + (date ? ' · ' + date : '') + '</div>'
+            + '</div>'
+            + '<span style="font-size:10px;font-weight:700;color:' + statusColor + ';background:' + statusColor + '22;border-radius:5px;padding:2px 7px;flex-shrink:0;">' + statusLabel + '</span>'
+            + '</div>';
+        }).join('');
+    })();
   });
 }
 
