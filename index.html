@@ -4943,6 +4943,7 @@ async function loadReportedPlaces() {
   if (!el) return;
   el.innerHTML = '<div style="color:var(--text2);">Chargement...</div>';
   var res = await db.from('reports').select('place_id,reason,details,photo_url,user_id,profiles(username),places(id,name,user_name,latitude,longitude)').order('created_at', { ascending: false });
+  if (res.error) { el.innerHTML = '<div style="color:#e74c3c;font-size:12px;">Erreur : ' + escHtml(res.error.message) + '</div>'; return; }
   var data = res.data || [];
   if (!data.length) { el.innerHTML = '<div style="color:var(--text2);">Aucun signalement</div>'; return; }
   var grouped = {};
@@ -5969,7 +5970,7 @@ function showDashDetail(title, renderFn) {
   var content = document.getElementById('dash-detail-content');
   if (main) main.style.display = 'none';
   if (detail) { detail.style.display = 'flex'; detail.style.flexDirection = 'column'; }
-  if (titleEl) titleEl.textContent = title;
+  if (titleEl) titleEl.innerHTML = title;
   if (content) content.innerHTML = '<div style="color:var(--text2);font-size:13px;">Chargement...</div>';
   renderFn();
 }
