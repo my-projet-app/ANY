@@ -1612,7 +1612,8 @@ async function openPublicProfile(username) {
       db.from('votes').select('*', { count: 'exact', head: true }).eq('user_id', profile.id),
       db.from('leaderboard_places').select('*'),
       db.from('trusted_users').select('role').eq('user_id', profile.id).maybeSingle(),
-      db.from('banned_users').select('id').eq('user_id', profile.id).maybeSingle()
+      db.from('banned_users').select('id').eq('user_id', profile.id).maybeSingle(),
+      db.from('profiles').select('id', { count: 'exact', head: true }).lte('created_at', profile.created_at)
     ]);
     placesCount = stats[0].count || 0;
     commentsCount = stats[1].count || 0;
@@ -1623,6 +1624,7 @@ async function openPublicProfile(username) {
     if (myIdx >= 0) { rankPos = myIdx + 1; rankTotal = lbData.length; }
     var pubUserRole = stats[5].data ? stats[5].data.role : null;
     var pubUserBanned = !!(stats[6].data);
+    var memberNum = stats[7].count || null;
   } else {
     _pubProfileData = { userId: null, username: username };
     var stats = await Promise.all([
@@ -1643,7 +1645,9 @@ async function openPublicProfile(username) {
   if (isSelf && isAdmin) pubUserRole = 'admin';
   else if (isSelf && isModerator) pubUserRole = pubUserRole || 'moderator';
   var pubUserBanned = typeof pubUserBanned !== 'undefined' ? pubUserBanned : false;
+  var memberNum = typeof memberNum !== 'undefined' ? memberNum : null;
   var roleBadge = pubUserRole === 'admin' ? '&#128081; Administrateur' : pubUserRole === 'moderator' ? '&#128737;&#65039; Modérateur' : pubUserRole === 'trusted' ? '&#11088; Membre de confiance' : null;
+  var communityRole = roleBadge || (placesCount >= 100 ? '&#129351; Expert' : placesCount >= 30 ? '&#129352; Explorateur' : placesCount >= 10 ? '&#129353; D&eacute;butant' : placesCount >= 5 ? 'Membre actif' : 'Nouveau membre');
   var lvl = roleBadge || (placesCount >= 100 ? '&#129351; Expert' : placesCount >= 30 ? '&#129352; Explorateur' : placesCount >= 10 ? '&#129353; D&eacute;butant' : '&#11088; Membre');
 
   var BANNER_PRESETS = ['135deg,#0a0a0a,#1a1a1a,#2d2d2d','135deg,#13110a,#28230a,#3d3510','135deg,#070d1a,#0d1830,#162544','135deg,#0f0814,#1c1228,#2a1a3d','135deg,#080f08,#0f1f0e,#1a2e18','135deg,#140606,#250a0a,#361010','135deg,#060f0f,#0a1c1c,#112828','135deg,#080b12,#10151f,#1a2030'];
@@ -1665,7 +1669,13 @@ async function openPublicProfile(username) {
     + '</div>'
     + '<div class="prof-identity">'
     + '<div class="prof-username">' + escHtml(username) + '</div>'
-    + '<div class="prof-meta">' + (joinDate ? '<span>&#128197; Inscrit le ' + joinDate + '</span>' : '') + '</div>'
+    + '<div class="prof-meta" style="display:flex;flex-direction:column;gap:4px;margin-top:4px;">'
+    + '<span style="font-size:13px;font-weight:600;color:var(--accent);">' + communityRole + '</span>'
+    + '<span style="font-size:12px;color:var(--text2);">'
+    + (joinDate ? '&#128197; Inscrit le ' + joinDate : '')
+    + (memberNum ? (joinDate ? ' &nbsp;&middot;&nbsp; ' : '') + '&#128100; Membre #' + memberNum : '')
+    + '</span>'
+    + '</div>'
     + '</div>'
     + '<div class="prof-stats"><div class="prof-stats-grid">'
     + '<div class="prof-stat" onclick="togglePubPlaces()" style="cursor:pointer;"><div class="prof-stat-icon pic-green">&#128205;</div><div style="flex:1"><div class="prof-stat-val">' + placesCount + '</div><div class="prof-stat-lbl">Lieux ajout&eacute;s</div></div><span id="pub-places-arrow" style="color:var(--text2);font-size:16px;">&#8250;</span></div>'
