@@ -5821,10 +5821,14 @@ async function loadNotifications() {
     + data.map(function(n) {
       var icon = icons[n.type] || '&#128276;';
       var time = timeAgo(n.created_at);
-      var isPlaceNotif = n.type && n.type.indexOf('place_') === 0;
-      var clickHandler = isPlaceNotif && n.place_id
-        ? 'openNotifPlace(\'' + n.id + '\',\'' + n.place_id + '\')'
-        : 'openNotif(\'' + n.id + '\',\'' + (n.post_id || '') + '\')';
+      var clickHandler;
+      if (n.type === 'signalement') {
+        clickHandler = 'openNotifReport(\'' + n.id + '\')';
+      } else if (n.type && n.type.indexOf('place_') === 0 && n.place_id) {
+        clickHandler = 'openNotifPlace(\'' + n.id + '\',\'' + n.place_id + '\')';
+      } else {
+        clickHandler = 'openNotif(\'' + n.id + '\',\'' + (n.post_id || '') + '\')';
+      }
       return '<div class="notif-card ' + (n.is_read ? '' : 'unread') + '" onclick="' + clickHandler + '">'
         + '<div class="notif-dot"></div>'
         + '<span class="notif-icon">' + icon + '</span>'
@@ -5856,6 +5860,14 @@ async function openNotifPlace(notifId, placeId) {
   closeSheet('sheet-community');
   map.flyTo([res.data.latitude, res.data.longitude], 16, { duration: 0.8 });
   setTimeout(function() { openPlaceSheet(res.data); }, 900);
+}
+
+async function openNotifReport(notifId) {
+  await db.from('notifications').update({ is_read: true }).eq('id', notifId);
+  loadNotifCount();
+  closeSheet('sheet-community');
+  openDashboard();
+  setTimeout(function() { showDashReportedPlaces(); }, 400);
 }
 
 async function markAllRead() {
@@ -5924,6 +5936,7 @@ function startRealtimeReports() {
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reports' }, function() {
       showToast('&#9888;&#65039; Nouveau lieu signalé', 'error');
       loadModReportsCount();
+      if (document.getElementById('dash-grid')) loadDashboardTiles();
       var el = document.getElementById('reported-places-list');
       if (el) loadReportedPlaces();
     })
