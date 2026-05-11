@@ -528,10 +528,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
       <span id="notif-badge" style="display:none;position:absolute;top:8px;right:calc(50% - 18px);background:#f87171;color:#fff;font-size:9px;font-weight:700;border-radius:10px;padding:1px 5px;min-width:16px;text-align:center;line-height:16px;">0</span>
       <span>Communaut&#233;</span>
     </button>
-    <button class="nav-item" id="nav-profile" onclick="navTo('profile')" style="position:relative;">
+    <button class="nav-item" id="nav-profile" onclick="navTo('profile')">
       <span class="nav-item-icon">&#128100;</span>
-      <span id="mod-badge" style="display:none;position:absolute;top:8px;right:calc(50% - 18px);background:#e74c3c;color:#fff;font-size:9px;font-weight:700;border-radius:10px;padding:1px 5px;min-width:16px;text-align:center;line-height:16px;">0</span>
       <span>Profil</span>
+    </button>
+    <button class="nav-item" id="nav-settings" onclick="navTo('settings')" style="position:relative;">
+      <span class="nav-item-icon">&#9881;&#65039;</span>
+      <span id="mod-badge" style="display:none;position:absolute;top:8px;right:calc(50% - 18px);background:#e74c3c;color:#fff;font-size:9px;font-weight:700;border-radius:10px;padding:1px 5px;min-width:16px;text-align:center;line-height:16px;">0</span>
+      <span>Param&#232;tres</span>
     </button>
   </div>
 </div>
@@ -1169,6 +1173,7 @@ function navTo(tab) {
   else if (tab === 'search') { renderSrchChips(); openSheet('sheet-search'); setTimeout(function() { document.getElementById('search-mobile').focus(); }, 300); }
   else if (tab === 'rank') { openSheet('sheet-rank'); loadLeaderboard('places'); }
   else if (tab === 'profile') { renderProfile(); openSheet('sheet-profile'); }
+  else if (tab === 'settings') { openSheet('sheet-settings'); }
   else if (tab === 'community') { openSheet('sheet-community'); loadCommunity(); document.getElementById('comm-new-btn').style.display = 'flex'; }
 }
 
@@ -1318,13 +1323,11 @@ async function renderProfile() {
     + '<div id="prof-favs-panel" style="display:none;padding:0 16px 4px;"></div>'
     + '<div class="prof-actions">'
     + '<button class="prof-btn-main" id="prof-btn-zone">&#127758; Changer de zone</button>'
-    + '<button class="prof-btn-sec" id="prof-btn-settings">&#9881;&#65039; Param\u00e8tres</button>'
     + '<button class="prof-btn-sec" id="prof-btn-signout" style="color:#e74c3c;border-color:#e74c3c;">&#128682; Se d\u00e9connecter</button>'
     + '</div></div>';
 
   // Action buttons
   document.getElementById('prof-btn-zone').addEventListener('click', function() { closeSheet('sheet-profile'); openCountryPicker(); });
-  document.getElementById('prof-btn-settings').addEventListener('click', function() { closeSheet('sheet-profile'); openSheet('sheet-settings'); if (isAdmin) { document.getElementById('admin-validators-section').style.display = 'block'; loadValidatorsList(); } });
   document.getElementById('prof-btn-signout').addEventListener('click', function() { signOut(); });
 
   // Banner edit button
