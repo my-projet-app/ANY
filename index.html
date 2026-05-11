@@ -734,6 +734,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
           <button onclick="addTrusted()" style="width:100%;background:rgba(255,208,79,0.15);color:var(--accent);border:1px solid rgba(255,208,79,0.3);border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-family:var(--font-body);font-size:13px;">+ Ajouter membre de confiance</button>
         </div>
       </div>
+      <div id="admin-ban-section" style="display:none;border-top:1px solid var(--border);padding-top:14px;margin-top:6px;">
+        <div class="setting-label" style="margin-bottom:10px;">&#128683; Gestion des bannissements</div>
+        <div id="banned-list" style="margin-bottom:12px;font-size:13px;color:var(--text2);">Chargement...</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <input type="text" id="ban-username-input" placeholder="Pseudo à bannir..." style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:var(--font-body);">
+        </div>
+        <button onclick="banByUsername()" style="width:100%;background:rgba(231,76,60,0.12);color:#e74c3c;border:1px solid rgba(231,76,60,0.35);border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-family:var(--font-body);font-size:13px;">&#128683; Bannir cet utilisateur</button>
+      </div>
       <div style="border-top:1px solid var(--border);padding:16px;">
         <button onclick="signOut()" style="width:100%;background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:var(--radius-sm);padding:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-body);">&#128682; Se d&#233;connecter</button>
       </div>
@@ -1221,6 +1229,8 @@ function openSheet(id) {
     if (sec) { sec.style.display = 'block'; loadValidatorsList(); }
     var statsSec = document.getElementById('admin-stats-section');
     if (statsSec) { statsSec.style.display = 'block'; loadAdminStats(); }
+    var banSec = document.getElementById('admin-ban-section');
+    if (banSec) { banSec.style.display = 'block'; loadBannedList(); }
   }
 }
 function closeSheet(id) {
@@ -3089,16 +3099,64 @@ async function banUser(userId, username) {
   var reason = prompt('Raison du bannissement de ' + username + ' (optionnel) :');
   if (reason === null) return;
   await db.from('banned_users').upsert({ user_id: userId, banned_by_name: currentUsername || '', reason: reason || 'Violation des règles' }, { onConflict: 'user_id' });
-  showToast('🚫 ' + username + ' a été banni', 'success');
+  showToast('&#128683; ' + username + ' a été banni', 'success');
   closeSheet('sheet-pub-profile');
+  loadBannedList();
 }
 
 async function unbanUser(userId, username) {
   if (!isAdmin) return;
   if (!confirm('Lever le bannissement de ' + username + ' ?')) return;
   await db.from('banned_users').delete().eq('user_id', userId);
-  showToast('✅ Bannissement levé pour ' + username, 'success');
+  showToast('&#10003; Bannissement levé pour ' + username, 'success');
   closeSheet('sheet-pub-profile');
+  loadBannedList();
+}
+
+async function loadBannedList() {
+  var el = document.getElementById('banned-list');
+  if (!el) return;
+  el.innerHTML = '<div style="color:var(--text2);">Chargement...</div>';
+  var res = await db.from('banned_users').select('user_id,reason,banned_by_name,created_at,profiles(username)').order('created_at', { ascending: false });
+  var data = res.data || [];
+  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);text-align:center;padding:8px 0;">Aucun utilisateur banni</div>'; return; }
+  el.innerHTML = data.map(function(b) {
+    var uname = (b.profiles && b.profiles.username) || b.user_id.slice(0, 8);
+    var date = b.created_at ? new Date(b.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">'
+      + '<div style="min-width:0;">'
+      + '<div style="font-size:13px;font-weight:700;color:#e74c3c;">&#128683; ' + escHtml(uname) + '</div>'
+      + '<div style="font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(b.reason || '') + (date ? ' &bull; ' + date : '') + '</div>'
+      + '</div>'
+      + '<button onclick="unbanUserFromList(\'' + b.user_id + '\',\'' + escHtml(uname) + '\')" style="flex-shrink:0;background:rgba(110,231,183,0.1);border:1px solid rgba(110,231,183,0.3);color:#6ee7b7;border-radius:7px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);">Lever</button>'
+      + '</div>';
+  }).join('');
+}
+
+async function unbanUserFromList(userId, username) {
+  if (!isAdmin) return;
+  if (!confirm('Lever le bannissement de ' + username + ' ?')) return;
+  await db.from('banned_users').delete().eq('user_id', userId);
+  showToast('&#10003; Bannissement levé pour ' + username, 'success');
+  loadBannedList();
+}
+
+async function banByUsername() {
+  if (!isAdmin) return;
+  var inp = document.getElementById('ban-username-input');
+  var uname = inp ? inp.value.trim() : '';
+  if (!uname) { showToast('Entrez un pseudo', 'error'); return; }
+  var profRes = await db.from('profiles').select('id,username').eq('username', uname).maybeSingle();
+  if (!profRes.data) { showToast('Utilisateur introuvable : ' + uname, 'error'); return; }
+  if (profRes.data.id === (currentUser && currentUser.id)) { showToast('Impossible de se bannir soi-même', 'error'); return; }
+  var already = await db.from('banned_users').select('id').eq('user_id', profRes.data.id).maybeSingle();
+  if (already.data) { showToast(uname + ' est déjà banni', 'error'); return; }
+  var reason = prompt('Raison du bannissement de ' + uname + ' (optionnel) :');
+  if (reason === null) return;
+  await db.from('banned_users').insert({ user_id: profRes.data.id, banned_by_name: currentUsername || '', reason: reason || 'Violation des règles' });
+  showToast('&#128683; ' + uname + ' a été banni', 'success');
+  if (inp) inp.value = '';
+  loadBannedList();
 }
 
 async function loadAdminStats() {
