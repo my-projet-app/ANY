@@ -1138,7 +1138,7 @@ async function loadPlacesInRadius() {
 
   var result = await db.from('places')
     .select('*, categories(name,icon,color), main_categories(name,icon)')
-    .eq('approved', true)
+    .in('status', ['active', 'pending'])
     .gte('latitude', swLat).lte('latitude', neLat)
     .gte('longitude', swLng).lte('longitude', neLng)
     .in('category_id', Array.from(ok))
@@ -1147,6 +1147,7 @@ async function loadPlacesInRadius() {
   var raw = result.data || [];
   allPlaces = raw.filter(function(p) {
     if (p.hidden && !isAdmin && !isModerator) return false;
+    if (p.status === 'pending' && !isAdmin && !isModerator && (!currentUser || p.user_id !== currentUser.id)) return false;
     return haversineDistance(radiusCenter.lat, radiusCenter.lng, p.latitude, p.longitude) <= radiusKm
       && isInSelectedCountries(p.latitude, p.longitude);
   });
@@ -2358,7 +2359,7 @@ async function loadPlaces() {
 
   var result = await db.from('places')
     .select('*, categories(name,icon,color), main_categories(name,icon)')
-    .eq('approved', true)
+    .in('status', ['active', 'pending'])
     .gte('latitude', sw.lat).lte('latitude', ne.lat)
     .gte('longitude', sw.lng).lte('longitude', ne.lng)
     .in('category_id', Array.from(ok))
@@ -2366,6 +2367,7 @@ async function loadPlaces() {
 
   allPlaces = (result.data || []).filter(function(p) {
     if (p.hidden && !isAdmin && !isModerator) return false;
+    if (p.status === 'pending' && !isAdmin && !isModerator && (!currentUser || p.user_id !== currentUser.id)) return false;
     return isInSelectedCountries(p.latitude, p.longitude);
   });
   renderMarkers(allPlaces);
@@ -2452,9 +2454,10 @@ function renderMarkers(places) {
     var color = cat ? cat.color : '#ffd04f';
     var icon = cat ? cat.icon : '📍';
     var isHidden = !!p.hidden;
-    var iconHtml = isHidden ? '🔒' : fluentImg(icon, 22);
-    var markerColor = isHidden ? '#555' : color;
-    var markerStyle = 'background:' + markerColor + (isHidden ? ';opacity:0.6' : '');
+    var isPending = p.status === 'pending';
+    var iconHtml = isHidden ? '🔒' : isPending ? '⏳' : fluentImg(icon, 22);
+    var markerColor = isHidden ? '#555' : isPending ? '#888' : color;
+    var markerStyle = 'background:' + markerColor + (isHidden || isPending ? ';opacity:0.6' : '');
     var mi = L.divIcon({
       html: '<div class="custom-marker" style="' + markerStyle + '"><div class="custom-marker-inner">' + iconHtml + '</div></div>',
       className: '', iconSize: [36,44], iconAnchor: [18,44], popupAnchor: [0,-46]
@@ -2515,9 +2518,14 @@ function makePopup(p) {
   var modHtml = '';
   if (isModerator || isAdmin) {
     var modBtns = '<div class="pv2-mod-label">&#128737;&#65039; Mod\u00e9ration</div>';
-    modBtns += p.hidden
-      ? '<button class="pv2-mod-btn pv2-mod-show" onclick="showPlace(\'' + safeId + '\')">&#128065;&#65039; R\u00e9activer</button>'
-      : '<button class="pv2-mod-btn pv2-mod-hide" onclick="hidePlace(\'' + safeId + '\')">&#128683; Masquer</button>';
+    if (p.status === 'pending') {
+      modBtns += '<button class="pv2-mod-btn pv2-mod-show" onclick="validatePlace(\'' + safeId + '\')">\u2705 Valider</button>';
+      modBtns += '<button class="pv2-mod-btn pv2-mod-hide" onclick="rejectPlace(\'' + safeId + '\',\'' + safeName + '\')">\u274c Refuser</button>';
+    } else {
+      modBtns += p.hidden
+        ? '<button class="pv2-mod-btn pv2-mod-show" onclick="showPlace(\'' + safeId + '\')">&#128065;&#65039; R\u00e9activer</button>'
+        : '<button class="pv2-mod-btn pv2-mod-hide" onclick="hidePlace(\'' + safeId + '\')">&#128683; Masquer</button>';
+    }
     if (isAdmin) {
       modBtns += '<button class="pv2-mod-btn pv2-mod-delete" onclick="deletePlace(\'' + safeId + '\',\'' + safeName + '\')">&#128465;&#65039; Supprimer</button>';
     }
@@ -2525,7 +2533,8 @@ function makePopup(p) {
   }
 
   el.innerHTML =
-    (p.hidden ? '<div class="pv2-hidden-banner">&#128683; Lieu masqu\u00e9 \u2014 visible uniquement par les mod\u00e9rateurs</div>' : '')
+    (p.status === 'pending' ? '<div class="pv2-hidden-banner" style="background:rgba(255,165,0,0.15);color:#f59e0b;">\u23f3 En attente de validation \u2014 visible uniquement par toi et les mod\u00e9rateurs</div>' : '')
+    + (p.hidden ? '<div class="pv2-hidden-banner">&#128683; Lieu masqu\u00e9 \u2014 visible uniquement par les mod\u00e9rateurs</div>' : '')
     + '<div class="pv2-header" style="background:' + color + '">'
     + '<div class="pv2-emoji">' + icon + '</div>'
     + '<div class="pv2-header-info">'
@@ -2684,6 +2693,25 @@ async function unvalidatePlace(pid) {
   await db.from('place_validations').delete().eq('place_id', pid).eq('user_id', currentUser.id);
   showToast('Confirmation retirée', '');
   loadValidationSection(pid);
+}
+
+async function validatePlace(pid) {
+  if (!currentUser || (!isModerator && !isAdmin)) return;
+  var res = await db.from('places').update({ status: 'active' }).eq('id', pid);
+  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
+  showToast('✅ Lieu validé et publié !', 'success');
+  closePlaceSheet();
+  scheduleLoad();
+}
+
+async function rejectPlace(pid, name) {
+  if (!currentUser || (!isModerator && !isAdmin)) return;
+  if (!confirm('Refuser et supprimer « ' + name + ' » ?')) return;
+  var res = await db.from('places').delete().eq('id', pid);
+  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
+  showToast('❌ Lieu refusé et supprimé', 'success');
+  closePlaceSheet();
+  scheduleLoad();
 }
 
 async function hidePlace(pid) {
@@ -3414,12 +3442,13 @@ async function submitPlace() {
   var is24h = document.getElementById('add-24h').value === 'true';
   if (!name || !mainId || !catId) { showToast('Remplis les champs obligatoires *', 'error'); return; }
   if (!selectedLatLng) { showToast('Clique sur la carte pour la position', 'error'); return; }
+  var placeStatus = (isAdmin || isModerator) ? 'active' : 'pending';
   var result = await db.from('places').insert({
     name: name, description: desc,
     latitude: selectedLatLng.lat, longitude: selectedLatLng.lng,
     main_category_id: mainId, category_id: catId,
     user_id: currentUser.id, user_name: currentUsername || currentUser.email.split('@')[0],
-    disponible_24h: is24h, approved: true
+    disponible_24h: is24h, approved: true, status: placeStatus
   }).select('id').single();
   if (result.error) { showToast('Erreur : ' + result.error.message, 'error'); return; }
   var newId = result.data.id;
@@ -3453,7 +3482,7 @@ async function submitPlace() {
   closeModal('modal-add');
   addingMode = false;
   document.getElementById('info-adding').style.display = 'none';
-  showToast('&#128205; Lieu ajout\u00e9 !', 'success');
+  showToast(placeStatus === 'pending' ? '\u23f3 Lieu soumis, en attente de validation !' : '\ud83d\udccd Lieu ajout\u00e9 !', 'success');
   scheduleLoad();
 }
 
