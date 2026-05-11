@@ -1424,7 +1424,10 @@ async function renderProfile() {
     + '</div>'
     + '<div class="prof-identity">'
     + '<div class="prof-username">' + username + '</div>'
-    + '<div class="prof-meta"><span>&#128197; Inscrit ' + dateStr + '</span></div>'
+    + '<div class="prof-meta" style="display:flex;flex-direction:column;gap:4px;margin-top:4px;">'
+    + '<span id="prof-role-label" style="font-size:13px;font-weight:600;color:var(--accent);"></span>'
+    + '<span style="font-size:12px;color:var(--text2);">&#128197; Inscrit le ' + dateStr + ' &nbsp;&middot;&nbsp; <span id="prof-member-num"></span></span>'
+    + '</div>'
     + '</div>'
     + '<div class="prof-stats"><div class="prof-stats-grid">'
     + '<div class="prof-stat" onclick="toggleProfPlaces()" style="cursor:pointer;" title="Voir mes lieux"><div class="prof-stat-icon pic-green">&#128205;</div><div style="flex:1"><div class="prof-stat-val" id="prof-places">\u2014</div><div class="prof-stat-lbl">Lieux ajout\u00e9s</div></div><span id="prof-places-arrow" style="color:var(--text2);font-size:16px;">\u203a</span></div>'
@@ -1522,7 +1525,8 @@ async function loadProfileStats(username) {
       db.from('comments').select('*', { count: 'exact', head: true }).eq('user_id', uid),
       db.from('votes').select('*', { count: 'exact', head: true }).eq('user_id', uid),
       db.from('places').select('id').eq('user_id', uid),
-      db.from('place_validations').select('*', { count: 'exact', head: true }).eq('user_id', uid)
+      db.from('place_validations').select('*', { count: 'exact', head: true }).eq('user_id', uid),
+      db.from('profiles').select('user_id', { count: 'exact', head: true }).not('username', 'is', null).lte('registered_at', currentUser.created_at)
     ]);
     var BOT_NAMES = ['Import OSM', 'OpenStreetMap', 'Prix-Carburants-gouv'];
     var lbData = (res[0].data || []).filter(function(u) { return BOT_NAMES.indexOf(u.user_name) === -1; });
@@ -1530,6 +1534,7 @@ async function loadProfileStats(username) {
     var votesCount = res[2].count || 0;
     var placeIds = (res[3].data || []).map(function(p) { return p.id; });
     var validatedCount = res[4].count || 0;
+    var memberNum = res[5].count || null;
     var myIdx = lbData.findIndex(function(u) { return u.user_name === username; });
     var myRank = myIdx + 1;
     var total = lbData.length;
@@ -1559,14 +1564,12 @@ async function loadProfileStats(username) {
         rankEl.textContent = 'Non class\u00e9';
       }
     }
-    if (badge) {
-      if (isAdmin) badge.textContent = '\ud83d\udc51 Administrateur';
-      else if (isModerator) badge.textContent = '\ud83d\udee1\ufe0f Mod\u00e9rateur';
-      else {
-        var lvl = placesCount >= 100 ? '\ud83e\udd47 Expert' : placesCount >= 30 ? '\ud83e\udd48 Explorateur' : placesCount >= 10 ? '\ud83e\udd49 D\u00e9butant' : '\u2b50 Membre';
-        badge.textContent = lvl;
-      }
-    }
+    var roleLabel = isAdmin ? '\ud83d\udc51 Administrateur' : isModerator ? '\ud83d\udee1\ufe0f Mod\u00e9rateur' : isTrusted ? '\u2b50 Membre de confiance' : placesCount >= 100 ? '\ud83e\udd47 Expert' : placesCount >= 30 ? '\ud83e\udd48 Explorateur' : placesCount >= 10 ? '\ud83e\udd49 D\u00e9butant' : placesCount >= 5 ? 'Membre actif' : 'Nouveau membre';
+    if (badge) badge.textContent = roleLabel;
+    var roleLabelEl = document.getElementById('prof-role-label');
+    if (roleLabelEl) roleLabelEl.textContent = roleLabel;
+    var memberNumEl = document.getElementById('prof-member-num');
+    if (memberNumEl) memberNumEl.textContent = memberNum ? '\ud83d\udc64 Membre #' + memberNum : '';
     if (placeIds.length) {
       var ratingsRes = await db.from('ratings').select('score').in('place_id', placeIds);
       var scores = (ratingsRes.data || []).map(function(r) { return r.score; });
