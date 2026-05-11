@@ -908,6 +908,16 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
   </div>
 </div>
 
+<div id="modal-hide-place" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-hide-place')">&#10005;</button>
+    <h2>&#128683; Masquer ce lieu</h2>
+    <p style="font-size:14px;color:var(--text2);margin:12px 0;">Masquer <strong id="hide-place-name"></strong> de la carte publique ?<br><span style="font-size:12px;">Le lieu reste en base et peut être réactivé.</span></p>
+    <button class="btn-p" style="background:#e67e22;border-color:#e67e22;" onclick="confirmHidePlace()">&#128683; Masquer</button>
+    <button class="btn-s" onclick="closeModal('modal-hide-place')">Annuler</button>
+  </div>
+</div>
+
 <div id="modal-approve-place" class="modal-overlay" style="display:none">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-approve-place')">&#10005;</button>
@@ -2757,7 +2767,7 @@ function makePopup(p) {
     } else {
       modBtns += p.hidden
         ? '<button class="pv2-mod-btn pv2-mod-show" onclick="showPlace(\'' + safeId + '\')">&#128065;&#65039; R\u00e9activer</button>'
-        : '<button class="pv2-mod-btn pv2-mod-hide" onclick="hidePlace(\'' + safeId + '\')">&#128683; Masquer</button>';
+        : '<button class="pv2-mod-btn pv2-mod-hide" onclick="hidePlace(\'' + safeId + '\',\'' + safeName + '\')">&#128683; Masquer</button>';
     }
     if (isAdmin) {
       modBtns += '<button class="pv2-mod-btn pv2-mod-delete" onclick="deletePlace(\'' + safeId + '\',\'' + safeName + '\')">&#128465;&#65039; Supprimer</button>';
@@ -3062,10 +3072,22 @@ async function confirmRejectPlace() {
   }
 }
 
-async function hidePlace(pid) {
+var _hidePlacePending = null;
+
+function hidePlace(pid, name, dismissReport) {
   if (!currentUser || (!isModerator && !isAdmin)) return;
-  var res = await db.from('places').update({ hidden: true, hidden_by: currentUsername || currentUser.email, hidden_at: new Date().toISOString() }).eq('id', pid);
+  _hidePlacePending = { pid: pid, name: name, dismissReport: !!dismissReport };
+  document.getElementById('hide-place-name').textContent = '« ' + (name || 'ce lieu') + ' »';
+  openModal('modal-hide-place');
+}
+
+async function confirmHidePlace() {
+  if (!_hidePlacePending) return;
+  var a = _hidePlacePending; _hidePlacePending = null;
+  closeModal('modal-hide-place');
+  var res = await db.from('places').update({ hidden: true, hidden_by: currentUsername || currentUser.email, hidden_at: new Date().toISOString() }).eq('id', a.pid);
   if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
+  if (a.dismissReport) dismissPlaceReport(a.pid);
   showToast('&#128683; Lieu masqué', 'success');
   map.closePopup();
   scheduleLoad();
@@ -3887,7 +3909,7 @@ async function loadReportedPlaces() {
       + reportsList
       + '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">'
       + (place.latitude ? '<button onclick="viewReportedPlace(\'' + pid + '\',' + place.latitude + ',' + place.longitude + ')" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);">&#128205; Voir sur la carte</button>' : '')
-      + '<button onclick="hidePlace(\'' + pid + '\');dismissPlaceReport(\'' + pid + '\')" style="flex:1;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);color:#e74c3c;border-radius:6px;padding:5px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);">&#128683; Masquer</button>'
+      + '<button onclick="hidePlace(\'' + pid + '\',\'' + escHtml(place.name||'').replace(/'/g,"\\'") + '\',true)" style="flex:1;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);color:#e74c3c;border-radius:6px;padding:5px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);">&#128683; Masquer</button>'
       + '<button onclick="dismissPlaceReport(\'' + pid + '\')" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:5px;font-size:12px;cursor:pointer;font-family:var(--font-body);">&#10003; Ignorer</button>'
       + '</div></div>';
   }).join('');
