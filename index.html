@@ -2723,6 +2723,7 @@ async function voteValidation(pid) {
   if (isTrusted) { await validatePlace(pid); return; }
   var existing = await db.from('place_validations').select('id').eq('place_id', pid).eq('user_id', currentUser.id).maybeSingle();
   if (existing.data) { showToast('Vous avez déjà voté pour ce lieu', 'error'); return; }
+  var placeRes = await db.from('places').select('user_id, name').eq('id', pid).maybeSingle();
   var voteRes = await db.from('place_validations').insert({ place_id: pid, user_id: currentUser.id });
   if (voteRes.error) { showToast('Erreur : ' + voteRes.error.message, 'error'); return; }
   var countRes = await db.from('place_validations').select('id', { count: 'exact', head: true }).eq('place_id', pid);
@@ -2732,6 +2733,9 @@ async function voteValidation(pid) {
   } else {
     showToast('✅ Vote enregistré (' + voteCount + '/3)', 'success');
     loadValidationCount(pid);
+    if (placeRes.data) {
+      insertPlaceNotif(placeRes.data.user_id, 'place_vote', '👍 ' + voteCount + '/3 votes pour votre lieu « ' + placeRes.data.name + ' »', pid);
+    }
   }
 }
 
@@ -2751,8 +2755,12 @@ async function loadValidationCount(pid) {
 
 async function validatePlace(pid) {
   if (!currentUser || (!isModerator && !isAdmin && !isTrusted)) return;
+  var placeRes = await db.from('places').select('user_id, name').eq('id', pid).maybeSingle();
   var res = await db.from('places').update({ status: 'active' }).eq('id', pid);
   if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
+  if (placeRes.data) {
+    insertPlaceNotif(placeRes.data.user_id, 'place_validated', '✅ Votre lieu « ' + placeRes.data.name + ' » a été validé et publié !', pid);
+  }
   showToast('✅ Lieu validé et publié !', 'success');
   closePlaceSheet();
   scheduleLoad();
@@ -2761,8 +2769,12 @@ async function validatePlace(pid) {
 async function rejectPlace(pid, name) {
   if (!currentUser || (!isModerator && !isAdmin)) return;
   if (!confirm('Refuser et supprimer « ' + name + ' » ?')) return;
+  var placeRes = await db.from('places').select('user_id').eq('id', pid).maybeSingle();
   var res = await db.from('places').delete().eq('id', pid);
   if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
+  if (placeRes.data) {
+    insertPlaceNotif(placeRes.data.user_id, 'place_rejected', '❌ Votre lieu « ' + name + ' » a été refusé par un modérateur', null);
+  }
   showToast('❌ Lieu refusé et supprimé', 'success');
   closePlaceSheet();
   scheduleLoad();
@@ -3623,6 +3635,10 @@ async function submitPlace() {
   addingMode = false;
   document.getElementById('info-adding').style.display = 'none';
   showToast(placeStatus === 'pending' ? '\u23f3 Lieu soumis, en attente de validation !' : '\ud83d\udccd Lieu ajout\u00e9 !', 'success');
+  if (placeStatus === 'pending') {
+    var placeName = document.getElementById('add-name').value.trim();
+    notifyMods('place_pending', '\u23f3 Nouveau lieu \u00e0 valider : ' + placeName, newId);
+  }
   scheduleLoad();
 }
 
@@ -4094,12 +4110,16 @@ async function loadNotifications() {
     return;
   }
   var unreadIds = data.filter(function(n) { return !n.is_read; }).map(function(n) { return n.id; });
-  var icons = { reply: '&#128172;', like: '&#128077;', signalement: '&#9888;&#65039;', place: '&#128205;' };
+  var icons = { reply: '&#128172;', like: '&#128077;', signalement: '&#9888;&#65039;', place: '&#128205;', place_pending: '&#9203;', place_validated: '&#9989;', place_rejected: '&#10060;', place_vote: '&#128077;' };
   feed.innerHTML = (unreadIds.length ? '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0 12px;"><span class="notif-unread-label">' + unreadIds.length + ' non lue' + (unreadIds.length > 1 ? 's' : '') + '</span><button onclick="markAllRead()" style="background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;font-family:var(--font-body);">Tout marquer lu</button></div>' : '')
     + data.map(function(n) {
       var icon = icons[n.type] || '&#128276;';
       var time = timeAgo(n.created_at);
-      return '<div class="notif-card ' + (n.is_read ? '' : 'unread') + '" onclick="openNotif(\'' + n.id + '\',\'' + (n.post_id || '') + '\')">'
+      var isPlaceNotif = n.type && n.type.indexOf('place_') === 0;
+      var clickHandler = isPlaceNotif && n.place_id
+        ? 'openNotifPlace(\'' + n.id + '\',\'' + n.place_id + '\')'
+        : 'openNotif(\'' + n.id + '\',\'' + (n.post_id || '') + '\')';
+      return '<div class="notif-card ' + (n.is_read ? '' : 'unread') + '" onclick="' + clickHandler + '">'
         + '<div class="notif-dot"></div>'
         + '<span class="notif-icon">' + icon + '</span>'
         + '<div class="notif-body"><div class="notif-text">' + escHtml(n.message) + '</div>'
@@ -4122,6 +4142,16 @@ async function openNotif(notifId, postId) {
   filterComm('all', document.querySelector('.comm-filter[data-filter="all"]'));
 }
 
+async function openNotifPlace(notifId, placeId) {
+  await db.from('notifications').update({ is_read: true }).eq('id', notifId);
+  loadNotifCount();
+  var res = await db.from('places').select('*, categories(name,icon,color), main_categories(name,icon)').eq('id', placeId).maybeSingle();
+  if (!res.data) { showToast('Lieu introuvable (peut-être supprimé)', 'error'); return; }
+  closeSheet('sheet-community');
+  map.flyTo([res.data.latitude, res.data.longitude], 16, { duration: 0.8 });
+  setTimeout(function() { openPlaceSheet(res.data); }, 900);
+}
+
 async function markAllRead() {
   if (!currentUser) return;
   await db.from('notifications').update({ is_read: true }).eq('user_id', currentUser.id).eq('is_read', false);
@@ -4132,6 +4162,17 @@ async function markAllRead() {
 async function insertNotif(userId, type, message, postId) {
   if (!userId || userId === (currentUser && currentUser.id)) return;
   await db.from('notifications').insert({ user_id: userId, type: type, message: message, post_id: postId || null, is_read: false });
+}
+
+async function insertPlaceNotif(userId, type, message, placeId) {
+  if (!userId || userId === (currentUser && currentUser.id)) return;
+  await db.from('notifications').insert({ user_id: userId, type: type, message: message, place_id: placeId || null, is_read: false });
+}
+
+async function notifyMods(type, message, placeId) {
+  var res = await db.from('trusted_users').select('user_id').in('role', ['admin', 'moderator']);
+  var ids = (res.data || []).map(function(u) { return u.user_id; });
+  await Promise.all(ids.map(function(uid) { return insertPlaceNotif(uid, type, message, placeId); }));
 }
 
 function timeAgo(dateStr) {
