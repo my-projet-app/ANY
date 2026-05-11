@@ -727,9 +727,15 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
     <div class="form-group"><label>Grande cat&#233;gorie *</label><select id="add-main-cat" onchange="loadSubCats()"><option value="">-- Choisir --</option></select></div>
     <div class="form-group"><label>Sous-cat&#233;gorie *</label><select id="add-sub-cat"><option value="">-- Choisir la cat&#233;gorie d'abord --</option></select></div>
     <div class="form-group"><label>Description</label><textarea id="add-desc" placeholder="Infos utiles : horaires, &#233;tat, prix..."></textarea></div>
-    <div class="form-group"><label>Disponible 24h/24 ?</label><select id="add-24h"><option value="true">Oui</option><option value="false">Non</option></select></div>
     <div class="form-group">
-      <label>Photo <span style="color:var(--text2);font-weight:400;">(optionnel)</span></label>
+      <label>Disponible 24h/24 ? *</label>
+      <div style="display:flex;gap:8px;">
+        <button type="button" id="add-24h-oui" onclick="set24h(true)" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text2);cursor:pointer;font-family:var(--font-body);font-size:13px;font-weight:600;transition:all 0.15s;">&#9989; Oui</button>
+        <button type="button" id="add-24h-non" onclick="set24h(false)" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text2);cursor:pointer;font-family:var(--font-body);font-size:13px;font-weight:600;transition:all 0.15s;">&#10060; Non</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Photo *</label>
       <input type="file" id="add-photo-input" accept="image/*" style="display:none" onchange="previewAddPhoto(this)">
       <label for="add-photo-input" id="add-photo-btn" style="display:flex;align-items:center;gap:8px;justify-content:center;padding:10px;border:2px dashed var(--border);border-radius:var(--radius-sm);cursor:pointer;color:var(--text2);font-size:13px;">&#128247; Ajouter une photo</label>
       <div id="add-photo-preview" style="display:none;position:relative;margin-top:8px;">
@@ -895,6 +901,7 @@ var filters = {};
 
 function fluentImg(emoji, size) { return emoji; }
 var selectedLatLng = null;
+var add24hValue = null;
 var addingMode = false;
 var radiusMode = false;
 var isLogin = true;
@@ -2300,6 +2307,11 @@ function onMapClick(e) {
   selectedLatLng = e.latlng;
   document.getElementById('coord-display').textContent = e.latlng.lat.toFixed(5) + ', ' + e.latlng.lng.toFixed(5);
   document.getElementById('info-adding').style.display = 'none';
+  add24hValue = null;
+  set24h(null);
+  clearAddPhoto();
+  var nameEl = document.getElementById('add-name'); if (nameEl) nameEl.value = '';
+  var descEl = document.getElementById('add-desc'); if (descEl) descEl.value = '';
   openModal('modal-add');
 }
 
@@ -4069,14 +4081,30 @@ function clearAddPhoto() {
   document.getElementById('add-photo-btn').style.display = 'flex';
 }
 
+function set24h(val) {
+  add24hValue = val;
+  var btnOui = document.getElementById('add-24h-oui');
+  var btnNon = document.getElementById('add-24h-non');
+  if (!btnOui || !btnNon) return;
+  btnOui.style.background = val === true ? 'rgba(39,174,96,0.2)' : 'var(--surface2)';
+  btnOui.style.borderColor = val === true ? '#27ae60' : 'var(--border)';
+  btnOui.style.color = val === true ? '#27ae60' : 'var(--text2)';
+  btnNon.style.background = val === false ? 'rgba(231,76,60,0.15)' : 'var(--surface2)';
+  btnNon.style.borderColor = val === false ? '#e74c3c' : 'var(--border)';
+  btnNon.style.color = val === false ? '#e74c3c' : 'var(--text2)';
+}
+
 async function submitPlace() {
   var name = document.getElementById('add-name').value.trim();
   var mainId = document.getElementById('add-main-cat').value;
   var catId = document.getElementById('add-sub-cat').value;
   var desc = document.getElementById('add-desc').value.trim();
-  var is24h = document.getElementById('add-24h').value === 'true';
+  var is24h = add24hValue;
   if (!name || !mainId || !catId) { showToast('Remplis les champs obligatoires *', 'error'); return; }
   if (!selectedLatLng) { showToast('Clique sur la carte pour la position', 'error'); return; }
+  if (add24hValue === null) { showToast('Indique si le lieu est disponible 24h/24', 'error'); return; }
+  var photoInput = document.getElementById('add-photo-input');
+  if (!photoInput || !photoInput.files[0]) { showToast('Une photo est obligatoire', 'error'); return; }
   var placeStatus = 'pending';
   if (isAdmin || isModerator || isTrusted) {
     placeStatus = 'active';
