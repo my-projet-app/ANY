@@ -712,7 +712,16 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
         <div style="display:flex;gap:8px;margin-bottom:8px;">
           <input type="text" id="validator-username-input" placeholder="Pseudo de l'utilisateur..." style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:var(--font-body);">
         </div>
-        <button onclick="addValidator()" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-family:var(--font-body);font-size:13px;">+ Ajouter</button>
+        <button onclick="addValidator()" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-family:var(--font-body);font-size:13px;">+ Ajouter modérateur</button>
+        <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:14px;">
+          <div class="setting-label" style="margin-bottom:6px;">&#11088; Membres de confiance</div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:10px;">Leur vote valide un lieu instantanément (comme un mod)</div>
+          <div id="trusted-list" style="margin-bottom:10px;font-size:13px;color:var(--text2);">Chargement...</div>
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <input type="text" id="trusted-username-input" placeholder="Pseudo de l'utilisateur..." style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:var(--font-body);">
+          </div>
+          <button onclick="addTrusted()" style="width:100%;background:rgba(255,208,79,0.15);color:var(--accent);border:1px solid rgba(255,208,79,0.3);border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-family:var(--font-body);font-size:13px;">+ Ajouter membre de confiance</button>
+        </div>
       </div>
       <div style="border-top:1px solid var(--border);padding:16px;">
         <button onclick="signOut()" style="width:100%;background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:var(--radius-sm);padding:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-body);">&#128682; Se d&#233;connecter</button>
@@ -2923,15 +2932,52 @@ async function loadValidatorsList() {
   if (!el) return;
   var res = await db.from('trusted_users').select('user_id,role,profiles(username)').eq('role', 'moderator');
   var data = res.data || [];
-  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);">Aucun modérateur pour l\'instant</div>'; return; }
-  el.innerHTML = data.map(function(u) {
+  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);">Aucun modérateur pour l\'instant</div>'; }
+  else { el.innerHTML = data.map(function(u) {
     var uname = (u.profiles && u.profiles.username) || u.user_id;
     return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">'
       + '<div><span style="font-size:13px;font-weight:600;color:var(--text);">' + escHtml(uname) + '</span>'
       + '<span style="font-size:11px;color:var(--text2);margin-left:8px;">&#128737;&#65039; Modérateur</span></div>'
       + '<button onclick="removeValidator(\'' + u.user_id + '\')" style="background:rgba(231,76,60,0.12);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:var(--font-body);">Retirer</button>'
       + '</div>';
+  }).join(''); }
+  loadTrustedList();
+}
+
+async function loadTrustedList() {
+  var el = document.getElementById('trusted-list');
+  if (!el) return;
+  var res = await db.from('trusted_users').select('user_id,role,profiles(username)').eq('role', 'trusted');
+  var data = res.data || [];
+  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);">Aucun membre de confiance pour l\'instant</div>'; return; }
+  el.innerHTML = data.map(function(u) {
+    var uname = (u.profiles && u.profiles.username) || u.user_id;
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">'
+      + '<div><span style="font-size:13px;font-weight:600;color:var(--text);">' + escHtml(uname) + '</span>'
+      + '<span style="font-size:11px;color:var(--accent);margin-left:8px;">⭐ Confiance</span></div>'
+      + '<button onclick="removeTrusted(\'' + u.user_id + '\')" style="background:rgba(231,76,60,0.12);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;font-family:var(--font-body);">Retirer</button>'
+      + '</div>';
   }).join('');
+}
+
+async function addTrusted() {
+  if (!isAdmin) return;
+  var inp = document.getElementById('trusted-username-input');
+  var uname = inp ? inp.value.trim() : '';
+  if (!uname) return;
+  var res = await db.from('profiles').select('id').eq('username', uname).maybeSingle();
+  if (!res.data) { showToast('Utilisateur introuvable', 'error'); return; }
+  await db.from('trusted_users').upsert({ user_id: res.data.id, role: 'trusted' }, { onConflict: 'user_id' });
+  if (inp) inp.value = '';
+  showToast('⭐ ' + uname + ' ajouté comme membre de confiance', 'success');
+  loadTrustedList();
+}
+
+async function removeTrusted(uid) {
+  if (!isAdmin) return;
+  await db.from('trusted_users').delete().eq('user_id', uid);
+  showToast('Membre de confiance retiré', '');
+  loadTrustedList();
 }
 
 async function addValidator() {
