@@ -266,7 +266,8 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
 .pv2-votes{padding:8px 14px;border-bottom:1px solid var(--border);display:flex;gap:6px;align-items:center;}
 .pv2-vote-btn{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px;font-size:12px;cursor:pointer;color:var(--text);font-family:var(--font-body);}
 .pv2-vote-btn.closed{color:var(--danger);border-color:rgba(248,113,113,0.3);}
-.pv2-report-btn{background:none;border:none;color:var(--text2);font-size:16px;cursor:pointer;padding:4px 6px;opacity:0.55;flex-shrink:0;}
+.pv2-report-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-size:15px;cursor:pointer;padding:7px 10px;border-radius:6px;flex-shrink:0;line-height:1;}
+#modal-report{z-index:5001;}
 .pv2-rating{padding:10px 14px;border-bottom:1px solid var(--border);}
 .pv2-rating-label{font-size:11px;color:var(--text2);margin-bottom:5px;}
 .pv2-rating-row{display:flex;align-items:center;gap:10px;}
@@ -819,6 +820,15 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
     <div class="form-group">
       <label>Précisions (optionnel)</label>
       <textarea id="report-details" placeholder="Décrivez le problème..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Photo (optionnel)</label>
+      <div id="report-photo-preview" style="display:none;margin-bottom:8px;position:relative;">
+        <img id="report-photo-img" style="width:100%;max-height:160px;object-fit:cover;border-radius:8px;display:block;">
+        <button onclick="clearReportPhoto()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);border:none;color:#fff;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:14px;line-height:1;">&#10005;</button>
+      </div>
+      <label for="report-photo-input" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;background:var(--surface2);border:1px dashed var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--text2);">📷 Ajouter une photo</label>
+      <input type="file" id="report-photo-input" accept="image/*" style="display:none" onchange="previewReportPhoto(this)">
     </div>
     <button class="btn-p" onclick="submitReport()">Envoyer le signalement</button>
     <button class="btn-s" onclick="closeModal('modal-report')">Annuler</button>
@@ -4872,21 +4882,23 @@ async function loadReportedPlaces() {
   var el = document.getElementById('reported-places-list');
   if (!el) return;
   el.innerHTML = '<div style="color:var(--text2);">Chargement...</div>';
-  var res = await db.from('reports').select('place_id,reason,details,user_id,profiles(username),places(id,name,user_name,latitude,longitude)').order('created_at', { ascending: false });
+  var res = await db.from('reports').select('place_id,reason,details,photo_url,user_id,profiles(username),places(id,name,user_name,latitude,longitude)').order('created_at', { ascending: false });
   var data = res.data || [];
   if (!data.length) { el.innerHTML = '<div style="color:var(--text2);">Aucun signalement</div>'; return; }
   var grouped = {};
   data.forEach(function(r) {
     if (!grouped[r.place_id]) grouped[r.place_id] = { place: r.places, reports: [] };
-    grouped[r.place_id].reports.push({ reason: r.reason, details: r.details, user: (r.profiles && r.profiles.username) || r.user_id });
+    grouped[r.place_id].reports.push({ reason: r.reason, details: r.details, photo_url: r.photo_url, user: (r.profiles && r.profiles.username) || r.user_id });
   });
-  var reasons = { closed: 'Fermé', wrong_info: 'Infos incorrectes', duplicate: 'Doublon', inappropriate: 'Inapproprié', other: 'Autre' };
+  var reasons = { closed: 'Fermé', wrong_info: 'Infos incorrectes', duplicate: 'Doublon', inappropriate: 'Inapproprié', other: 'Autre', maintenance: 'En maintenance', wrong_location: 'Emplacement incorrect' };
   el.innerHTML = Object.entries(grouped).map(function(entry) {
     var pid = entry[0], g = entry[1];
     var place = g.place || {};
     var n = g.reports.length;
     var reportsList = g.reports.map(function(r) {
-      return '<div style="font-size:11px;color:var(--text2);padding:2px 0;">&#128100; <b>' + escHtml(r.user) + '</b> — ' + escHtml(reasons[r.reason] || r.reason) + (r.details ? ' : ' + escHtml(r.details) : '') + '</div>';
+      return '<div style="font-size:11px;color:var(--text2);padding:2px 0;">&#128100; <b>' + escHtml(r.user) + '</b> — ' + escHtml(reasons[r.reason] || r.reason) + (r.details ? ' : ' + escHtml(r.details) : '')
+        + (r.photo_url ? '<br><a href="' + escHtml(r.photo_url) + '" target="_blank"><img src="' + escHtml(r.photo_url) + '" style="margin-top:4px;width:100%;max-height:120px;object-fit:cover;border-radius:6px;display:block;"></a>' : '')
+        + '</div>';
     }).join('');
     return '<div style="border:1px solid rgba(231,76,60,0.3);border-radius:8px;padding:10px;margin-bottom:8px;background:rgba(231,76,60,0.05);">'
       + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">'
@@ -5336,7 +5348,26 @@ function openReport(pid, name) {
   document.getElementById('report-place-name').textContent = name;
   document.getElementById('report-reason').value = '';
   document.getElementById('report-details').value = '';
+  clearReportPhoto();
   openModal('modal-report');
+}
+
+function previewReportPhoto(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('report-photo-img').src = e.target.result;
+    document.getElementById('report-photo-preview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearReportPhoto() {
+  var inp = document.getElementById('report-photo-input');
+  if (inp) inp.value = '';
+  var prev = document.getElementById('report-photo-preview');
+  if (prev) prev.style.display = 'none';
 }
 
 async function submitReport() {
@@ -5344,12 +5375,20 @@ async function submitReport() {
   var reason = document.getElementById('report-reason').value;
   var details = document.getElementById('report-details').value.trim();
   if (!reason) { showToast('Choisissez un motif', 'error'); return; }
-  var result = await db.from('reports').insert({
-    place_id: reportPlaceId,
-    user_id: currentUser.id,
-    reason: reason,
-    details: details || null
-  });
+  var photoUrl = null;
+  var photoInput = document.getElementById('report-photo-input');
+  if (photoInput && photoInput.files[0]) {
+    var file = photoInput.files[0];
+    var ext = file.name.split('.').pop().toLowerCase();
+    var path = 'reports/' + reportPlaceId + '-' + Date.now() + '.' + ext;
+    showToast('Upload photo...', 'success');
+    var upRes = await db.storage.from('place-photos').upload(path, file, { contentType: file.type });
+    if (upRes.error) { showToast('Erreur upload photo : ' + upRes.error.message, 'error'); return; }
+    photoUrl = db.storage.from('place-photos').getPublicUrl(path).data.publicUrl;
+  }
+  var payload = { place_id: reportPlaceId, user_id: currentUser.id, reason: reason, details: details || null };
+  if (photoUrl) payload.photo_url = photoUrl;
+  var result = await db.from('reports').insert(payload);
   if (result.error) { showToast('Erreur : ' + result.error.message, 'error'); return; }
   closeModal('modal-report');
   showToast('&#9888;&#65039; Signalement envoyé, merci !', 'success');
