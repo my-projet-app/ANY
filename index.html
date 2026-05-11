@@ -1770,7 +1770,9 @@ function signOut() {
   document.getElementById('auth-info').textContent = 'Non connect\u00e9';
   document.getElementById('btn-auth').textContent = 'Connexion';
   closeSheet('sheet-profile');
+  closeSheet('sheet-settings');
   showToast('D\u00e9connect\u00e9', 'success');
+  setTimeout(function() { openModal('modal-auth'); }, 300);
 }
 
 async function loadUserRole() {
