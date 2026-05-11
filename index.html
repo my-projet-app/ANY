@@ -763,6 +763,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:var(--font-body);ba
           <input type="text" id="ban-username-input" placeholder="Pseudo à bannir..." style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:var(--font-body);">
         </div>
         <button onclick="banByUsername()" style="width:100%;background:rgba(231,76,60,0.12);color:#e74c3c;border:1px solid rgba(231,76,60,0.35);border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-family:var(--font-body);font-size:13px;">&#128683; Bannir cet utilisateur</button>
+        <div id="ban-confirm-panel" style="display:none;margin-top:12px;background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.4);border-radius:10px;padding:14px;">
+          <div style="font-size:13px;font-weight:700;color:#e74c3c;margin-bottom:10px;">⚠️ Confirmer le bannissement de <span id="ban-confirm-name"></span> ?</div>
+          <input type="text" id="ban-reason-input" placeholder="Raison (optionnel)..." style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;outline:none;font-family:var(--font-body);margin-bottom:10px;">
+          <div style="display:flex;gap:8px;">
+            <button onclick="cancelBan()" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);">Annuler</button>
+            <button onclick="confirmBan()" style="flex:1;background:#e74c3c;border:none;color:#fff;border-radius:8px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);">&#128683; Confirmer</button>
+          </div>
+        </div>
       </div>
       <div id="signin-row" style="border-top:1px solid var(--border);padding:16px;display:none;">
         <button onclick="closeSheet('sheet-settings');openModal('modal-auth');" style="width:100%;background:var(--accent);border:none;color:#fff;border-radius:var(--radius-sm);padding:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-body);">&#128274; Se connecter / S'inscrire</button>
@@ -3255,21 +3263,47 @@ async function unbanUserFromList(userId, username) {
   loadBannedList();
 }
 
+var _banPendingUserId = null;
+var _banPendingUsername = null;
+
 async function banByUsername() {
   if (!isAdmin) return;
   var inp = document.getElementById('ban-username-input');
   var uname = inp ? inp.value.trim() : '';
   if (!uname) { showToast('Entrez un pseudo', 'error'); return; }
-  var profRes = await db.from('profiles').select('id,username').eq('username', uname).maybeSingle();
+  var profRes = await db.from('profiles').select('user_id,username').eq('username', uname).maybeSingle();
   if (!profRes.data) { showToast('Utilisateur introuvable : ' + uname, 'error'); return; }
-  if (profRes.data.id === (currentUser && currentUser.id)) { showToast('Impossible de se bannir soi-même', 'error'); return; }
-  var already = await db.from('banned_users').select('id').eq('user_id', profRes.data.id).maybeSingle();
+  if (profRes.data.user_id === (currentUser && currentUser.id)) { showToast('Impossible de se bannir soi-même', 'error'); return; }
+  var already = await db.from('banned_users').select('id').eq('user_id', profRes.data.user_id).maybeSingle();
   if (already.data) { showToast(uname + ' est déjà banni', 'error'); return; }
-  var reason = prompt('Raison du bannissement de ' + uname + ' (optionnel) :');
-  if (reason === null) return;
-  await db.from('banned_users').insert({ user_id: profRes.data.id, banned_by_name: currentUsername || '', reason: reason || 'Violation des règles' });
-  showToast('&#128683; ' + uname + ' a été banni', 'success');
+  _banPendingUserId = profRes.data.user_id;
+  _banPendingUsername = uname;
+  var panel = document.getElementById('ban-confirm-panel');
+  var nameEl = document.getElementById('ban-confirm-name');
+  var reasonInp = document.getElementById('ban-reason-input');
+  if (nameEl) nameEl.textContent = uname;
+  if (reasonInp) reasonInp.value = '';
+  if (panel) panel.style.display = 'block';
+}
+
+function cancelBan() {
+  _banPendingUserId = null;
+  _banPendingUsername = null;
+  var panel = document.getElementById('ban-confirm-panel');
+  if (panel) panel.style.display = 'none';
+  var inp = document.getElementById('ban-username-input');
   if (inp) inp.value = '';
+}
+
+async function confirmBan() {
+  if (!isAdmin || !_banPendingUserId) return;
+  var reasonInp = document.getElementById('ban-reason-input');
+  var reason = reasonInp ? reasonInp.value.trim() : '';
+  await db.from('banned_users').insert({ user_id: _banPendingUserId, banned_by_name: currentUsername || '', reason: reason || 'Violation des règles' });
+  showToast('&#128683; ' + _banPendingUsername + ' a été banni', 'success');
+  var inp = document.getElementById('ban-username-input');
+  if (inp) inp.value = '';
+  cancelBan();
   loadBannedList();
 }
 
