@@ -4078,8 +4078,8 @@ async function confirmHidePlace() {
   closeModal('modal-hide-place');
   var res = await db.from('places').update({ hidden: true, hidden_by: currentUsername || currentUser.email, hidden_at: new Date().toISOString() }).eq('id', a.pid);
   if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
-  if (a.dismissReport) dismissPlaceReport(a.pid);
-  showToast('&#128683; Lieu masqué', 'success');
+  if (a.dismissReport) await dismissPlaceReport(a.pid);
+  else { showToast('&#128683; Lieu masqué', 'success'); }
   map.closePopup();
   scheduleLoad();
 }
@@ -4983,10 +4983,13 @@ async function loadReportedPlaces() {
 }
 
 async function dismissPlaceReport(pid) {
-  await db.from('reports').delete().eq('place_id', pid);
-  showToast('Signalement ignoré', '');
+  var res = await db.from('reports').delete().eq('place_id', pid);
+  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
+  await db.from('notifications').update({ is_read: true }).eq('type', 'signalement').eq('place_id', pid);
+  showToast('✓ Signalement traité', 'success');
   loadReportedPlaces();
   loadModReportsCount();
+  loadNotifCount();
 }
 
 var soloReturnTo = 'profile'; // 'profile' | 'settings' | 'pub-profile'
