@@ -825,8 +825,8 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
       </select>
     </div>
     <div class="form-group">
-      <label>Précisions (optionnel)</label>
-      <textarea id="report-details" placeholder="Décrivez le problème..."></textarea>
+      <label>Précisions *</label>
+      <textarea id="report-details" placeholder="Décrivez le problème (min. 2 caractères)..." minlength="2"></textarea>
     </div>
     <div class="form-group">
       <label>Photo (optionnel)</label>
@@ -5460,6 +5460,7 @@ async function submitReport() {
   var reason = document.getElementById('report-reason').value;
   var details = document.getElementById('report-details').value.trim();
   if (!reason) { showToast('Choisissez un motif', 'error'); return; }
+  if (details.length < 2) { showToast('Décrivez le problème (min. 2 caractères)', 'error'); return; }
   var photoUrl = null;
   var photoInput = document.getElementById('report-photo-input');
   if (photoInput && photoInput.files[0]) {
