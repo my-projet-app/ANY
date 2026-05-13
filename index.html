@@ -270,7 +270,8 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
 .pv2-app-google{background:#33ccff22;border:1px solid #33ccff55;color:#33ccff;}
 .pv2-app-apple{background:#33ccff22;border:1px solid #33ccff55;color:#33ccff;}
 .pv2-votes{padding:8px 14px;border-bottom:1px solid var(--border);display:flex;gap:6px;align-items:center;}
-.pv2-vote-btn{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px;font-size:12px;cursor:pointer;color:var(--text);font-family:var(--font-body);line-height:1.3;}
+.pv2-vote-btn{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px;font-size:12px;cursor:pointer;color:var(--text);font-family:var(--font-body);line-height:1.3;display:flex;align-items:center;justify-content:center;gap:5px;}
+.pv2-vote-btn.ok{color:#27ae60;border-color:rgba(39,174,96,0.5);background:rgba(39,174,96,0.07);}
 .pv2-vote-btn.closed{color:var(--danger);border-color:rgba(248,113,113,0.3);}
 .pv2-report-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-size:15px;cursor:pointer;padding:7px 10px;border-radius:6px;flex-shrink:0;line-height:1;}
 
@@ -3735,8 +3736,8 @@ function makePopup(p) {
     + '<div id="validators-row-' + safeId + '"></div>'
 
     + '<div class="pv2-votes">'
-    + '<button class="pv2-vote-btn" onclick="vote(\'' + safeId + '\',true)">Merci<br><span style=\"font-size:10px;font-weight:400;opacity:0.8;\">(tout est ok)</span> (' + (p.votes_positifs || 0) + ')</button>'
-    + '<button class="pv2-vote-btn closed" onclick="openReport(\'' + safeId + '\',\'' + safeName + '\')">Quelque chose<br>ne va pas</button>'
+    + '<button class="pv2-vote-btn ok" onclick="vote(\'' + safeId + '\',true)"><span>Merci<br><span style=\"font-size:10px;font-weight:400;opacity:0.75;\">(tout est ok)</span> (' + (p.votes_positifs || 0) + ')</span>&#128077;</button>'
+    + '<button class="pv2-vote-btn closed" onclick="openReport(\'' + safeId + '\',\'' + safeName + '\')">&#128078;<span>Quelque chose<br>ne va pas</span></button>'
     + '</div>'
     + modHtml
 
@@ -3891,12 +3892,19 @@ var _locationSuggestionReportId = null;
 var _locationSuggestionPlaceId = null;
 var _locationSuggestionMarker = null;
 
+function startLocationPick() {
+  var modal = document.getElementById('location-suggest-modal');
+  if (modal) modal.style.display = 'none';
+  showToast('📍 Appuyez sur la carte pour indiquer le bon emplacement', 'success');
+  // Le mode suggestion reste actif : _locationSuggestionReportId est défini
+}
+
 function cancelLocationSuggestion() {
   _locationSuggestionReportId = null;
   _locationSuggestionPlaceId = null;
   if (_locationSuggestionMarker) { map.removeLayer(_locationSuggestionMarker); _locationSuggestionMarker = null; }
-  var banner = document.getElementById('location-suggest-banner');
-  if (banner) banner.style.display = 'none';
+  var modal = document.getElementById('location-suggest-modal');
+  if (modal) modal.style.display = 'none';
 }
 
 function handleLocationSuggestionClick(latlng) {
@@ -5632,8 +5640,8 @@ async function submitReport() {
   if (reason === 'wrong_location' && insertedReportId) {
     _locationSuggestionReportId = insertedReportId;
     _locationSuggestionPlaceId = reportPlaceId;
-    var banner = document.getElementById('location-suggest-banner');
-    if (banner) banner.style.display = 'flex';
+    var modal = document.getElementById('location-suggest-modal');
+    if (modal) modal.style.display = 'flex';
   }
   reportPlaceId = null;
 }
@@ -6625,9 +6633,12 @@ function applyMaskLayer() {
 </div>
 
 <!-- MOVE MODE BANNER -->
-<div id="location-suggest-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:6000;background:rgba(41,128,185,0.95);color:#fff;padding:14px 16px;display:none;align-items:center;justify-content:space-between;gap:10px;">
-  <span style="font-size:13px;font-weight:700;">&#128205; Appuyez sur la carte pour indiquer le bon emplacement</span>
-  <button onclick="cancelLocationSuggestion()" style="background:rgba(0,0,0,0.2);border:none;color:#fff;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer;">Passer</button>
+<div id="location-suggest-modal" style="display:none;position:fixed;inset:0;z-index:9500;background:linear-gradient(160deg,#56b4f7 0%,#2e8fcf 100%);color:#fff;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;">
+  <div style="font-size:52px;margin-bottom:18px;">📍</div>
+  <h2 style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:14px;line-height:1.3;">Merci de nous aider !</h2>
+  <p style="font-size:15px;line-height:1.6;opacity:0.92;max-width:320px;margin-bottom:28px;">Vous pouvez nous indiquer le bon emplacement sur la carte. Un modérateur examinera votre suggestion et mettra le lieu à jour.</p>
+  <button onclick="startLocationPick()" style="background:#fff;color:#2e8fcf;border:none;border-radius:14px;padding:16px 32px;font-family:'Syne',sans-serif;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.15);margin-bottom:14px;width:100%;max-width:320px;">🗺️ Choisir sur la carte</button>
+  <button onclick="cancelLocationSuggestion()" style="background:rgba(255,255,255,0.2);color:#fff;border:2px solid rgba(255,255,255,0.5);border-radius:14px;padding:12px 24px;font-size:14px;cursor:pointer;width:100%;max-width:320px;">Passer, je ne sais pas</button>
 </div>
 
 <div id="move-mode-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:6000;background:rgba(255,140,0,0.95);color:#000;padding:14px 16px;align-items:center;justify-content:space-between;gap:10px;">
