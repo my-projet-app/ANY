@@ -3766,7 +3766,7 @@ function openPlaceSheet(p) {
   else if (currentUser && p.status === 'pending') loadValidationCount(p.id);
 }
 
-function openEditPlace() {
+async function openEditPlace() {
   var p = window._currentPopupPlace;
   if (!p) return;
   document.getElementById('edit-place-id').value = p.id;
@@ -3780,9 +3780,33 @@ function openEditPlace() {
   }).join('');
   loadEditSubCats(p.category_id);
   var catRow = document.getElementById('edit-cat-row');
-  if (catRow) catRow.style.display = isAdmin ? 'block' : 'none';
   var repoBtn = document.getElementById('edit-repo-btn');
-  if (repoBtn) repoBtn.style.display = (isAdmin || isModerator) ? 'block' : 'none';
+  var contentSection = document.getElementById('edit-content-section');
+  var saveBtn = document.getElementById('edit-save-btn');
+  var noReportMsg = document.getElementById('edit-no-report-msg');
+  if (isAdmin) {
+    if (catRow) catRow.style.display = 'block';
+    if (repoBtn) repoBtn.style.display = 'block';
+    if (contentSection) contentSection.style.display = 'block';
+    if (saveBtn) saveBtn.style.display = 'block';
+    if (noReportMsg) noReportMsg.style.display = 'none';
+  } else if (isModerator) {
+    if (catRow) catRow.style.display = 'none';
+    var rRes = await db.from('reports').select('reason').eq('place_id', p.id);
+    var reasons = (rRes.data || []).map(function(r) { return r.reason; });
+    var canEditContent = reasons.some(function(r) { return r === 'wrong_info' || r === 'inappropriate'; });
+    var canReposition = reasons.indexOf('wrong_location') !== -1;
+    if (contentSection) contentSection.style.display = canEditContent ? 'block' : 'none';
+    if (saveBtn) saveBtn.style.display = canEditContent ? 'block' : 'none';
+    if (repoBtn) repoBtn.style.display = canReposition ? 'block' : 'none';
+    if (noReportMsg) noReportMsg.style.display = (!canEditContent && !canReposition) ? 'block' : 'none';
+  } else {
+    if (catRow) catRow.style.display = 'none';
+    if (repoBtn) repoBtn.style.display = 'none';
+    if (contentSection) contentSection.style.display = 'block';
+    if (saveBtn) saveBtn.style.display = 'block';
+    if (noReportMsg) noReportMsg.style.display = 'none';
+  }
   document.getElementById('edit-place-modal').style.display = 'block';
   document.getElementById('edit-place-bd').style.display = 'block';
 }
@@ -4732,10 +4756,7 @@ function renderPhotos(pid, photos, maxPhotos, placeOwnerId) {
     var isReported = !!ph.reported;
     var wrapClass = 'photo-wrap' + (isReported ? ' photo-reported' : '');
     var actionBtn = '';
-    var isModOrAdmin = currentUser && (isAdmin || isModerator);
-    if (isModOrAdmin) {
-      actionBtn = '<button class="photo-btn photo-btn-delete" onclick="deleteReportedPhoto(\'' + escHtml(ph.id) + '\',\'' + escHtml(ph.url) + '\',\'' + pid + '\')" title="Supprimer cette photo">🗑</button>';
-    } else if (canMod && isReported) {
+    if (canMod && isReported) {
       actionBtn = '<button class="photo-btn photo-btn-delete" onclick="deleteReportedPhoto(\'' + escHtml(ph.id) + '\',\'' + escHtml(ph.url) + '\',\'' + pid + '\')" title="Supprimer cette photo">🗑</button>';
     } else if (currentUser && !isReported && currentUser.id !== ph.uploaded_by) {
       actionBtn = '<button class="photo-btn photo-btn-report" onclick="reportPhoto(\'' + escHtml(ph.id) + '\',\'' + pid + '\')" title="Signaler cette photo">🚩</button>';
@@ -6486,19 +6507,22 @@ function applyMaskLayer() {
 <div id="edit-place-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5001;background:var(--surface);border-radius:16px;padding:20px;width:min(340px,calc(100vw - 32px));box-shadow:0 8px 40px rgba(0,0,0,0.7);max-height:90vh;overflow-y:auto;">
   <div style="font-size:15px;font-weight:700;margin-bottom:14px;">&#9998; Modifier le lieu</div>
   <input type="hidden" id="edit-place-id">
-  <label style="font-size:12px;color:var(--text2);">Nom</label>
-  <input id="edit-place-name" type="text" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;margin:4px 0 10px;box-sizing:border-box;">
-  <label style="font-size:12px;color:var(--text2);">Description</label>
-  <textarea id="edit-place-desc" rows="3" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;margin:4px 0 10px;box-sizing:border-box;resize:vertical;"></textarea>
-  <div id="edit-cat-row" style="display:none;">
-    <label style="font-size:12px;color:var(--text2);">Grande catégorie</label>
-    <select id="edit-main-cat" onchange="loadEditSubCats(null)" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;margin:4px 0 10px;box-sizing:border-box;"></select>
-    <label style="font-size:12px;color:var(--text2);">Sous-catégorie</label>
-    <select id="edit-sub-cat" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;margin:4px 0 10px;box-sizing:border-box;"></select>
+  <div id="edit-content-section">
+    <label style="font-size:12px;color:var(--text2);">Nom</label>
+    <input id="edit-place-name" type="text" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;margin:4px 0 10px;box-sizing:border-box;">
+    <label style="font-size:12px;color:var(--text2);">Description</label>
+    <textarea id="edit-place-desc" rows="3" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;margin:4px 0 10px;box-sizing:border-box;resize:vertical;"></textarea>
+    <div id="edit-cat-row" style="display:none;">
+      <label style="font-size:12px;color:var(--text2);">Grande catégorie</label>
+      <select id="edit-main-cat" onchange="loadEditSubCats(null)" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;margin:4px 0 10px;box-sizing:border-box;"></select>
+      <label style="font-size:12px;color:var(--text2);">Sous-catégorie</label>
+      <select id="edit-sub-cat" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-size:13px;margin:4px 0 10px;box-sizing:border-box;"></select>
+    </div>
   </div>
   <button id="edit-repo-btn" onclick="startMoveMode()" style="display:none;width:100%;background:rgba(255,140,0,0.12);border:1px solid rgba(255,140,0,0.4);color:#ff8c00;border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px;box-sizing:border-box;">&#128205; Repositionner sur la carte</button>
+  <div id="edit-no-report-msg" style="display:none;font-size:12px;color:var(--text2);text-align:center;padding:8px 0 12px;">Aucun signalement actif ne justifie une modification.</div>
   <div style="display:flex;gap:8px;">
-    <button onclick="saveEditPlace()" style="flex:1;background:var(--accent);color:#000;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;">Sauvegarder</button>
+    <button id="edit-save-btn" onclick="saveEditPlace()" style="flex:1;background:var(--accent);color:#000;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;">Sauvegarder</button>
     <button onclick="closeEditPlace()" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px;font-size:13px;cursor:pointer;">Annuler</button>
   </div>
 </div>
