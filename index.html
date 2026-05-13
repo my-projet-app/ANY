@@ -3918,7 +3918,7 @@ async function confirmLocationSuggestion(lat, lng) {
   var res = await db.from('reports').update({ suggested_lat: lat, suggested_lng: lng }).eq('id', reportId);
   if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
   cancelLocationSuggestion();
-  showToast('📍 Emplacement suggéré envoyé — un modérateur va l'examiner', 'success');
+  showToast('📍 Emplacement suggéré envoyé — un modérateur va l\'examiner', 'success');
 }
 
 async function approveLocationSuggestion(reportId, placeId, lat, lng, placeName) {
