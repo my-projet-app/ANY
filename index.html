@@ -6634,10 +6634,17 @@ function renderDashCategoriesContent() {
     + 'style="width:100%;background:var(--accent);color:#000;border:none;border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-family:var(--font-body);font-size:13px;margin-bottom:14px;box-sizing:border-box;">+ Nouvelle grande catégorie</button>'
     + '<div id="admin-cat-form-zone" style="margin-bottom:4px;"></div>';
 
-  mainCats.forEach(function(mc) {
+  var arrowBtn = 'style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:2px 7px;font-size:14px;cursor:pointer;font-family:var(--font-body);line-height:1.4;"';
+  var arrowBtnOff = 'style="background:transparent;border:1px solid transparent;color:transparent;border-radius:6px;padding:2px 7px;font-size:14px;cursor:default;line-height:1.4;" disabled';
+  mainCats.forEach(function(mc, idx) {
     var allSubsRaw = allCats.filter(function(s) { return s.main_category_id === mc.id; });
+    var isFirst = idx === 0, isLast = idx === mainCats.length - 1;
     html += '<div style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:10px;">'
-      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">'
+      + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'
+      + '<div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;">'
+      + '<button ' + (isFirst ? arrowBtnOff : arrowBtn) + ' onclick="adminMoveCatOrder(\'' + mc.id + '\',-1)">&#8593;</button>'
+      + '<button ' + (isLast  ? arrowBtnOff : arrowBtn) + ' onclick="adminMoveCatOrder(\'' + mc.id + '\',1)">&#8595;</button>'
+      + '</div>'
       + '<span style="font-size:18px;">' + mc.icon + '</span>'
       + '<span style="font-size:14px;font-weight:700;flex:1;color:var(--text);">' + mc.name + adminRoleTag(mc.min_role) + '</span>'
       + '<button onclick="adminShowEditMainCatForm(\'' + mc.id + '\')" '
@@ -6794,6 +6801,25 @@ async function adminSaveEditSubCat(subId) {
   var res = await db.from('categories').update({ name: name, icon: icon, color: color, min_role: role }).eq('id', subId);
   if (res.error) { showToast('Erreur : ' + res.error.message); return; }
   showToast('Sous-catégorie mise à jour !');
+  await loadCats();
+  renderDashCategoriesContent();
+}
+
+// ---- Réordonner grandes catégories ----
+async function adminMoveCatOrder(mcId, dir) {
+  if (!isAdmin) return;
+  var idx = mainCats.findIndex(function(m) { return m.id === mcId; });
+  var swapIdx = idx + dir;
+  if (idx < 0 || swapIdx < 0 || swapIdx >= mainCats.length) return;
+  var mc   = mainCats[idx];
+  var swap = mainCats[swapIdx];
+  var sortA = mc.sort_order, sortB = swap.sort_order;
+  if (sortA === sortB) { sortA = idx; sortB = swapIdx; }
+  var res = await Promise.all([
+    db.from('main_categories').update({ sort_order: sortB }).eq('id', mc.id),
+    db.from('main_categories').update({ sort_order: sortA }).eq('id', swap.id)
+  ]);
+  if (res[0].error || res[1].error) { showToast('Erreur lors du déplacement'); return; }
   await loadCats();
   renderDashCategoriesContent();
 }
