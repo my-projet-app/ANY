@@ -842,7 +842,7 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
       <label for="report-photo-input" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;background:var(--surface2);border:1px dashed var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--text2);">📷 Ajouter une photo</label>
       <input type="file" id="report-photo-input" accept="image/*" style="display:none" onchange="previewReportPhoto(this)">
     </div>
-    <button class="btn-p" onclick="submitReport()">Envoyer le signalement</button>
+    <button class="btn-p" onclick="submitReport()" data-i18n="report_submit">Envoyer le signalement</button>
     <button class="btn-s" onclick="closeModal('modal-report')">Annuler</button>
   </div>
 </div>
@@ -1124,7 +1124,51 @@ fr:{
   role_admin:'👑 Administrateur', role_moderator:'🛡️ Modérateur', role_trusted:'⭐ Membre de confiance',
   role_expert:'🥇 Expert', role_explorer:'🥈 Explorateur', role_beginner:'🥉 Débutant',
   role_active:'Membre actif', role_new:'Nouveau membre',
-  member_registered:'Inscrit le', member_no_pseudo:'(sans pseudo)'
+  member_registered:'Inscrit le', member_no_pseudo:'(sans pseudo)',
+  toast_login_reply:'Connectez-vous pour répondre', toast_login_like:'Connectez-vous pour liker', toast_login_post:'Connectez-vous pour poster', toast_login_add:'Connectez-vous pour ajouter un lieu', toast_login_rate:'Connectez-vous pour noter',
+  toast_already_liked:'Déjà liké !', toast_already_voted:'Vous avez déjà voté', toast_already_voted_place:'Vous avez déjà voté pour ce lieu',
+  toast_err_write:'Écrivez quelque chose !', toast_err_choose_reason:'Choisissez un motif', toast_err_details:'Décrivez le problème (min. 2 caractères)',
+  toast_err_modify:'Erreur lors de la modification', toast_err_publish:'Erreur lors de la publication', toast_err_delete:'Erreur lors de la suppression',
+  toast_err_pwd_short:'Mot de passe trop court (6 caractères min)', toast_err_email:'Entre ton email d\'abord', toast_err_self_ban:'Impossible de se bannir soi-même',
+  toast_err_enter_pseudo:'Entrez un pseudo', toast_err_click_map:'Clique sur la carte pour la position', toast_err_slug:'Nom et slug requis', toast_err_icon:'Nom et icône requis',
+  toast_pos_found:'Position trouvée !', toast_suggest_sent:'📍 Emplacement suggéré envoyé — un modérateur va l\'examiner', toast_click_move:'📍 Appuyez sur la carte pour indiquer le bon emplacement',
+  toast_click_center:'Clique sur la carte pour choisir le centre', toast_click_place:'📍 Clique sur la carte pour placer le lieu', toast_add_cancelled:'Ajout annulé',
+  toast_photo_added:'Photo ajoutée !', toast_photo_deleted:'Photo supprimée', toast_photo_reported:'📷 Photo signalée — un modérateur va l\'examiner', toast_uploading:'📷 Upload en cours...',
+  toast_not_authorized:'Non autorisé', toast_pwd_updated:'✓ Mot de passe mis à jour !', toast_reset_sent:'📧 Email de réinitialisation envoyé !',
+  toast_post_modified:'Post modifié !', toast_post_deleted:'Post supprimé', toast_reply_deleted:'Réponse supprimée',
+  toast_report_ignored:'Signalement ignoré', toast_report_handled:'✓ Signalement traité', toast_comment_reported:'Commentaire signalé ⚠️', toast_comment_modified:'Commentaire modifié !',
+  toast_comm_reserved:'Réservé aux admins/modérateurs', toast_trusted_removed:'Membre de confiance retiré', toast_place_not_found:'Lieu introuvable (peut-être supprimé)',
+  toast_type_created:'Type créé !', toast_type_modified:'Type modifié !', toast_type_deleted:'Type supprimé',
+  toast_cat_created:'Grande catégorie créée !', toast_cat_modified:'Catégorie mise à jour !', toast_subcat_created:'Sous-catégorie créée !', toast_subcat_modified:'Sous-catégorie mise à jour !',
+  lbl_loading:'Chargement...', lbl_no_place_added:'Aucun lieu ajouté', lbl_no_vote:'Aucun vote donné', lbl_no_comment:'Aucun commentaire', lbl_no_fav:'Aucun favori pour l\'instant',
+  lbl_no_reply:'Aucune réponse — lance la discussion !', lbl_no_post:'Aucun post pour le moment.<br>Sois le premier ! 👋', lbl_no_cat:'Aucune catégorie trouvée',
+  lbl_no_action_mod:'Aucune action de modération enregistrée', lbl_no_notif:'🔔<br>Aucune notification pour le moment.', lbl_no_result:'Aucun lieu trouvé',
+  lbl_no_member:'Aucun membre inscrit.', lbl_no_banned:'Aucun utilisateur banni', lbl_no_moderator:'Aucun modérateur pour l\'instant', lbl_no_trusted:'Aucun membre de confiance pour l\'instant',
+  lbl_no_active_place:'Aucun lieu actif', lbl_reply_one:'réponse', lbl_reply_many:'réponses',
+  lbl_status_resolved:'✅ Résolu', lbl_status_planned:'🗓️ Prévu', lbl_change_status:'Changer statut',
+  lbl_validated_by:'✅ Lieu validé par', lbl_person_one:'personne', lbl_person_many:'personnes',
+  lbl_unban:'Lever le bannissement', lbl_ban_user:'Bannir cet utilisateur', lbl_not_available:'Non disponible', lbl_err_generic:'Erreur : ',
+  confirm_logout_title:'Se déconnecter ?', confirm_logout_msg:'Vous serez déconnecté de votre compte VanLifeMap.', confirm_logout_btn:'Déconnecter',
+  confirm_del_photo:'Supprimer cette photo ?', confirm_del_photo_msg:'La photo sera supprimée définitivement. Action irréversible.',
+  confirm_del_post:'Supprimer ce post ?', confirm_del_post_msg:'Cette action supprimera le post et toutes ses réponses.', confirm_del_reply:'Supprimer cette réponse ?',
+  confirm_ignore_report:'Ignorer ce signalement ?', confirm_ignore_report_msg:'Le lieu sera conservé sans modification. Cette action est irréversible.',
+  confirm_ignore_comment:'Ignorer ce signalement ?', confirm_ignore_comment_msg:'Le signalement sera supprimé. Le commentaire restera visible.',
+  confirm_del_type:'Supprimer ce type ?', confirm_del_type_msg:'Les posts existants garderont ce type.',
+  lbl_anonymous:'Anonyme', lbl_by:'par', lbl_comment_author:'Auteur du commentaire', lbl_reported_by:'Signalé par', lbl_no_name:'Sans nom',
+  lbl_no_new_member_week:'Aucun nouveau membre cette semaine', lbl_no_new_place_week:'Aucun lieu ajouté cette semaine', lbl_this_week:'cette semaine',
+  dash_registered_members:'Membres inscrits', dash_new_members:'Nouveaux membres', dash_validated_total:'Lieux validés total',
+  dash_new_places:'Nouveaux lieux', dash_global_stats:'Statistiques globales',
+  lbl_report_one:'signalement', lbl_report_many:'signalements',
+  lbl_status_active:'Actif', lbl_status_pending:'En attente', lbl_status_hidden:'Masqué', lbl_status_hiddens:'Masqués',
+  lbl_action_ignored:'Ignoré',
+  lbl_banned:'Bannis', dash_moderators:'Modérateurs', dash_trusted_members:'Membres de confiance',
+  comm_new_type:'Nouveau type', comm_edit_type:'Modifier le type', comm_create_type:'Créer le type', comm_save_type:'Sauvegarder',
+  comm_no_type:'Aucun type configuré', comm_type_all:'Tous les membres', comm_type_mods:'Modérateurs et admins', comm_type_admins:'Admins seulement',
+  comm_type_pin:'Épingler en haut (type prioritaire)',
+  dash_trusted_desc:'Leur vote valide un lieu instantanément', btn_confirm:'Confirmer',
+  btn_add_mod:'+ Ajouter modérateur', btn_add_trusted:'+ Ajouter membre de confiance',
+  dash_banned_members:'Membres bannis', ph_username:'Pseudo de l\'utilisateur...',
+  ph_ban_username:'Pseudo à bannir...', ph_ban_reason:'Raison (optionnel)...'
 },
 en:{
   nav_filters:'Filters', nav_search:'Search', nav_add:'Add a place', nav_community:'Community', nav_profile:'Profile', nav_dashboard:'Dashboard',
@@ -1246,7 +1290,51 @@ en:{
   role_admin:'👑 Administrator', role_moderator:'🛡️ Moderator', role_trusted:'⭐ Trusted member',
   role_expert:'🥇 Expert', role_explorer:'🥈 Explorer', role_beginner:'🥉 Beginner',
   role_active:'Active member', role_new:'New member',
-  member_registered:'Registered on', member_no_pseudo:'(no username)'
+  member_registered:'Registered on', member_no_pseudo:'(no username)',
+  toast_login_reply:'Sign in to reply', toast_login_like:'Sign in to like', toast_login_post:'Sign in to post', toast_login_add:'Sign in to add a place', toast_login_rate:'Sign in to rate',
+  toast_already_liked:'Already liked!', toast_already_voted:'You have already voted', toast_already_voted_place:'You have already voted for this place',
+  toast_err_write:'Write something!', toast_err_choose_reason:'Choose a reason', toast_err_details:'Describe the issue (min. 2 characters)',
+  toast_err_modify:'Error while updating', toast_err_publish:'Error while publishing', toast_err_delete:'Error while deleting',
+  toast_err_pwd_short:'Password too short (6 characters min)', toast_err_email:'Enter your email first', toast_err_self_ban:'Cannot ban yourself',
+  toast_err_enter_pseudo:'Enter a username', toast_err_click_map:'Click on the map for the position', toast_err_slug:'Name and slug required', toast_err_icon:'Name and icon required',
+  toast_pos_found:'Location found!', toast_suggest_sent:'📍 Suggested location sent — a moderator will review it', toast_click_move:'📍 Tap on the map to indicate the correct location',
+  toast_click_center:'Click on the map to choose the center', toast_click_place:'📍 Click on the map to place the location', toast_add_cancelled:'Addition cancelled',
+  toast_photo_added:'Photo added!', toast_photo_deleted:'Photo deleted', toast_photo_reported:'📷 Photo reported — a moderator will review it', toast_uploading:'📷 Uploading...',
+  toast_not_authorized:'Not authorized', toast_pwd_updated:'✓ Password updated!', toast_reset_sent:'📧 Password reset email sent!',
+  toast_post_modified:'Post updated!', toast_post_deleted:'Post deleted', toast_reply_deleted:'Reply deleted',
+  toast_report_ignored:'Report dismissed', toast_report_handled:'✓ Report handled', toast_comment_reported:'Comment reported ⚠️', toast_comment_modified:'Comment updated!',
+  toast_comm_reserved:'Reserved for admins/moderators', toast_trusted_removed:'Trusted member removed', toast_place_not_found:'Place not found (may have been deleted)',
+  toast_type_created:'Type created!', toast_type_modified:'Type updated!', toast_type_deleted:'Type deleted',
+  toast_cat_created:'Main category created!', toast_cat_modified:'Category updated!', toast_subcat_created:'Subcategory created!', toast_subcat_modified:'Subcategory updated!',
+  lbl_loading:'Loading...', lbl_no_place_added:'No places added', lbl_no_vote:'No votes given', lbl_no_comment:'No comments', lbl_no_fav:'No favorites yet',
+  lbl_no_reply:'No replies yet — start the discussion!', lbl_no_post:'No posts yet.<br>Be the first! 👋', lbl_no_cat:'No categories found',
+  lbl_no_action_mod:'No moderation actions recorded', lbl_no_notif:'🔔<br>No notifications yet.', lbl_no_result:'No places found',
+  lbl_no_member:'No members registered.', lbl_no_banned:'No banned users', lbl_no_moderator:'No moderators yet', lbl_no_trusted:'No trusted members yet',
+  lbl_no_active_place:'No active places', lbl_reply_one:'reply', lbl_reply_many:'replies',
+  lbl_status_resolved:'✅ Resolved', lbl_status_planned:'🗓️ Planned', lbl_change_status:'Change status',
+  lbl_validated_by:'✅ Place validated by', lbl_person_one:'person', lbl_person_many:'people',
+  lbl_unban:'Lift ban', lbl_ban_user:'Ban this user', lbl_not_available:'Not available', lbl_err_generic:'Error: ',
+  confirm_logout_title:'Sign out?', confirm_logout_msg:'You will be signed out of your VanLifeMap account.', confirm_logout_btn:'Sign out',
+  confirm_del_photo:'Delete this photo?', confirm_del_photo_msg:'The photo will be permanently deleted. This action is irreversible.',
+  confirm_del_post:'Delete this post?', confirm_del_post_msg:'This action will delete the post and all its replies.', confirm_del_reply:'Delete this reply?',
+  confirm_ignore_report:'Dismiss this report?', confirm_ignore_report_msg:'The place will be kept without changes. This action is irreversible.',
+  confirm_ignore_comment:'Dismiss this report?', confirm_ignore_comment_msg:'The report will be deleted. The comment will remain visible.',
+  confirm_del_type:'Delete this type?', confirm_del_type_msg:'Existing posts will keep this type.',
+  lbl_anonymous:'Anonymous', lbl_by:'by', lbl_comment_author:'Comment author', lbl_reported_by:'Reported by', lbl_no_name:'Unnamed',
+  lbl_no_new_member_week:'No new members this week', lbl_no_new_place_week:'No places added this week', lbl_this_week:'this week',
+  dash_registered_members:'Registered members', dash_new_members:'New members', dash_validated_total:'Total validated places',
+  dash_new_places:'New places', dash_global_stats:'Global statistics',
+  lbl_report_one:'report', lbl_report_many:'reports',
+  lbl_status_active:'Active', lbl_status_pending:'Pending', lbl_status_hidden:'Hidden', lbl_status_hiddens:'Hidden',
+  lbl_action_ignored:'Dismissed',
+  lbl_banned:'Banned', dash_moderators:'Moderators', dash_trusted_members:'Trusted members',
+  comm_new_type:'New type', comm_edit_type:'Edit type', comm_create_type:'Create type', comm_save_type:'Save',
+  comm_no_type:'No type configured', comm_type_all:'All members', comm_type_mods:'Moderators and admins', comm_type_admins:'Admins only',
+  comm_type_pin:'Pin to top (priority type)',
+  dash_trusted_desc:'Their vote instantly validates a place', btn_confirm:'Confirm',
+  btn_add_mod:'+ Add moderator', btn_add_trusted:'+ Add trusted member',
+  dash_banned_members:'Banned members', ph_username:'Username...',
+  ph_ban_username:'Username to ban...', ph_ban_reason:'Reason (optional)...'
 },
 es:{
   nav_filters:'Filtros', nav_search:'Buscar', nav_add:'Añadir lugar', nav_community:'Comunidad', nav_profile:'Perfil', nav_dashboard:'Panel',
@@ -1368,7 +1456,51 @@ es:{
   role_admin:'👑 Administrador', role_moderator:'🛡️ Moderador', role_trusted:'⭐ Miembro de confianza',
   role_expert:'🥇 Experto', role_explorer:'🥈 Explorador', role_beginner:'🥉 Principiante',
   role_active:'Miembro activo', role_new:'Nuevo miembro',
-  member_registered:'Registrado el', member_no_pseudo:'(sin nombre)'
+  member_registered:'Registrado el', member_no_pseudo:'(sin nombre)',
+  toast_login_reply:'Inicia sesión para responder', toast_login_like:'Inicia sesión para dar me gusta', toast_login_post:'Inicia sesión para publicar', toast_login_add:'Inicia sesión para añadir un lugar', toast_login_rate:'Inicia sesión para valorar',
+  toast_already_liked:'¡Ya te gustó!', toast_already_voted:'Ya has votado', toast_already_voted_place:'Ya has votado por este lugar',
+  toast_err_write:'¡Escribe algo!', toast_err_choose_reason:'Elige un motivo', toast_err_details:'Describe el problema (mín. 2 caracteres)',
+  toast_err_modify:'Error al actualizar', toast_err_publish:'Error al publicar', toast_err_delete:'Error al eliminar',
+  toast_err_pwd_short:'Contraseña demasiado corta (mín. 6 caracteres)', toast_err_email:'Introduce tu email primero', toast_err_self_ban:'No puedes banearte a ti mismo',
+  toast_err_enter_pseudo:'Introduce un nombre de usuario', toast_err_click_map:'Haz clic en el mapa para la posición', toast_err_slug:'Nombre y slug requeridos', toast_err_icon:'Nombre e icono requeridos',
+  toast_pos_found:'¡Posición encontrada!', toast_suggest_sent:'📍 Ubicación sugerida enviada — un moderador la revisará', toast_click_move:'📍 Toca el mapa para indicar la ubicación correcta',
+  toast_click_center:'Haz clic en el mapa para elegir el centro', toast_click_place:'📍 Haz clic en el mapa para colocar el lugar', toast_add_cancelled:'Añadido cancelado',
+  toast_photo_added:'¡Foto añadida!', toast_photo_deleted:'Foto eliminada', toast_photo_reported:'📷 Foto reportada — un moderador la revisará', toast_uploading:'📷 Subiendo...',
+  toast_not_authorized:'No autorizado', toast_pwd_updated:'✓ ¡Contraseña actualizada!', toast_reset_sent:'📧 ¡Email de restablecimiento enviado!',
+  toast_post_modified:'¡Post actualizado!', toast_post_deleted:'Post eliminado', toast_reply_deleted:'Respuesta eliminada',
+  toast_report_ignored:'Informe descartado', toast_report_handled:'✓ Informe gestionado', toast_comment_reported:'Comentario reportado ⚠️', toast_comment_modified:'¡Comentario actualizado!',
+  toast_comm_reserved:'Reservado para admins/moderadores', toast_trusted_removed:'Miembro de confianza eliminado', toast_place_not_found:'Lugar no encontrado (puede haber sido eliminado)',
+  toast_type_created:'¡Tipo creado!', toast_type_modified:'¡Tipo actualizado!', toast_type_deleted:'Tipo eliminado',
+  toast_cat_created:'¡Categoría principal creada!', toast_cat_modified:'¡Categoría actualizada!', toast_subcat_created:'¡Subcategoría creada!', toast_subcat_modified:'¡Subcategoría actualizada!',
+  lbl_loading:'Cargando...', lbl_no_place_added:'Ningún lugar añadido', lbl_no_vote:'Ningún voto dado', lbl_no_comment:'Sin comentarios', lbl_no_fav:'Sin favoritos todavía',
+  lbl_no_reply:'Sin respuestas — ¡inicia la discusión!', lbl_no_post:'Sin posts todavía.<br>¡Sé el primero! 👋', lbl_no_cat:'No se encontraron categorías',
+  lbl_no_action_mod:'No hay acciones de moderación registradas', lbl_no_notif:'🔔<br>Sin notificaciones por el momento.', lbl_no_result:'No se encontraron lugares',
+  lbl_no_member:'Ningún miembro registrado.', lbl_no_banned:'Sin usuarios baneados', lbl_no_moderator:'Sin moderadores por el momento', lbl_no_trusted:'Sin miembros de confianza por el momento',
+  lbl_no_active_place:'Sin lugares activos', lbl_reply_one:'respuesta', lbl_reply_many:'respuestas',
+  lbl_status_resolved:'✅ Resuelto', lbl_status_planned:'🗓️ Planificado', lbl_change_status:'Cambiar estado',
+  lbl_validated_by:'✅ Lugar validado por', lbl_person_one:'persona', lbl_person_many:'personas',
+  lbl_unban:'Levantar el baneo', lbl_ban_user:'Banear a este usuario', lbl_not_available:'No disponible', lbl_err_generic:'Error: ',
+  confirm_logout_title:'¿Cerrar sesión?', confirm_logout_msg:'Cerrarás sesión en tu cuenta VanLifeMap.', confirm_logout_btn:'Cerrar sesión',
+  confirm_del_photo:'¿Eliminar esta foto?', confirm_del_photo_msg:'La foto se eliminará definitivamente. Esta acción es irreversible.',
+  confirm_del_post:'¿Eliminar este post?', confirm_del_post_msg:'Esta acción eliminará el post y todas sus respuestas.', confirm_del_reply:'¿Eliminar esta respuesta?',
+  confirm_ignore_report:'¿Ignorar este informe?', confirm_ignore_report_msg:'El lugar se conservará sin cambios. Esta acción es irreversible.',
+  confirm_ignore_comment:'¿Ignorar este informe?', confirm_ignore_comment_msg:'El informe se eliminará. El comentario seguirá visible.',
+  confirm_del_type:'¿Eliminar este tipo?', confirm_del_type_msg:'Los posts existentes conservarán este tipo.',
+  lbl_anonymous:'Anónimo', lbl_by:'por', lbl_comment_author:'Autor del comentario', lbl_reported_by:'Reportado por', lbl_no_name:'Sin nombre',
+  lbl_no_new_member_week:'Ningún nuevo miembro esta semana', lbl_no_new_place_week:'Ningún lugar añadido esta semana', lbl_this_week:'esta semana',
+  dash_registered_members:'Miembros inscritos', dash_new_members:'Nuevos miembros', dash_validated_total:'Lugares validados total',
+  dash_new_places:'Nuevos lugares', dash_global_stats:'Estadísticas globales',
+  lbl_report_one:'reporte', lbl_report_many:'reportes',
+  lbl_status_active:'Activo', lbl_status_pending:'Pendiente', lbl_status_hidden:'Oculto', lbl_status_hiddens:'Ocultos',
+  lbl_action_ignored:'Ignorado',
+  lbl_banned:'Baneados', dash_moderators:'Moderadores', dash_trusted_members:'Miembros de confianza',
+  comm_new_type:'Nuevo tipo', comm_edit_type:'Editar tipo', comm_create_type:'Crear tipo', comm_save_type:'Guardar',
+  comm_no_type:'Ningún tipo configurado', comm_type_all:'Todos los miembros', comm_type_mods:'Moderadores y admins', comm_type_admins:'Solo admins',
+  comm_type_pin:'Fijar arriba (tipo prioritario)',
+  dash_trusted_desc:'Su voto valida un lugar al instante', btn_confirm:'Confirmar',
+  btn_add_mod:'+ Añadir moderador', btn_add_trusted:'+ Añadir miembro de confianza',
+  dash_banned_members:'Miembros baneados', ph_username:'Nombre de usuario...',
+  ph_ban_username:'Usuario a bannear...', ph_ban_reason:'Razón (opcional)...'
 },
 de:{
   nav_filters:'Filter', nav_search:'Suche', nav_add:'Ort hinzufügen', nav_community:'Community', nav_profile:'Profil', nav_dashboard:'Dashboard',
@@ -1490,7 +1622,51 @@ de:{
   role_admin:'👑 Administrator', role_moderator:'🛡️ Moderator', role_trusted:'⭐ Vertrauensmitglied',
   role_expert:'🥇 Experte', role_explorer:'🥈 Entdecker', role_beginner:'🥉 Anfänger',
   role_active:'Aktives Mitglied', role_new:'Neues Mitglied',
-  member_registered:'Registriert am', member_no_pseudo:'(kein Benutzername)'
+  member_registered:'Registriert am', member_no_pseudo:'(kein Benutzername)',
+  toast_login_reply:'Anmelden um zu antworten', toast_login_like:'Anmelden um zu liken', toast_login_post:'Anmelden um zu posten', toast_login_add:'Anmelden um einen Ort hinzuzufügen', toast_login_rate:'Anmelden um zu bewerten',
+  toast_already_liked:'Bereits geliked!', toast_already_voted:'Du hast bereits abgestimmt', toast_already_voted_place:'Du hast bereits für diesen Ort abgestimmt',
+  toast_err_write:'Schreibe etwas!', toast_err_choose_reason:'Wähle einen Grund', toast_err_details:'Beschreibe das Problem (min. 2 Zeichen)',
+  toast_err_modify:'Fehler beim Aktualisieren', toast_err_publish:'Fehler beim Veröffentlichen', toast_err_delete:'Fehler beim Löschen',
+  toast_err_pwd_short:'Passwort zu kurz (min. 6 Zeichen)', toast_err_email:'Gib zuerst deine E-Mail ein', toast_err_self_ban:'Du kannst dich nicht selbst bannen',
+  toast_err_enter_pseudo:'Benutzernamen eingeben', toast_err_click_map:'Klicke auf die Karte für die Position', toast_err_slug:'Name und Slug erforderlich', toast_err_icon:'Name und Symbol erforderlich',
+  toast_pos_found:'Position gefunden!', toast_suggest_sent:'📍 Vorgeschlagener Standort gesendet — ein Moderator wird ihn prüfen', toast_click_move:'📍 Tippe auf die Karte für den richtigen Standort',
+  toast_click_center:'Klicke auf die Karte um das Zentrum zu wählen', toast_click_place:'📍 Klicke auf die Karte um den Ort zu platzieren', toast_add_cancelled:'Hinzufügen abgebrochen',
+  toast_photo_added:'Foto hinzugefügt!', toast_photo_deleted:'Foto gelöscht', toast_photo_reported:'📷 Foto gemeldet — ein Moderator wird es prüfen', toast_uploading:'📷 Wird hochgeladen...',
+  toast_not_authorized:'Nicht autorisiert', toast_pwd_updated:'✓ Passwort aktualisiert!', toast_reset_sent:'📧 Passwort-Reset-E-Mail gesendet!',
+  toast_post_modified:'Beitrag aktualisiert!', toast_post_deleted:'Beitrag gelöscht', toast_reply_deleted:'Antwort gelöscht',
+  toast_report_ignored:'Meldung abgewiesen', toast_report_handled:'✓ Meldung bearbeitet', toast_comment_reported:'Kommentar gemeldet ⚠️', toast_comment_modified:'Kommentar aktualisiert!',
+  toast_comm_reserved:'Nur für Admins/Moderatoren', toast_trusted_removed:'Vertrauensmitglied entfernt', toast_place_not_found:'Ort nicht gefunden (möglicherweise gelöscht)',
+  toast_type_created:'Typ erstellt!', toast_type_modified:'Typ aktualisiert!', toast_type_deleted:'Typ gelöscht',
+  toast_cat_created:'Hauptkategorie erstellt!', toast_cat_modified:'Kategorie aktualisiert!', toast_subcat_created:'Unterkategorie erstellt!', toast_subcat_modified:'Unterkategorie aktualisiert!',
+  lbl_loading:'Laden...', lbl_no_place_added:'Keine Orte hinzugefügt', lbl_no_vote:'Keine Stimmen abgegeben', lbl_no_comment:'Keine Kommentare', lbl_no_fav:'Noch keine Favoriten',
+  lbl_no_reply:'Noch keine Antworten — starte die Diskussion!', lbl_no_post:'Noch keine Beiträge.<br>Sei der Erste! 👋', lbl_no_cat:'Keine Kategorien gefunden',
+  lbl_no_action_mod:'Keine Moderationsaktionen aufgezeichnet', lbl_no_notif:'🔔<br>Noch keine Benachrichtigungen.', lbl_no_result:'Keine Orte gefunden',
+  lbl_no_member:'Keine Mitglieder registriert.', lbl_no_banned:'Keine gesperrten Benutzer', lbl_no_moderator:'Noch keine Moderatoren', lbl_no_trusted:'Noch keine Vertrauensmitglieder',
+  lbl_no_active_place:'Keine aktiven Orte', lbl_reply_one:'Antwort', lbl_reply_many:'Antworten',
+  lbl_status_resolved:'✅ Gelöst', lbl_status_planned:'🗓️ Geplant', lbl_change_status:'Status ändern',
+  lbl_validated_by:'✅ Ort validiert von', lbl_person_one:'Person', lbl_person_many:'Personen',
+  lbl_unban:'Sperre aufheben', lbl_ban_user:'Diesen Benutzer sperren', lbl_not_available:'Nicht verfügbar', lbl_err_generic:'Fehler: ',
+  confirm_logout_title:'Abmelden?', confirm_logout_msg:'Du wirst von deinem VanLifeMap-Konto abgemeldet.', confirm_logout_btn:'Abmelden',
+  confirm_del_photo:'Dieses Foto löschen?', confirm_del_photo_msg:'Das Foto wird dauerhaft gelöscht. Diese Aktion ist unwiderruflich.',
+  confirm_del_post:'Diesen Beitrag löschen?', confirm_del_post_msg:'Diese Aktion löscht den Beitrag und alle Antworten.', confirm_del_reply:'Diese Antwort löschen?',
+  confirm_ignore_report:'Diese Meldung ignorieren?', confirm_ignore_report_msg:'Der Ort bleibt ohne Änderungen. Diese Aktion ist unwiderruflich.',
+  confirm_ignore_comment:'Diese Meldung ignorieren?', confirm_ignore_comment_msg:'Die Meldung wird gelöscht. Der Kommentar bleibt sichtbar.',
+  confirm_del_type:'Diesen Typ löschen?', confirm_del_type_msg:'Bestehende Beiträge behalten diesen Typ.',
+  lbl_anonymous:'Anonym', lbl_by:'von', lbl_comment_author:'Kommentarautor', lbl_reported_by:'Gemeldet von', lbl_no_name:'Ohne Name',
+  lbl_no_new_member_week:'Keine neuen Mitglieder diese Woche', lbl_no_new_place_week:'Keine Orte diese Woche hinzugefügt', lbl_this_week:'diese Woche',
+  dash_registered_members:'Registrierte Mitglieder', dash_new_members:'Neue Mitglieder', dash_validated_total:'Validierte Orte gesamt',
+  dash_new_places:'Neue Orte', dash_global_stats:'Globale Statistiken',
+  lbl_report_one:'Meldung', lbl_report_many:'Meldungen',
+  lbl_status_active:'Aktiv', lbl_status_pending:'Ausstehend', lbl_status_hidden:'Versteckt', lbl_status_hiddens:'Versteckt',
+  lbl_action_ignored:'Ignoriert',
+  lbl_banned:'Gesperrt', dash_moderators:'Moderatoren', dash_trusted_members:'Vertrauensmitglieder',
+  comm_new_type:'Neuer Typ', comm_edit_type:'Typ bearbeiten', comm_create_type:'Typ erstellen', comm_save_type:'Speichern',
+  comm_no_type:'Kein Typ konfiguriert', comm_type_all:'Alle Mitglieder', comm_type_mods:'Moderatoren und Admins', comm_type_admins:'Nur Admins',
+  comm_type_pin:'Oben anheften (Prioritätstyp)',
+  dash_trusted_desc:'Ihre Stimme validiert einen Ort sofort', btn_confirm:'Bestätigen',
+  btn_add_mod:'+ Moderator hinzufügen', btn_add_trusted:'+ Vertrauensmitglied hinzufügen',
+  dash_banned_members:'Gesperrte Mitglieder', ph_username:'Benutzername...',
+  ph_ban_username:'Zu sperrenden Benutzer...', ph_ban_reason:'Grund (optional)...'
 },
 it:{
   nav_filters:'Filtri', nav_search:'Cerca', nav_add:'Aggiungi luogo', nav_community:'Comunità', nav_profile:'Profilo', nav_dashboard:'Dashboard',
@@ -1612,7 +1788,51 @@ it:{
   role_admin:'👑 Amministratore', role_moderator:'🛡️ Moderatore', role_trusted:'⭐ Membro fidato',
   role_expert:'🥇 Esperto', role_explorer:'🥈 Esploratore', role_beginner:'🥉 Principiante',
   role_active:'Membro attivo', role_new:'Nuovo membro',
-  member_registered:'Registrato il', member_no_pseudo:'(nessun nome utente)'
+  member_registered:'Registrato il', member_no_pseudo:'(nessun nome utente)',
+  toast_login_reply:'Accedi per rispondere', toast_login_like:'Accedi per mettere mi piace', toast_login_post:'Accedi per pubblicare', toast_login_add:'Accedi per aggiungere un luogo', toast_login_rate:'Accedi per valutare',
+  toast_already_liked:'Già piaciuto!', toast_already_voted:'Hai già votato', toast_already_voted_place:'Hai già votato per questo luogo',
+  toast_err_write:'Scrivi qualcosa!', toast_err_choose_reason:'Scegli un motivo', toast_err_details:'Descrivi il problema (min. 2 caratteri)',
+  toast_err_modify:'Errore durante l\'aggiornamento', toast_err_publish:'Errore durante la pubblicazione', toast_err_delete:'Errore durante l\'eliminazione',
+  toast_err_pwd_short:'Password troppo corta (min. 6 caratteri)', toast_err_email:'Inserisci prima la tua email', toast_err_self_ban:'Non puoi bannare te stesso',
+  toast_err_enter_pseudo:'Inserisci un nome utente', toast_err_click_map:'Clicca sulla mappa per la posizione', toast_err_slug:'Nome e slug richiesti', toast_err_icon:'Nome e icona richiesti',
+  toast_pos_found:'Posizione trovata!', toast_suggest_sent:'📍 Posizione suggerita inviata — un moderatore la esaminerà', toast_click_move:'📍 Tocca la mappa per indicare la posizione corretta',
+  toast_click_center:'Clicca sulla mappa per scegliere il centro', toast_click_place:'📍 Clicca sulla mappa per posizionare il luogo', toast_add_cancelled:'Aggiunta annullata',
+  toast_photo_added:'Foto aggiunta!', toast_photo_deleted:'Foto eliminata', toast_photo_reported:'📷 Foto segnalata — un moderatore la esaminerà', toast_uploading:'📷 Caricamento...',
+  toast_not_authorized:'Non autorizzato', toast_pwd_updated:'✓ Password aggiornata!', toast_reset_sent:'📧 Email di reset password inviata!',
+  toast_post_modified:'Post aggiornato!', toast_post_deleted:'Post eliminato', toast_reply_deleted:'Risposta eliminata',
+  toast_report_ignored:'Segnalazione ignorata', toast_report_handled:'✓ Segnalazione gestita', toast_comment_reported:'Commento segnalato ⚠️', toast_comment_modified:'Commento aggiornato!',
+  toast_comm_reserved:'Riservato ad admin/moderatori', toast_trusted_removed:'Membro fidato rimosso', toast_place_not_found:'Luogo non trovato (potrebbe essere stato eliminato)',
+  toast_type_created:'Tipo creato!', toast_type_modified:'Tipo aggiornato!', toast_type_deleted:'Tipo eliminato',
+  toast_cat_created:'Categoria principale creata!', toast_cat_modified:'Categoria aggiornata!', toast_subcat_created:'Sottocategoria creata!', toast_subcat_modified:'Sottocategoria aggiornata!',
+  lbl_loading:'Caricamento...', lbl_no_place_added:'Nessun luogo aggiunto', lbl_no_vote:'Nessun voto dato', lbl_no_comment:'Nessun commento', lbl_no_fav:'Nessun preferito per ora',
+  lbl_no_reply:'Nessuna risposta — inizia la discussione!', lbl_no_post:'Nessun post per ora.<br>Sii il primo! 👋', lbl_no_cat:'Nessuna categoria trovata',
+  lbl_no_action_mod:'Nessuna azione di moderazione registrata', lbl_no_notif:'🔔<br>Nessuna notifica per ora.', lbl_no_result:'Nessun luogo trovato',
+  lbl_no_member:'Nessun membro registrato.', lbl_no_banned:'Nessun utente sospeso', lbl_no_moderator:'Nessun moderatore per ora', lbl_no_trusted:'Nessun membro fidato per ora',
+  lbl_no_active_place:'Nessun luogo attivo', lbl_reply_one:'risposta', lbl_reply_many:'risposte',
+  lbl_status_resolved:'✅ Risolto', lbl_status_planned:'🗓️ Pianificato', lbl_change_status:'Cambia stato',
+  lbl_validated_by:'✅ Luogo validato da', lbl_person_one:'persona', lbl_person_many:'persone',
+  lbl_unban:'Rimuovi il ban', lbl_ban_user:'Banna questo utente', lbl_not_available:'Non disponibile', lbl_err_generic:'Errore: ',
+  confirm_logout_title:'Esci?', confirm_logout_msg:'Verrai disconnesso dal tuo account VanLifeMap.', confirm_logout_btn:'Esci',
+  confirm_del_photo:'Eliminare questa foto?', confirm_del_photo_msg:'La foto sarà eliminata definitivamente. Azione irreversibile.',
+  confirm_del_post:'Eliminare questo post?', confirm_del_post_msg:'Questa azione eliminerà il post e tutte le risposte.', confirm_del_reply:'Eliminare questa risposta?',
+  confirm_ignore_report:'Ignorare questa segnalazione?', confirm_ignore_report_msg:'Il luogo sarà mantenuto senza modifiche. Azione irreversibile.',
+  confirm_ignore_comment:'Ignorare questa segnalazione?', confirm_ignore_comment_msg:'La segnalazione sarà eliminata. Il commento rimarrà visibile.',
+  confirm_del_type:'Eliminare questo tipo?', confirm_del_type_msg:'I post esistenti manterranno questo tipo.',
+  lbl_anonymous:'Anonimo', lbl_by:'di', lbl_comment_author:'Autore del commento', lbl_reported_by:'Segnalato da', lbl_no_name:'Senza nome',
+  lbl_no_new_member_week:'Nessun nuovo membro questa settimana', lbl_no_new_place_week:'Nessun luogo aggiunto questa settimana', lbl_this_week:'questa settimana',
+  dash_registered_members:'Membri registrati', dash_new_members:'Nuovi membri', dash_validated_total:'Luoghi convalidati totali',
+  dash_new_places:'Nuovi luoghi', dash_global_stats:'Statistiche globali',
+  lbl_report_one:'segnalazione', lbl_report_many:'segnalazioni',
+  lbl_status_active:'Attivo', lbl_status_pending:'In attesa', lbl_status_hidden:'Nascosto', lbl_status_hiddens:'Nascosti',
+  lbl_action_ignored:'Ignorato',
+  lbl_banned:'Banniti', dash_moderators:'Moderatori', dash_trusted_members:'Membri di fiducia',
+  comm_new_type:'Nuovo tipo', comm_edit_type:'Modifica tipo', comm_create_type:'Crea tipo', comm_save_type:'Salva',
+  comm_no_type:'Nessun tipo configurato', comm_type_all:'Tutti i membri', comm_type_mods:'Moderatori e admin', comm_type_admins:'Solo admin',
+  comm_type_pin:'Fissa in alto (tipo prioritario)',
+  dash_trusted_desc:'Il loro voto valida istantaneamente un luogo', btn_confirm:'Conferma',
+  btn_add_mod:'+ Aggiungi moderatore', btn_add_trusted:'+ Aggiungi membro di fiducia',
+  dash_banned_members:'Membri banniti', ph_username:'Nome utente...',
+  ph_ban_username:'Utente da bannare...', ph_ban_reason:'Motivo (facoltativo)...'
 },
 pt:{
   nav_filters:'Filtros', nav_search:'Pesquisar', nav_add:'Adicionar local', nav_community:'Comunidade', nav_profile:'Perfil', nav_dashboard:'Painel',
@@ -1734,7 +1954,51 @@ pt:{
   role_admin:'👑 Administrador', role_moderator:'🛡️ Moderador', role_trusted:'⭐ Membro de confiança',
   role_expert:'🥇 Especialista', role_explorer:'🥈 Explorador', role_beginner:'🥉 Principiante',
   role_active:'Membro ativo', role_new:'Novo membro',
-  member_registered:'Registado a', member_no_pseudo:'(sem nome de utilizador)'
+  member_registered:'Registado a', member_no_pseudo:'(sem nome de utilizador)',
+  toast_login_reply:'Entre para responder', toast_login_like:'Entre para gostar', toast_login_post:'Entre para publicar', toast_login_add:'Entre para adicionar um local', toast_login_rate:'Entre para avaliar',
+  toast_already_liked:'Já gostou!', toast_already_voted:'Já votou', toast_already_voted_place:'Já votou neste local',
+  toast_err_write:'Escreva algo!', toast_err_choose_reason:'Escolha um motivo', toast_err_details:'Descreva o problema (mín. 2 caracteres)',
+  toast_err_modify:'Erro ao atualizar', toast_err_publish:'Erro ao publicar', toast_err_delete:'Erro ao eliminar',
+  toast_err_pwd_short:'Senha muito curta (mín. 6 caracteres)', toast_err_email:'Introduza o seu email primeiro', toast_err_self_ban:'Não pode banir-se a si mesmo',
+  toast_err_enter_pseudo:'Introduza um nome de utilizador', toast_err_click_map:'Clique no mapa para a posição', toast_err_slug:'Nome e slug necessários', toast_err_icon:'Nome e ícone necessários',
+  toast_pos_found:'Posição encontrada!', toast_suggest_sent:'📍 Localização sugerida enviada — um moderador irá rever', toast_click_move:'📍 Toque no mapa para indicar a localização correta',
+  toast_click_center:'Clique no mapa para escolher o centro', toast_click_place:'📍 Clique no mapa para colocar o local', toast_add_cancelled:'Adição cancelada',
+  toast_photo_added:'Foto adicionada!', toast_photo_deleted:'Foto eliminada', toast_photo_reported:'📷 Foto denunciada — um moderador irá rever', toast_uploading:'📷 A enviar...',
+  toast_not_authorized:'Não autorizado', toast_pwd_updated:'✓ Senha atualizada!', toast_reset_sent:'📧 Email de redefinição de senha enviado!',
+  toast_post_modified:'Publicação atualizada!', toast_post_deleted:'Publicação eliminada', toast_reply_deleted:'Resposta eliminada',
+  toast_report_ignored:'Denúncia ignorada', toast_report_handled:'✓ Denúncia tratada', toast_comment_reported:'Comentário denunciado ⚠️', toast_comment_modified:'Comentário atualizado!',
+  toast_comm_reserved:'Reservado para admins/moderadores', toast_trusted_removed:'Membro de confiança removido', toast_place_not_found:'Local não encontrado (pode ter sido eliminado)',
+  toast_type_created:'Tipo criado!', toast_type_modified:'Tipo atualizado!', toast_type_deleted:'Tipo eliminado',
+  toast_cat_created:'Categoria principal criada!', toast_cat_modified:'Categoria atualizada!', toast_subcat_created:'Subcategoria criada!', toast_subcat_modified:'Subcategoria atualizada!',
+  lbl_loading:'Carregando...', lbl_no_place_added:'Nenhum local adicionado', lbl_no_vote:'Nenhum voto dado', lbl_no_comment:'Sem comentários', lbl_no_fav:'Sem favoritos ainda',
+  lbl_no_reply:'Sem respostas — inicie a discussão!', lbl_no_post:'Sem posts ainda.<br>Seja o primeiro! 👋', lbl_no_cat:'Nenhuma categoria encontrada',
+  lbl_no_action_mod:'Nenhuma ação de moderação registada', lbl_no_notif:'🔔<br>Sem notificações por enquanto.', lbl_no_result:'Nenhum local encontrado',
+  lbl_no_member:'Nenhum membro registado.', lbl_no_banned:'Sem utilizadores banidos', lbl_no_moderator:'Sem moderadores por enquanto', lbl_no_trusted:'Sem membros de confiança por enquanto',
+  lbl_no_active_place:'Sem locais ativos', lbl_reply_one:'resposta', lbl_reply_many:'respostas',
+  lbl_status_resolved:'✅ Resolvido', lbl_status_planned:'🗓️ Planeado', lbl_change_status:'Alterar estado',
+  lbl_validated_by:'✅ Local validado por', lbl_person_one:'pessoa', lbl_person_many:'pessoas',
+  lbl_unban:'Levantar o ban', lbl_ban_user:'Banir este utilizador', lbl_not_available:'Não disponível', lbl_err_generic:'Erro: ',
+  confirm_logout_title:'Sair?', confirm_logout_msg:'Irá sair da sua conta VanLifeMap.', confirm_logout_btn:'Sair',
+  confirm_del_photo:'Eliminar esta foto?', confirm_del_photo_msg:'A foto será eliminada definitivamente. Esta ação é irreversível.',
+  confirm_del_post:'Eliminar esta publicação?', confirm_del_post_msg:'Esta ação eliminará a publicação e todas as respostas.', confirm_del_reply:'Eliminar esta resposta?',
+  confirm_ignore_report:'Ignorar esta denúncia?', confirm_ignore_report_msg:'O local será mantido sem alterações. Esta ação é irreversível.',
+  confirm_ignore_comment:'Ignorar esta denúncia?', confirm_ignore_comment_msg:'A denúncia será eliminada. O comentário permanecerá visível.',
+  confirm_del_type:'Eliminar este tipo?', confirm_del_type_msg:'As publicações existentes manterão este tipo.',
+  lbl_anonymous:'Anônimo', lbl_by:'por', lbl_comment_author:'Autor do comentário', lbl_reported_by:'Reportado por', lbl_no_name:'Sem nome',
+  lbl_no_new_member_week:'Nenhum novo membro esta semana', lbl_no_new_place_week:'Nenhum local adicionado esta semana', lbl_this_week:'esta semana',
+  dash_registered_members:'Membros registrados', dash_new_members:'Novos membros', dash_validated_total:'Locais validados total',
+  dash_new_places:'Novos locais', dash_global_stats:'Estatísticas globais',
+  lbl_report_one:'denúncia', lbl_report_many:'denúncias',
+  lbl_status_active:'Ativo', lbl_status_pending:'Pendente', lbl_status_hidden:'Oculto', lbl_status_hiddens:'Ocultos',
+  lbl_action_ignored:'Ignorado',
+  lbl_banned:'Banidos', dash_moderators:'Moderadores', dash_trusted_members:'Membros de confiança',
+  comm_new_type:'Novo tipo', comm_edit_type:'Editar tipo', comm_create_type:'Criar tipo', comm_save_type:'Guardar',
+  comm_no_type:'Nenhum tipo configurado', comm_type_all:'Todos os membros', comm_type_mods:'Moderadores e admins', comm_type_admins:'Apenas admins',
+  comm_type_pin:'Fixar no topo (tipo prioritário)',
+  dash_trusted_desc:'O voto deles valida um local instantaneamente', btn_confirm:'Confirmar',
+  btn_add_mod:'+ Adicionar moderador', btn_add_trusted:'+ Adicionar membro de confiança',
+  dash_banned_members:'Membros banidos', ph_username:'Nome de usuário...',
+  ph_ban_username:'Usuário a banir...', ph_ban_reason:'Motivo (opcional)...'
 },
 nl:{
   nav_filters:'Filters', nav_search:'Zoeken', nav_add:'Locatie toevoegen', nav_community:'Community', nav_profile:'Profiel', nav_dashboard:'Dashboard',
@@ -1856,7 +2120,51 @@ nl:{
   role_admin:'👑 Beheerder', role_moderator:'🛡️ Moderator', role_trusted:'⭐ Vertrouwd lid',
   role_expert:'🥇 Expert', role_explorer:'🥈 Ontdekker', role_beginner:'🥉 Beginner',
   role_active:'Actief lid', role_new:'Nieuw lid',
-  member_registered:'Geregistreerd op', member_no_pseudo:'(geen gebruikersnaam)'
+  member_registered:'Geregistreerd op', member_no_pseudo:'(geen gebruikersnaam)',
+  toast_login_reply:'Inloggen om te reageren', toast_login_like:'Inloggen om te liken', toast_login_post:'Inloggen om te posten', toast_login_add:'Inloggen om een locatie toe te voegen', toast_login_rate:'Inloggen om te beoordelen',
+  toast_already_liked:'Al geliked!', toast_already_voted:'Je hebt al gestemd', toast_already_voted_place:'Je hebt al gestemd op deze locatie',
+  toast_err_write:'Schrijf iets!', toast_err_choose_reason:'Kies een reden', toast_err_details:'Beschrijf het probleem (min. 2 tekens)',
+  toast_err_modify:'Fout bij bijwerken', toast_err_publish:'Fout bij publiceren', toast_err_delete:'Fout bij verwijderen',
+  toast_err_pwd_short:'Wachtwoord te kort (min. 6 tekens)', toast_err_email:'Voer eerst je e-mail in', toast_err_self_ban:'Je kunt jezelf niet verbannen',
+  toast_err_enter_pseudo:'Voer een gebruikersnaam in', toast_err_click_map:'Klik op de kaart voor de positie', toast_err_slug:'Naam en slug vereist', toast_err_icon:'Naam en pictogram vereist',
+  toast_pos_found:'Locatie gevonden!', toast_suggest_sent:'📍 Voorgestelde locatie verzonden — een moderator zal het beoordelen', toast_click_move:'📍 Tik op de kaart voor de juiste locatie',
+  toast_click_center:'Klik op de kaart om het centrum te kiezen', toast_click_place:'📍 Klik op de kaart om de locatie te plaatsen', toast_add_cancelled:'Toevoegen geannuleerd',
+  toast_photo_added:'Foto toegevoegd!', toast_photo_deleted:'Foto verwijderd', toast_photo_reported:'📷 Foto gemeld — een moderator zal het beoordelen', toast_uploading:'📷 Uploaden...',
+  toast_not_authorized:'Niet geautoriseerd', toast_pwd_updated:'✓ Wachtwoord bijgewerkt!', toast_reset_sent:'📧 Wachtwoord reset e-mail verzonden!',
+  toast_post_modified:'Bericht bijgewerkt!', toast_post_deleted:'Bericht verwijderd', toast_reply_deleted:'Reactie verwijderd',
+  toast_report_ignored:'Melding genegeerd', toast_report_handled:'✓ Melding afgehandeld', toast_comment_reported:'Reactie gemeld ⚠️', toast_comment_modified:'Reactie bijgewerkt!',
+  toast_comm_reserved:'Alleen voor admins/moderatoren', toast_trusted_removed:'Vertrouwd lid verwijderd', toast_place_not_found:'Locatie niet gevonden (mogelijk verwijderd)',
+  toast_type_created:'Type aangemaakt!', toast_type_modified:'Type bijgewerkt!', toast_type_deleted:'Type verwijderd',
+  toast_cat_created:'Hoofdcategorie aangemaakt!', toast_cat_modified:'Categorie bijgewerkt!', toast_subcat_created:'Subcategorie aangemaakt!', toast_subcat_modified:'Subcategorie bijgewerkt!',
+  lbl_loading:'Laden...', lbl_no_place_added:'Geen locaties toegevoegd', lbl_no_vote:'Geen stemmen gegeven', lbl_no_comment:'Geen reacties', lbl_no_fav:'Nog geen favorieten',
+  lbl_no_reply:'Nog geen reacties — start de discussie!', lbl_no_post:'Nog geen berichten.<br>Wees de eerste! 👋', lbl_no_cat:'Geen categorieën gevonden',
+  lbl_no_action_mod:'Geen moderatieacties vastgelegd', lbl_no_notif:'🔔<br>Nog geen meldingen.', lbl_no_result:'Geen locaties gevonden',
+  lbl_no_member:'Geen leden geregistreerd.', lbl_no_banned:'Geen verbannen gebruikers', lbl_no_moderator:'Nog geen moderatoren', lbl_no_trusted:'Nog geen vertrouwde leden',
+  lbl_no_active_place:'Geen actieve locaties', lbl_reply_one:'reactie', lbl_reply_many:'reacties',
+  lbl_status_resolved:'✅ Opgelost', lbl_status_planned:'🗓️ Gepland', lbl_change_status:'Status wijzigen',
+  lbl_validated_by:'✅ Locatie gevalideerd door', lbl_person_one:'persoon', lbl_person_many:'personen',
+  lbl_unban:'Ban opheffen', lbl_ban_user:'Deze gebruiker verbannen', lbl_not_available:'Niet beschikbaar', lbl_err_generic:'Fout: ',
+  confirm_logout_title:'Uitloggen?', confirm_logout_msg:'Je wordt uitgelogd van je VanLifeMap-account.', confirm_logout_btn:'Uitloggen',
+  confirm_del_photo:'Deze foto verwijderen?', confirm_del_photo_msg:'De foto wordt definitief verwijderd. Deze actie is onomkeerbaar.',
+  confirm_del_post:'Dit bericht verwijderen?', confirm_del_post_msg:'Deze actie verwijdert het bericht en alle reacties.', confirm_del_reply:'Deze reactie verwijderen?',
+  confirm_ignore_report:'Deze melding negeren?', confirm_ignore_report_msg:'De locatie blijft ongewijzigd. Deze actie is onomkeerbaar.',
+  confirm_ignore_comment:'Deze melding negeren?', confirm_ignore_comment_msg:'De melding wordt verwijderd. De reactie blijft zichtbaar.',
+  confirm_del_type:'Dit type verwijderen?', confirm_del_type_msg:'Bestaande berichten behouden dit type.',
+  lbl_anonymous:'Anoniem', lbl_by:'door', lbl_comment_author:'Auteur van reactie', lbl_reported_by:'Gemeld door', lbl_no_name:'Naamloos',
+  lbl_no_new_member_week:'Geen nieuwe leden deze week', lbl_no_new_place_week:'Geen locaties toegevoegd deze week', lbl_this_week:'deze week',
+  dash_registered_members:'Geregistreerde leden', dash_new_members:'Nieuwe leden', dash_validated_total:'Totaal gevalideerde locaties',
+  dash_new_places:'Nieuwe locaties', dash_global_stats:'Globale statistieken',
+  lbl_report_one:'melding', lbl_report_many:'meldingen',
+  lbl_status_active:'Actief', lbl_status_pending:'In behandeling', lbl_status_hidden:'Verborgen', lbl_status_hiddens:'Verborgen',
+  lbl_action_ignored:'Genegeerd',
+  lbl_banned:'Verbannen', dash_moderators:'Moderatoren', dash_trusted_members:'Vertrouwde leden',
+  comm_new_type:'Nieuw type', comm_edit_type:'Type bewerken', comm_create_type:'Type aanmaken', comm_save_type:'Opslaan',
+  comm_no_type:'Geen type geconfigureerd', comm_type_all:'Alle leden', comm_type_mods:'Moderatoren en admins', comm_type_admins:'Alleen admins',
+  comm_type_pin:'Bovenaan vastzetten (prioriteitstype)',
+  dash_trusted_desc:'Hun stem valideert een locatie direct', btn_confirm:'Bevestigen',
+  btn_add_mod:'+ Moderator toevoegen', btn_add_trusted:'+ Vertrouwd lid toevoegen',
+  dash_banned_members:'Verbannen leden', ph_username:'Gebruikersnaam...',
+  ph_ban_username:'Te verbannen gebruiker...', ph_ban_reason:'Reden (optioneel)...'
 }
 };
 
@@ -2034,7 +2342,7 @@ function resetBearing() {
 }
 
 function toggleSat() {
-  if (!currentUser) { showToast('Connectez-vous pour la vue satellite', 'error'); openModal('modal-auth'); return; }
+  if (!currentUser) { showToast(t('toast_login_sat'), 'error'); openModal('modal-auth'); return; }
   var newState = !isSat;
   applySat(newState);
   savePrefs({ satellite: newState });
@@ -2062,8 +2370,8 @@ async function initPushToggle() {
 }
 
 async function togglePushSetting() {
-  if (!currentUser) { showToast('Connectez-vous pour activer les notifications', 'error'); return; }
-  if (!('PushManager' in window)) { showToast('Non supporté sur ce navigateur', 'error'); return; }
+  if (!currentUser) { showToast(t('toast_login_push'), 'error'); return; }
+  if (!('PushManager' in window)) { showToast(t('toast_push_unsupported'), 'error'); return; }
   var reg = await navigator.serviceWorker.ready;
   var sub = await reg.pushManager.getSubscription();
   if (sub) {
@@ -2073,10 +2381,10 @@ async function togglePushSetting() {
     if (toggle) toggle.classList.remove('on');
     var desc = document.getElementById('push-notif-desc');
     if (desc) desc.textContent = "Recevez une alerte même quand l'app est fermée";
-    showToast('Notifications désactivées', '');
+    showToast(t('toast_push_off'), '');
   } else {
     var perm = await Notification.requestPermission();
-    if (perm !== 'granted') { showToast('Permission refusée', 'error'); return; }
+    if (perm !== 'granted') { showToast(t('toast_push_denied'), 'error'); return; }
     try {
       var newSub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) });
       var json = newSub.toJSON();
@@ -2085,8 +2393,8 @@ async function togglePushSetting() {
       if (toggle2) toggle2.classList.add('on');
       var desc2 = document.getElementById('push-notif-desc');
       if (desc2) desc2.textContent = 'Notifications actives sur cet appareil';
-      showToast('&#128276; Notifications activées !', 'success');
-    } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+      showToast(t('toast_push_on'), 'success');
+    } catch(e) { showToast(t('lbl_err_generic') + e.message, 'error'); }
   }
 }
 
@@ -2098,7 +2406,7 @@ async function sendPush(userIds, title, body, url) {
 }
 
 function toggleSatSetting() {
-  if (!currentUser) { showToast('Connectez-vous pour activer cette option', 'error'); closeSheet('sheet-profile'); openModal('modal-auth'); return; }
+  if (!currentUser) { showToast(t('toast_login_option'), 'error'); closeSheet('sheet-profile'); openModal('modal-auth'); return; }
   var newState = !isSat;
   applySat(newState);
   savePrefs({ satellite: newState });
@@ -2126,7 +2434,7 @@ async function loadPrefs() {
 function activateRadiusMode() {
   closeSheet('sheet-search');
   radiusMode = true;
-  showToast('Clique sur la carte pour choisir le centre', 'success');
+  showToast(t('toast_click_center'), 'success');
   map.getContainer().style.cursor = 'crosshair';
 }
 
@@ -2136,7 +2444,7 @@ function locateMeRadius() {
   map.once('locationfound', function(e) {
     setRadiusCenter(e.latlng);
   });
-  map.once('locationerror', function() { showToast('Localisation impossible', 'error'); });
+  map.once('locationerror', function() { showToast(t('toast_location_error'), 'error'); });
 }
 
 function setRadiusCenter(latlng) {
@@ -2174,7 +2482,7 @@ function drawRadiusCircle() {
 }
 
 function applyRadius() {
-  if (!radiusCenter) { showToast('Choisissez d\'abord un point sur la carte', 'error'); return; }
+  if (!radiusCenter) { showToast(t('toast_err_click_map'), 'error'); return; }
   radiusKm = parseInt(document.getElementById('radius-select').value);
   drawRadiusCircle();
   map.setView(radiusCenter, getZoomForRadius(radiusKm));
@@ -2425,7 +2733,7 @@ async function renderProfile() {
     + '</div>'
     + '</div>'
     + '<div style="padding:16px;">'
-    + '<button onclick="showConfirm(\'Se déconnecter ?\',\'Vous serez déconnecté de votre compte VanLifeMap.\',\'Déconnecter\',\'#e74c3c\',signOut)" style="width:100%;background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:var(--radius-sm);padding:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-body);">&#128682; Se d&#233;connecter</button>'
+    + '<button onclick="showConfirm(t(\'confirm_logout_title\'),t(\'confirm_logout_msg\'),t(\'confirm_logout_btn\'),\'#e74c3c\',signOut)" style="width:100%;background:none;border:1px solid #e74c3c;color:#e74c3c;border-radius:var(--radius-sm);padding:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font-body);">&#128682; Se d&#233;connecter</button>'
     + '</div>'
     + '</div>';
 
@@ -2622,9 +2930,9 @@ async function openPublicProfile(username) {
   else if (isSelf && isModerator) pubUserRole = pubUserRole || 'moderator';
   var pubUserBanned = typeof pubUserBanned !== 'undefined' ? pubUserBanned : false;
   var memberNum = typeof memberNum !== 'undefined' ? memberNum : null;
-  var roleBadge = pubUserRole === 'admin' ? '&#128081; Administrateur' : pubUserRole === 'moderator' ? '&#128737;&#65039; Modérateur' : pubUserRole === 'trusted' ? '&#11088; Membre de confiance' : null;
-  var communityRole = roleBadge || (placesCount >= 100 ? '&#129351; Expert' : placesCount >= 30 ? '&#129352; Explorateur' : placesCount >= 10 ? '&#129353; D&eacute;butant' : placesCount >= 5 ? 'Membre actif' : 'Nouveau membre');
-  var lvl = roleBadge || (placesCount >= 100 ? '&#129351; Expert' : placesCount >= 30 ? '&#129352; Explorateur' : placesCount >= 10 ? '&#129353; D&eacute;butant' : '&#11088; Membre');
+  var roleBadge = pubUserRole === 'admin' ? t('role_admin') : pubUserRole === 'moderator' ? t('role_moderator') : pubUserRole === 'trusted' ? t('role_trusted') : null;
+  var communityRole = roleBadge || (placesCount >= 100 ? t('role_expert') : placesCount >= 30 ? t('role_explorer') : placesCount >= 10 ? t('role_beginner') : placesCount >= 5 ? t('role_active') : t('role_new'));
+  var lvl = roleBadge || (placesCount >= 100 ? t('role_expert') : placesCount >= 30 ? t('role_explorer') : placesCount >= 10 ? t('role_beginner') : t('role_new'));
 
   var BANNER_PRESETS = ['135deg,#0a0a0a,#1a1a1a,#2d2d2d','135deg,#13110a,#28230a,#3d3510','135deg,#070d1a,#0d1830,#162544','135deg,#0f0814,#1c1228,#2a1a3d','135deg,#080f08,#0f1f0e,#1a2e18','135deg,#140606,#250a0a,#361010','135deg,#060f0f,#0a1c1c,#112828','135deg,#080b12,#10151f,#1a2030'];
   var hash = username.split('').reduce(function(a, c) { return a + c.charCodeAt(0); }, 0);
@@ -2707,7 +3015,7 @@ async function loadPubPlaces() {
     ? await db.from('places').select('id,name,latitude,longitude,categories(icon,name)').eq('user_id', _pubProfileData.userId).order('created_at', { ascending: false }).limit(50)
     : await db.from('places').select('id,name,latitude,longitude,categories(icon,name)').eq('user_name', _pubProfileData.username).order('created_at', { ascending: false }).limit(50);
   var data = res.data || [];
-  if (!data.length) { panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">Aucun lieu ajouté</div>'; return; }
+  if (!data.length) { panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">' + t('lbl_no_place_added') + '</div>'; return; }
   panel.innerHTML = data.map(function(p) {
     var cat = p.categories || {};
     return '<div onclick="goToPubSoloPlace(\'' + p.id + '\',' + p.latitude + ',' + p.longitude + ')" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
@@ -2724,7 +3032,7 @@ async function loadPubValidated() {
   panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;">Chargement...</div>';
   var res = await db.from('place_validations').select('places(id,name,latitude,longitude,categories(icon,name))').eq('user_id', _pubProfileData.userId).order('created_at', { ascending: false }).limit(50);
   var data = (res.data || []).filter(function(r) { return r.places; });
-  if (!data.length) { panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">Aucun lieu confirmé</div>'; return; }
+  if (!data.length) { panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">' + t('profile_validated') + '</div>'; return; }
   panel.innerHTML = data.map(function(r) {
     var p = r.places; var cat = p.categories || {};
     return '<div onclick="goToPubSoloPlace(\'' + p.id + '\',' + p.latitude + ',' + p.longitude + ')" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
@@ -2743,7 +3051,7 @@ async function loadPubComments() {
     ? await db.from('comments').select('id,content,created_at,places(id,name,latitude,longitude)').eq('user_id', _pubProfileData.userId).order('created_at', { ascending: false }).limit(20)
     : await db.from('comments').select('id,content,created_at,places(id,name,latitude,longitude)').eq('user_name', _pubProfileData.username).order('created_at', { ascending: false }).limit(20);
   var data = res.data || [];
-  if (!data.length) { panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">Aucun commentaire</div>'; return; }
+  if (!data.length) { panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">' + t('lbl_no_comment') + '</div>'; return; }
   panel.innerHTML = data.map(function(c) {
     var place = c.places || {}; var hasLoc = place.latitude && place.longitude;
     var d = c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
@@ -2790,7 +3098,7 @@ function signOut() {
   document.getElementById('auth-info').textContent = 'Non connect\u00e9';
   document.getElementById('btn-auth').textContent = 'Connexion';
   closeSheet('sheet-profile');
-  showToast('D\u00e9connect\u00e9', 'success');
+  showToast(t('toast_disconnected'), 'success');
   setTimeout(function() { openModal('modal-auth'); }, 300);
 }
 
@@ -2824,7 +3132,7 @@ async function loadUserProfile() {
   if (meta.username) {
     currentUsername = meta.username;
     document.getElementById('auth-info').textContent = currentUsername;
-    document.getElementById('btn-auth').textContent = 'Déconnexion';
+    document.getElementById('btn-auth').textContent = t('btn_disconnect');
   } else {
     // Also try profiles table as fallback
     try {
@@ -2832,11 +3140,11 @@ async function loadUserProfile() {
       if (res.data && res.data.username) {
         currentUsername = res.data.username;
         document.getElementById('auth-info').textContent = currentUsername;
-        document.getElementById('btn-auth').textContent = 'Déconnexion';
+        document.getElementById('btn-auth').textContent = t('btn_disconnect');
         return;
       }
     } catch(e) {}
-    document.getElementById('btn-auth').textContent = 'Déconnexion';
+    document.getElementById('btn-auth').textContent = t('btn_disconnect');
     openUsernameModal();
   }
 }
@@ -3151,7 +3459,7 @@ function locateMeLocation() {
     map.flyTo([e.latlng.lat, e.latlng.lng], 14, { duration: 0.8 });
     scheduleLoad();
   });
-  map.once('locationerror', function() { showToast('Localisation impossible', 'error'); });
+  map.once('locationerror', function() { showToast(t('toast_location_error'), 'error'); });
 }
 
 // ===== LOCATION SEARCH DESKTOP SIDEBAR =====
@@ -3262,7 +3570,7 @@ function locateMeLocationDesk() {
     });
     map.setView([selectedLocationDesk.lat, selectedLocationDesk.lon], 13);
   });
-  map.once('locationerror', function() { showToast('Localisation impossible', 'error'); });
+  map.once('locationerror', function() { showToast(t('toast_location_error'), 'error'); });
 }
 
 // ===== SEARCH IN PLACES =====
@@ -3353,7 +3661,7 @@ function onAuthBtn() {
 async function handleAuth() {
   var email = document.getElementById('auth-email').value;
   var pass = document.getElementById('auth-password').value;
-  if (!email || !pass) { showToast('Remplis tous les champs', 'error'); return; }
+  if (!email || !pass) { showToast(t('toast_err_fields'), 'error'); return; }
   var result;
   if (isLogin) {
     result = await db.auth.signInWithPassword({ email: email, password: pass });
@@ -3378,10 +3686,10 @@ async function handleAuth() {
     updateSatBtn();
     await loadPrefs();
     await loadUserProfile();
-    showToast('Connect\u00e9 !', 'success');
+    showToast(t('toast_connected'), 'success');
   } else {
     var confirm = document.getElementById('auth-password-confirm').value;
-    if (pass !== confirm) { showToast('Les mots de passe ne correspondent pas', 'error'); return; }
+    if (pass !== confirm) { showToast(t('toast_err_passwords'), 'error'); return; }
     result = await db.auth.signUp({ email: email, password: pass });
     if (result.error) { showToast(result.error.message, 'error'); return; }
     closeModal('modal-auth');
@@ -3406,23 +3714,23 @@ function switchAuthMode() {
 
 async function forgotPassword() {
   var email = document.getElementById('auth-email').value.trim();
-  if (!email) { showToast('Entre ton email d\'abord', 'error'); return; }
+  if (!email) { showToast(t('toast_err_email'), 'error'); return; }
   var redirectTo = window.location.origin + window.location.pathname;
   var res = await db.auth.resetPasswordForEmail(email, { redirectTo: redirectTo });
   if (res.error) { showToast(res.error.message, 'error'); return; }
   closeModal('modal-auth');
-  showToast('&#128231; Email de r\u00e9initialisation envoy\u00e9 !', 'success');
+  showToast(t('toast_reset_sent'), 'success');
 }
 
 async function submitNewPassword() {
   var pass = document.getElementById('reset-pass-new').value;
   var confirm = document.getElementById('reset-pass-confirm').value;
-  if (!pass || pass.length < 6) { showToast('Mot de passe trop court (6 caract\u00e8res min)', 'error'); return; }
-  if (pass !== confirm) { showToast('Les mots de passe ne correspondent pas', 'error'); return; }
+  if (!pass || pass.length < 6) { showToast(t('toast_err_pwd_short'), 'error'); return; }
+  if (pass !== confirm) { showToast(t('toast_err_passwords'), 'error'); return; }
   var res = await db.auth.updateUser({ password: pass });
   if (res.error) { showToast(res.error.message, 'error'); return; }
   document.getElementById('modal-reset-pass').style.display = 'none';
-  showToast('&#10003; Mot de passe mis \u00e0 jour !', 'success');
+  showToast(t('toast_pwd_updated'), 'success');
 }
 
 // ===== CATEGORIES =====
@@ -3472,7 +3780,7 @@ function renderMapFilterBar(query) {
       + '<span class="mcb-name">' + mc.name + '</span>'
       + '</button>';
   }).join('');
-  if (!cats.length) container.innerHTML = '<span style="font-size:12px;color:var(--text2);padding:4px;">Aucune catégorie trouvée</span>';
+  if (!cats.length) container.innerHTML = '<span style="font-size:12px;color:var(--text2);padding:4px;">' + t('lbl_no_cat') + '</span>';
 }
 
 function quickToggleCat(mcId) {
@@ -3762,7 +4070,7 @@ function makePopup(p) {
     + '<div class="pv2-badges">'
     + availBadge
     + '<span id="val-badge-' + safeId + '"></span>'
-    + '<span class="pv2-badge pv2-badge-user" style="cursor:pointer;" onclick="openPublicProfile(this.dataset.u)" data-u="' + escHtml(p.user_name || '') + '">&#128100; ' + escHtml(p.user_name || 'Anonyme') + '</span>'
+    + '<span class="pv2-badge pv2-badge-user" style="cursor:pointer;" onclick="openPublicProfile(this.dataset.u)" data-u="' + escHtml(p.user_name || '') + '">&#128100; ' + escHtml(p.user_name || t('lbl_anonymous')) + '</span>'
     + '</div>'
     + (fuel ? makeFuelHtml(fuel) : (p.description ? '<div class="pv2-desc">' + escHtml(p.description) + '</div>' : ''))
     + '<div id="report-info-' + safeId + '" style="display:none;font-size:11px;color:var(--danger);padding:4px 0 0;"></div>'
@@ -3905,7 +4213,7 @@ async function saveEditPlace() {
   var pid = document.getElementById('edit-place-id').value;
   var name = document.getElementById('edit-place-name').value.trim();
   var desc = document.getElementById('edit-place-desc').value.trim();
-  if (!name) { showToast('Le nom est obligatoire', 'error'); return; }
+  if (!name) { showToast(t('toast_err_name_required'), 'error'); return; }
   var updates = { name: name, description: desc };
   var res;
   if (isAdmin) {
@@ -3919,9 +4227,9 @@ async function saveEditPlace() {
   } else {
     res = await db.from('places').update(updates).eq('id', pid).eq('user_id', currentUser.id);
   }
-  if (res.error) { showToast('Erreur lors de la modification', 'error'); return; }
+  if (res.error) { showToast(t('toast_err_modify'), 'error'); return; }
   closeEditPlace();
-  showToast('Lieu modifié !', 'success');
+  showToast(t('toast_place_modified'), 'success');
   scheduleLoad();
 }
 
@@ -3948,7 +4256,7 @@ var _locationSuggestionMarker = null;
 function startLocationPick() {
   var modal = document.getElementById('location-suggest-modal');
   if (modal) modal.style.display = 'none';
-  showToast('📍 Appuyez sur la carte pour indiquer le bon emplacement', 'success');
+  showToast(t('toast_click_move'), 'success');
   // Le mode suggestion reste actif : _locationSuggestionReportId est défini
 }
 
@@ -3977,26 +4285,26 @@ async function confirmLocationSuggestion(lat, lng) {
   if (!reportId) return;
   map.closePopup();
   var res = await db.from('reports').update({ suggested_lat: lat, suggested_lng: lng }).eq('id', reportId);
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
   cancelLocationSuggestion();
-  showToast('📍 Emplacement suggéré envoyé — un modérateur va l\'examiner', 'success');
+  showToast(t('toast_suggest_sent'), 'success');
 }
 
 async function approveLocationSuggestion(reportId, placeId, lat, lng, placeName) {
   if (!isAdmin && !isModerator) return;
   var res = await db.from('places').update({ latitude: lat, longitude: lng }).eq('id', placeId);
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
   await db.from('reports').delete().eq('id', reportId);
   await dismissPlaceReport(placeId, placeName, 'location_updated');
-  showToast('📍 Emplacement mis à jour !', 'success');
+  showToast(t('toast_position_updated'), 'success');
 }
 
 async function handleMoveModeClick(latlng) {
   var pid = _moveModePlaceId;
   cancelMoveMode();
   var res = await db.from('places').update({ latitude: latlng.lat, longitude: latlng.lng }).eq('id', pid);
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
-  showToast('&#128205; Position mise à jour !', 'success');
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
+  showToast(t('toast_position_updated'), 'success');
   scheduleLoad();
 }
 
@@ -4033,7 +4341,7 @@ async function loadValidationSection(pid) {
 }
 
 async function voteValidation(pid) {
-  if (!currentUser) { showToast('Connectez-vous pour voter', 'error'); return; }
+  if (!currentUser) { showToast(t('toast_login_vote'), 'error'); return; }
   var placeRes = await db.from('places').select('user_id, name, status').eq('id', pid).maybeSingle();
   var place = placeRes.data;
   var isImport = place && !place.user_id;
@@ -4041,7 +4349,7 @@ async function voteValidation(pid) {
   var existing = await db.from('place_validations').select('id').eq('place_id', pid).eq('user_id', currentUser.id).maybeSingle();
   if (existing.data) { showToast(isImport ? 'Vous avez déjà confirmé ce lieu' : 'Vous avez déjà voté pour ce lieu', 'error'); return; }
   var voteRes = await db.from('place_validations').insert({ place_id: pid, user_id: currentUser.id });
-  if (voteRes.error) { showToast('Erreur : ' + voteRes.error.message, 'error'); return; }
+  if (voteRes.error) { showToast(t('lbl_err_generic') + voteRes.error.message, 'error'); return; }
   var countRes = await db.from('place_validations').select('id', { count: 'exact', head: true }).eq('place_id', pid);
   var voteCount = countRes.count || 0;
   var threshold = isImport ? 2 : 3;
@@ -4049,12 +4357,12 @@ async function voteValidation(pid) {
     if (voteCount >= threshold) {
       await db.from('places').update({ approved_by_id: currentUser.id }).eq('id', pid).is('approved_by_id', null);
     }
-    showToast('&#10003; Confirmation enregistrée (' + voteCount + '/' + threshold + ')', 'success');
+    showToast('✓ ' + t('place_validate_btn').replace('👍 ','') + ' (' + voteCount + '/' + threshold + ')', 'success');
     loadValidationCount(pid);
   } else if (voteCount >= threshold) {
     await validatePlace(pid);
   } else {
-    showToast('&#10003; Vote enregistré (' + voteCount + '/' + threshold + ')', 'success');
+    showToast('✓ ' + t('val_validate_btn').replace('👍 ','') + ' (' + voteCount + '/' + threshold + ')', 'success');
     loadValidationCount(pid);
     if (place && place.user_id) {
       insertPlaceNotif(place.user_id, 'place_vote', '&#128077; ' + voteCount + '/' + threshold + ' votes pour votre lieu « ' + place.name + ' »', pid);
@@ -4145,7 +4453,7 @@ async function toggleValidatorsList(pid) {
     db.from('places').select('user_id, status').eq('id', pid).maybeSingle()
   ]);
   var data = res.data || [];
-  if (!data.length) { list.innerHTML = '<div style="color:var(--text2);font-size:12px;padding:6px 0;">Aucun vote enregistré</div>'; return; }
+  if (!data.length) { list.innerHTML = '<div style="color:var(--text2);font-size:12px;padding:6px 0;">' + t('lbl_no_vote') + '</div>'; return; }
   var place = placeRes.data;
   var isImport = place && !place.user_id;
   var isPending = place && place.status === 'pending';
@@ -4186,12 +4494,12 @@ async function confirmApprovePlace() {
   closeModal('modal-approve-place');
   var placeRes = await db.from('places').select('user_id, name').eq('id', a.pid).maybeSingle();
   var res = await db.from('places').update({ status: 'active', approved_by_id: currentUser.id }).eq('id', a.pid);
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
   if (placeRes.data) {
     insertPlaceNotif(placeRes.data.user_id, 'place_validated', '&#10003; Votre lieu « ' + placeRes.data.name + ' » a été validé et publié !', a.pid);
     sendPush([placeRes.data.user_id], '&#10003; Lieu validé !', 'Votre lieu « ' + placeRes.data.name + ' » a été publié sur la carte', '/');
   }
-  showToast('&#9989; Lieu validé et publié !', 'success');
+  showToast(t('toast_place_validated'), 'success');
   if (a.source === 'popup') { closePlaceSheet(); scheduleLoad(); }
   else {
     var item = document.getElementById('pending-item-' + a.pid); if (item) item.remove();
@@ -4206,12 +4514,12 @@ async function confirmRejectPlace() {
   closeModal('modal-reject-place');
   var placeRes = await db.from('places').select('user_id').eq('id', a.pid).maybeSingle();
   var res = await db.from('places').delete().eq('id', a.pid);
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
   if (placeRes.data) {
     insertPlaceNotif(placeRes.data.user_id, 'place_rejected', '&#10007; Votre lieu « ' + a.name + ' » a été refusé par un modérateur', null);
     sendPush([placeRes.data.user_id], '&#10007; Lieu refusé', 'Votre lieu « ' + a.name + ' » a été refusé par un modérateur', '/');
   }
-  showToast('&#10060; Lieu refusé et supprimé', 'success');
+  showToast(t('toast_place_rejected'), 'success');
   if (a.source === 'popup') { closePlaceSheet(); scheduleLoad(); }
   else {
     var item = document.getElementById('pending-item-' + a.pid); if (item) item.remove();
@@ -4233,9 +4541,9 @@ async function confirmHidePlace() {
   var a = _hidePlacePending; _hidePlacePending = null;
   closeModal('modal-hide-place');
   var res = await db.from('places').update({ hidden: true, hidden_by: currentUsername || currentUser.email, hidden_at: new Date().toISOString() }).eq('id', a.pid);
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
   if (a.dismissReport) await dismissPlaceReport(a.pid, a.name, 'hidden');
-  else { showToast('&#128683; Lieu masqué', 'success'); }
+  else { showToast(t('toast_place_hidden'), 'success'); }
   map.closePopup();
   scheduleLoad();
 }
@@ -4243,8 +4551,8 @@ async function confirmHidePlace() {
 async function showPlace(pid) {
   if (!currentUser || (!isModerator && !isAdmin)) return;
   var res = await db.from('places').update({ hidden: false, hidden_by: null, hidden_at: null }).eq('id', pid);
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
-  showToast('&#128065;&#65039; Lieu réactivé', 'success');
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
+  showToast(t('toast_place_shown'), 'success');
   map.closePopup();
   scheduleLoad();
 }
@@ -4265,8 +4573,8 @@ async function confirmDeletePlace() {
   _deletePlacePendingId = null;
   closeModal('modal-delete-place');
   var res = await db.from('places').delete().eq('id', pid);
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
-  showToast('&#128465;&#65039; Lieu supprimé', 'success');
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
+  showToast(t('toast_place_deleted'), 'success');
   map.closePopup();
   scheduleLoad();
 }
@@ -4300,11 +4608,11 @@ function resetStars(pid) {
 }
 
 async function ratePlace(pid, score) {
-  if (!currentUser) { showToast('Connectez-vous pour noter', 'error'); openModal('modal-auth'); return; }
+  if (!currentUser) { showToast(t('toast_login_rate'), 'error'); openModal('modal-auth'); return; }
   await db.from('ratings').upsert({ place_id: pid, user_id: currentUser.id, score: score }, { onConflict: 'place_id,user_id' });
   highlightStars(pid, score);
   loadRating(pid);
-  showToast('&#11088; Note enregistrée !', 'success');
+  showToast(t('toast_voted_useful'), 'success');
 }
 
 var currentRankTab = 'places';
@@ -4319,7 +4627,7 @@ async function loadLeaderboard(tab) {
   var BOT_NAMES = ['Import OSM', 'OpenStreetMap', 'Prix-Carburants-gouv'];
   var res = await db.from(view).select('*');
   var data = (res.data || []).filter(function(u) { return BOT_NAMES.indexOf(u.user_name) === -1; });
-  if (!data.length) { list.innerHTML = '<p style="color:var(--text2);font-size:13px">Aucune donnée</p>'; return; }
+  if (!data.length) { list.innerHTML = '<p style="color:var(--text2);font-size:13px">' + t('lbl_not_available') + '</p>'; return; }
   var medals = ['&#129351;','&#129352;','&#129353;'];
   list.innerHTML = data.map(function(u, i) {
     var rank = i + 1;
@@ -4394,16 +4702,16 @@ function checkFavorite(placeId) {
 }
 
 async function toggleFavorite(placeId) {
-  if (!currentUser) { showToast('Connectez-vous pour ajouter aux favoris', 'error'); return; }
+  if (!currentUser) { showToast(t('toast_login_fav'), 'error'); return; }
   var btn = document.getElementById('btn-fav-' + placeId);
   if (userFavs[placeId]) {
     await db.from('favorites').delete().eq('user_id', currentUser.id).eq('place_id', placeId);
     delete userFavs[placeId];
-    showToast('Retiré des favoris', '');
+    showToast(t('toast_fav_removed'), '');
   } else {
     await db.from('favorites').insert({ user_id: currentUser.id, place_id: placeId });
     userFavs[placeId] = true;
-    showToast('Ajouté aux favoris ❤️', 'success');
+    showToast(t('toast_fav_added'), 'success');
   }
   checkFavorite(placeId);
 }
@@ -4425,7 +4733,7 @@ async function loadUserValidated() {
   panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;">Chargement...</div>';
   var res = await db.from('place_validations').select('created_at,places(id,name,latitude,longitude,categories(icon,name))').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(50);
   var data = (res.data || []).filter(function(r) { return r.places; });
-  if (!data.length) { panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">Aucun lieu confirmé</div>'; return; }
+  if (!data.length) { panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">' + t('profile_validated') + '</div>'; return; }
   panel.innerHTML = data.map(function(r) {
     var p = r.places;
     var cat = p.categories || {};
@@ -4443,7 +4751,7 @@ async function loadValidatorsList() {
   if (!el) return;
   var res = await db.from('trusted_users').select('user_id,role,profiles(username)').eq('role', 'moderator');
   var data = res.data || [];
-  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);">Aucun modérateur pour l\'instant</div>'; }
+  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);">' + t('lbl_no_moderator') + '</div>'; }
   else { el.innerHTML = data.map(function(u) {
     var uname = (u.profiles && u.profiles.username) || u.user_id;
     return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">'
@@ -4460,7 +4768,7 @@ async function loadTrustedList() {
   if (!el) return;
   var res = await db.from('trusted_users').select('user_id,role,profiles(username)').eq('role', 'trusted');
   var data = res.data || [];
-  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);">Aucun membre de confiance pour l\'instant</div>'; return; }
+  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);">' + t('lbl_no_trusted') + '</div>'; return; }
   el.innerHTML = data.map(function(u) {
     var uname = (u.profiles && u.profiles.username) || u.user_id;
     return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">'
@@ -4477,7 +4785,7 @@ async function addTrusted() {
   var uname = inp ? inp.value.trim() : '';
   if (!uname) return;
   var res = await db.from('profiles').select('user_id').eq('username', uname).maybeSingle();
-  if (!res.data) { showToast('Utilisateur introuvable', 'error'); return; }
+  if (!res.data) { showToast(t('toast_user_not_found'), 'error'); return; }
   showRoleConfirm('⭐ Ajouter ' + uname + ' comme membre de confiance ?', function() {
     return db.from('trusted_users').upsert({ user_id: res.data.user_id, role: 'trusted' }, { onConflict: 'user_id' }).then(function() {
       if (inp) inp.value = '';
@@ -4491,7 +4799,7 @@ function removeTrusted(uid, uname) {
   if (!isAdmin) return;
   showRoleConfirm('Retirer ' + (uname || 'ce membre') + ' des membres de confiance ?', function() {
     return db.from('trusted_users').delete().eq('user_id', uid).then(function() {
-      showToast('Membre de confiance retiré', '');
+      showToast(t('toast_trusted_removed'), '');
       loadTrustedList();
     });
   });
@@ -4511,7 +4819,7 @@ async function unbanUser(userId, username) {
   if (!isAdmin) return;
   if (!confirm('Lever le bannissement de ' + username + ' ?')) return;
   await db.from('banned_users').delete().eq('user_id', userId);
-  showToast('&#10003; Bannissement levé pour ' + username, 'success');
+  showToast('✓ ' + t('lbl_unban') + ' — ' + username, 'success');
   closeSheet('sheet-pub-profile');
   loadBannedList();
 }
@@ -4522,7 +4830,7 @@ async function loadBannedList() {
   el.innerHTML = '<div style="color:var(--text2);">Chargement...</div>';
   var res = await db.from('banned_users').select('user_id,reason,banned_by_name,created_at,profiles(username)').order('created_at', { ascending: false });
   var data = res.data || [];
-  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);text-align:center;padding:8px 0;">Aucun utilisateur banni</div>'; return; }
+  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);text-align:center;padding:8px 0;">' + t('lbl_no_banned') + '</div>'; return; }
   el.innerHTML = data.map(function(b) {
     var uname = (b.profiles && b.profiles.username) || b.user_id.slice(0, 8);
     var date = b.created_at ? new Date(b.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '';
@@ -4559,7 +4867,7 @@ function cancelUnban() {
 async function confirmUnban() {
   if (!isAdmin || !_unbanPendingUserId) return;
   await db.from('banned_users').delete().eq('user_id', _unbanPendingUserId);
-  showToast('&#10003; Bannissement levé pour ' + _unbanPendingUsername, 'success');
+  showToast('✓ ' + t('lbl_unban') + ' — ' + _unbanPendingUsername, 'success');
   cancelUnban();
   loadBannedList();
 }
@@ -4571,10 +4879,10 @@ async function banByUsername() {
   if (!isAdmin) return;
   var inp = document.getElementById('ban-username-input');
   var uname = inp ? inp.value.trim() : '';
-  if (!uname) { showToast('Entrez un pseudo', 'error'); return; }
+  if (!uname) { showToast(t('toast_err_enter_pseudo'), 'error'); return; }
   var profRes = await db.from('profiles').select('user_id,username').eq('username', uname).maybeSingle();
-  if (!profRes.data) { showToast('Utilisateur introuvable : ' + uname, 'error'); return; }
-  if (profRes.data.user_id === (currentUser && currentUser.id)) { showToast('Impossible de se bannir soi-même', 'error'); return; }
+  if (!profRes.data) { showToast(t('toast_user_not_found') + ' : ' + uname, 'error'); return; }
+  if (profRes.data.user_id === (currentUser && currentUser.id)) { showToast(t('toast_err_self_ban'), 'error'); return; }
   var already = await db.from('banned_users').select('id').eq('user_id', profRes.data.user_id).maybeSingle();
   if (already.data) { showToast(uname + ' est déjà banni', 'error'); return; }
   _banPendingUserId = profRes.data.user_id;
@@ -4626,12 +4934,12 @@ async function loadAdminStats() {
       + '<div style="font-size:10px;color:var(--text2);margin-top:2px;">' + label + (onclick ? ' ›' : '') + '</div>'
       + '</div>';
   };
-  el.innerHTML = statItem('👥', 'Membres', results[0].count, 'toggleMembersList()')
-    + statItem('📍', 'Lieux actifs', results[1].count)
-    + statItem('⏳', 'En attente', results[2].count)
-    + statItem('🔒', 'Masqués', results[3].count)
-    + statItem('💬', 'Commentaires', results[4].count)
-    + statItem('🚫', 'Bannis', results[5].count);
+  el.innerHTML = statItem('👥', t('dash_members'), results[0].count, 'toggleMembersList()')
+    + statItem('📍', t('dash_stats'), results[1].count)
+    + statItem('⏳', t('lbl_status_pending'), results[2].count)
+    + statItem('🔒', t('lbl_status_hiddens'), results[3].count)
+    + statItem('💬', t('profile_comments'), results[4].count)
+    + statItem('🚫', t('lbl_banned'), results[5].count);
   var panel = document.getElementById('admin-members-panel');
   if (!panel) {
     var p = document.createElement('div');
@@ -4684,7 +4992,7 @@ async function addValidator() {
   var uname = (inp ? inp.value.trim() : '');
   if (!uname) return;
   var res = await db.from('profiles').select('user_id').eq('username', uname).maybeSingle();
-  if (!res.data) { showToast('Utilisateur introuvable', 'error'); return; }
+  if (!res.data) { showToast(t('toast_user_not_found'), 'error'); return; }
   showRoleConfirm('🛡️ Ajouter ' + uname + ' comme modérateur ?', function() {
     return db.from('trusted_users').upsert({ user_id: res.data.user_id, role: 'moderator' }, { onConflict: 'user_id' }).then(function() {
       if (inp) inp.value = '';
@@ -4698,7 +5006,7 @@ function removeValidator(uid, uname) {
   if (!isAdmin) return;
   showRoleConfirm('Retirer ' + (uname || 'ce modérateur') + ' des modérateurs ?', function() {
     return db.from('trusted_users').delete().eq('user_id', uid).then(function() {
-      showToast('Modérateur retiré', '');
+      showToast(t('toast_mod_removed'), '');
       loadValidatorsList();
     });
   });
@@ -4742,7 +5050,7 @@ async function loadUserVotes() {
   var res = await db.from('votes').select('vote,places(id,name,latitude,longitude,categories(icon))').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(50);
   var data = res.data || [];
   if (!data.length) {
-    panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">Aucun vote donné</div>';
+    panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">' + t('lbl_no_vote') + '</div>';
     return;
   }
   panel.innerHTML = data.map(function(v) {
@@ -4775,7 +5083,7 @@ async function loadUserPlaces() {
   var res = await db.from('places').select('id,name,latitude,longitude,categories(icon,name)').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(50);
   var data = res.data || [];
   if (!data.length) {
-    panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">Aucun lieu ajouté</div>';
+    panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">' + t('lbl_no_place_added') + '</div>';
     return;
   }
   panel.innerHTML = data.map(function(p) {
@@ -4807,7 +5115,7 @@ async function loadUserComments() {
   var res = await db.from('comments').select('id,content,created_at,place_id,places(id,name,latitude,longitude)').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(20);
   var data = res.data || [];
   if (!data.length) {
-    panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">Aucun commentaire</div>';
+    panel.innerHTML = '<div style="padding:8px 0;color:var(--text2);font-size:13px;text-align:center;">' + t('lbl_no_comment') + '</div>';
     return;
   }
   panel.innerHTML = data.map(function(c) {
@@ -4839,7 +5147,7 @@ async function loadFavoritesInProfile() {
   if (!el) return;
   el.innerHTML = '<div style="padding:12px 0;color:var(--text2);font-size:13px;">Chargement...</div>';
   var ids = Object.keys(userFavs);
-  if (!ids.length) { el.innerHTML = '<div style="padding:12px 0;color:var(--text2);font-size:13px;text-align:center;">Aucun favori pour l\'instant</div>'; return; }
+  if (!ids.length) { el.innerHTML = '<div style="padding:12px 0;color:var(--text2);font-size:13px;text-align:center;">' + t('lbl_no_fav') + '</div>'; return; }
   var res = await db.from('places').select('id,name,latitude,longitude,categories(icon,name,color)').in('id', ids);
   var places = res.data || [];
   el.innerHTML = places.map(function(p) {
@@ -4883,9 +5191,9 @@ function renderPhotos(pid, photos, maxPhotos, placeOwnerId) {
     var wrapClass = 'photo-wrap' + (isReported ? ' photo-reported' : '');
     var actionBtn = '';
     if (isAdmin) {
-      actionBtn = '<button class="photo-btn photo-btn-delete" onclick="showConfirm(\'Supprimer cette photo ?\',\'La photo sera supprimée définitivement. Action irréversible.\',\'🗑 Supprimer\',\'#e74c3c\',function(){deleteReportedPhoto(\'' + escHtml(ph.id) + '\',\'' + escHtml(ph.url) + '\',\'' + pid + '\')})" title="Supprimer cette photo">🗑</button>';
+      actionBtn = '<button class="photo-btn photo-btn-delete" onclick="showConfirm(t(\'confirm_del_photo\'),t(\'confirm_del_photo_msg\'),\'🗑\',\'#e74c3c\',function(){deleteReportedPhoto(\'' + escHtml(ph.id) + '\',\'' + escHtml(ph.url) + '\',\'' + pid + '\')})" title="Supprimer cette photo">🗑</button>';
     } else if (canMod && isReported) {
-      actionBtn = '<button class="photo-btn photo-btn-delete" onclick="showConfirm(\'Supprimer cette photo ?\',\'La photo sera supprimée définitivement. Action irréversible.\',\'🗑 Supprimer\',\'#e74c3c\',function(){deleteReportedPhoto(\'' + escHtml(ph.id) + '\',\'' + escHtml(ph.url) + '\',\'' + pid + '\')})" title="Supprimer cette photo">🗑</button>';
+      actionBtn = '<button class="photo-btn photo-btn-delete" onclick="showConfirm(t(\'confirm_del_photo\'),t(\'confirm_del_photo_msg\'),\'🗑\',\'#e74c3c\',function(){deleteReportedPhoto(\'' + escHtml(ph.id) + '\',\'' + escHtml(ph.url) + '\',\'' + pid + '\')})" title="Supprimer cette photo">🗑</button>';
     } else if (currentUser && !isReported && currentUser.id !== ph.uploaded_by) {
       actionBtn = '<button class="photo-btn photo-btn-report" onclick="reportPhoto(\'' + escHtml(ph.id) + '\',\'' + pid + '\')" title="Signaler cette photo">🚩</button>';
     }
@@ -4906,18 +5214,18 @@ async function uploadPhoto(pid, input) {
   var maxPhotos = parseInt(input.getAttribute('data-max') || '1');
   var countRes = await db.from('place_photos').select('id').eq('place_id', pid);
   if ((countRes.data || []).length >= maxPhotos) {
-    showToast('Limite de ' + maxPhotos + ' photo(s) atteinte pour ce lieu', 'error');
+    showToast(t('lbl_err_generic').replace(': ','') + ' — max ' + maxPhotos + ' photos', 'error');
     return;
   }
-  showToast('Upload en cours...', 'success');
+  showToast(t('toast_uploading'), 'success');
   var ext = file.name.split('.').pop().toLowerCase();
   var path = pid + '/' + Date.now() + '.' + ext;
   var upRes = await db.storage.from('place-photos').upload(path, file, { contentType: file.type });
-  if (upRes.error) { showToast('Erreur upload : ' + upRes.error.message, 'error'); return; }
+  if (upRes.error) { showToast(t('lbl_err_generic') + upRes.error.message, 'error'); return; }
   var pub = db.storage.from('place-photos').getPublicUrl(path);
   var url = pub.data.publicUrl;
   await db.from('place_photos').insert({ place_id: pid, url: url, uploaded_by: currentUser.id, uploader_name: currentUsername || currentUser.email.split('@')[0] });
-  showToast('Photo ajoutée !', 'success');
+  showToast(t('toast_photo_added'), 'success');
   var el2 = document.getElementById('photos-' + pid);
   var ownerId = el2 ? el2.dataset.ownerId : '';
   var res = await db.from('place_photos').select('id,url,uploader_name,uploaded_by,reported').eq('place_id', pid).order('created_at');
@@ -4927,7 +5235,7 @@ async function uploadPhoto(pid, input) {
 var _pendingPhotoReport = null;
 
 function reportPhoto(photoId, pid) {
-  if (!currentUser) { showToast('Connectez-vous pour signaler', 'error'); return; }
+  if (!currentUser) { showToast(t('toast_login_report'), 'error'); return; }
   _pendingPhotoReport = { photoId: photoId, pid: pid };
   openModal('modal-confirm-report-photo');
 }
@@ -4939,7 +5247,7 @@ async function confirmReportPhoto() {
   _pendingPhotoReport = null;
   closeModal('modal-confirm-report-photo');
   await db.from('place_photos').update({ reported: true }).eq('id', photoId);
-  showToast('📷 Photo signalée — un modérateur va l\'examiner', 'success');
+  showToast(t('toast_photo_reported'), 'success');
   var el = document.getElementById('photos-' + pid);
   var catId = el ? el.dataset.catId : '';
   var ownerId = el ? el.dataset.ownerId : '';
@@ -4950,12 +5258,12 @@ async function deleteReportedPhoto(photoId, photoUrl, pid) {
   if (!currentUser || (!isAdmin && !isModerator)) {
     var el0 = document.getElementById('photos-' + pid);
     var ownerId0 = el0 ? el0.dataset.ownerId : '';
-    if (!ownerId0 || currentUser.id !== ownerId0) { showToast('Non autorisé', 'error'); return; }
+    if (!ownerId0 || currentUser.id !== ownerId0) { showToast(t('toast_not_authorized'), 'error'); return; }
   }
   var pathMatch = photoUrl.match(/place-photos\/(.+)$/);
   if (pathMatch) await db.storage.from('place-photos').remove([decodeURIComponent(pathMatch[1])]);
   await db.from('place_photos').delete().eq('id', photoId);
-  showToast('Photo supprimée', 'success');
+  showToast(t('toast_photo_deleted'), 'success');
   var el = document.getElementById('photos-' + pid);
   var catId = el ? el.dataset.catId : '';
   var ownerId = el ? el.dataset.ownerId : '';
@@ -4983,7 +5291,7 @@ async function loadCmts(pid) {
   var el = document.getElementById('cmt-' + pid);
   if (!el) return;
   var data = result.data;
-  if (!data || !data.length) { el.innerHTML = '<p style="font-size:11px;color:var(--text2)">Aucun commentaire</p>'; return; }
+  if (!data || !data.length) { el.innerHTML = '<p style="font-size:11px;color:var(--text2)">' + t('lbl_no_comment') + '</p>'; return; }
   var cmtIds = data.map(function(c) { return c.id; });
   var votesRes = await db.from('comment_votes').select('comment_id,vote,user_id').in('comment_id', cmtIds);
   var allVotes = votesRes.data || [];
@@ -5002,7 +5310,7 @@ async function loadCmts(pid) {
     var dislikeStyle = 'background:none;border:none;cursor:pointer;font-size:12px;padding:2px 5px;border-radius:5px;font-family:var(--font-body);' + (dislikeActive ? 'background:rgba(231,76,60,0.15);color:#e74c3c;font-weight:700;' : 'color:var(--text2);');
     return '<div class="comment-item">'
       + '<div style="display:flex;align-items:center;gap:6px;">'
-      + '<div class="comment-author" style="cursor:pointer;" onclick="openPublicProfile(this.dataset.u)" data-u="' + escHtml(c.user_name || '') + '">' + escHtml(c.user_name || 'Anonyme') + '</div>'
+      + '<div class="comment-author" style="cursor:pointer;" onclick="openPublicProfile(this.dataset.u)" data-u="' + escHtml(c.user_name || '') + '">' + escHtml(c.user_name || t('lbl_anonymous')) + '</div>'
       + (d ? '<div style="font-size:10px;color:var(--text2)">' + d + '</div>' : '')
       + ((isOwn || isAdmin) ? '<button onclick="editCmt(\'' + c.id + '\',\'' + pid + '\')" style="margin-left:auto;background:none;border:none;color:var(--text2);cursor:pointer;font-size:12px;padding:0 2px;">&#9998;</button>' : '')
       + '</div>'
@@ -5018,7 +5326,7 @@ async function loadCmts(pid) {
 }
 
 async function voteComment(cid, vote, pid) {
-  if (!currentUser) { showToast('Connectez-vous pour voter', 'error'); return; }
+  if (!currentUser) { showToast(t('toast_login_vote'), 'error'); return; }
   var existing = await db.from('comment_votes').select('id,vote').eq('comment_id', cid).eq('user_id', currentUser.id).maybeSingle();
   if (existing.data) {
     if (existing.data.vote === vote) await db.from('comment_votes').delete().eq('id', existing.data.id);
@@ -5030,9 +5338,9 @@ async function voteComment(cid, vote, pid) {
 }
 
 async function reportComment(cid) {
-  if (!currentUser) { showToast('Connectez-vous pour signaler', 'error'); return; }
+  if (!currentUser) { showToast(t('toast_login_report'), 'error'); return; }
   var res = await db.from('comment_reports').upsert({ comment_id: cid, user_id: currentUser.id }, { onConflict: 'comment_id,user_id' });
-  if (!res.error) showToast('Commentaire signalé &#9888;&#65039;', 'success');
+  if (!res.error) showToast(t('toast_comment_reported'), 'success');
 }
 
 async function loadPendingPlaces() {
@@ -5043,7 +5351,7 @@ async function loadPendingPlaces() {
   var res = await db.from('places').select('id,name,user_name,user_id,latitude,longitude,created_at,main_categories(name,icon),categories(name,icon)').eq('status', 'pending').order('created_at', { ascending: false });
   var data = res.data || [];
   if (badge) badge.textContent = data.length;
-  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);text-align:center;padding:12px 0;">&#10003; Aucun lieu en attente</div>'; return; }
+  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);text-align:center;padding:12px 0;">✓ ' + t('dash_no_pending') + '</div>'; return; }
   el.innerHTML = data.map(function(p) {
     var icon = (p.categories && p.categories.icon) || (p.main_categories && p.main_categories.icon) || '&#128205;';
     var catName = (p.categories && p.categories.name) || (p.main_categories && p.main_categories.name) || 'Autre';
@@ -5054,10 +5362,10 @@ async function loadPendingPlaces() {
     var bgColor = isImport ? 'rgba(52,152,219,0.04)' : 'rgba(255,208,79,0.04)';
     return '<div id="pending-item-' + p.id + '" style="border:1px solid ' + borderColor + ';border-radius:8px;padding:10px;margin-bottom:8px;background:' + bgColor + ';">'
       + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">'
-      + '<span style="font-size:14px;font-weight:700;color:var(--text);">' + icon + ' ' + escHtml(p.name || 'Sans nom') + sourceBadge + '</span>'
+      + '<span style="font-size:14px;font-weight:700;color:var(--text);">' + icon + ' ' + escHtml(p.name || t('lbl_no_name')) + sourceBadge + '</span>'
       + '<span style="font-size:11px;color:var(--text2);">' + date + '</span>'
       + '</div>'
-      + '<div style="font-size:11px;color:var(--text2);margin-bottom:8px;">' + (isImport ? '&#127758;' : '&#128100;') + ' ' + escHtml(p.user_name || 'Anonyme') + ' &nbsp;&#8226;&nbsp; ' + escHtml(catName) + '</div>'
+      + '<div style="font-size:11px;color:var(--text2);margin-bottom:8px;">' + (isImport ? '&#127758;' : '&#128100;') + ' ' + escHtml(p.user_name || t('lbl_anonymous')) + ' &nbsp;&#8226;&nbsp; ' + escHtml(catName) + '</div>'
       + '<div style="display:flex;gap:6px;">'
       + (p.latitude ? '<button onclick="viewPendingPlace(\'' + p.id + '\',' + p.latitude + ',' + p.longitude + ')" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px;font-size:12px;cursor:pointer;font-family:var(--font-body);">&#128205; Voir</button>' : '')
       + '<button onclick="approvePendingPlace(\'' + p.id + '\',\'' + escHtml(p.name || '') + '\')" style="flex:1;background:rgba(39,174,96,0.15);border:1px solid rgba(39,174,96,0.4);color:#27ae60;border-radius:6px;padding:5px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);">&#10003; Valider</button>'
@@ -5103,7 +5411,7 @@ async function loadReportedPlaces() {
   var res = await db.from('reports').select('id,place_id,reason,details,photo_url,user_id,suggested_lat,suggested_lng,places(id,name,user_name,latitude,longitude)').order('created_at', { ascending: false });
   if (res.error) { el.innerHTML = '<div style="color:#e74c3c;font-size:12px;">Erreur : ' + escHtml(res.error.message) + '</div>'; return; }
   var data = res.data || [];
-  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);">Aucun signalement</div>'; return; }
+  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);">' + t('dash_no_reports') + '</div>'; return; }
   var userIds = [...new Set(data.map(function(r) { return r.user_id; }).filter(Boolean))];
   var usernameMap = {};
   if (userIds.length) {
@@ -5128,14 +5436,14 @@ async function loadReportedPlaces() {
     return '<div style="border:1px solid rgba(231,76,60,0.3);border-radius:8px;padding:10px;margin-bottom:8px;background:rgba(231,76,60,0.05);">'
       + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">'
       + '<span style="font-size:12px;font-weight:700;color:#e74c3c;">&#9888;&#65039; ' + n + ' signalement' + (n > 1 ? 's' : '') + '</span>'
-      + '<span style="font-size:11px;color:var(--text2);">&#128100; ' + escHtml(place.user_name || 'Anonyme') + '</span>'
+      + '<span style="font-size:11px;color:var(--text2);">&#128100; ' + escHtml(place.user_name || t('lbl_anonymous')) + '</span>'
       + '</div>'
       + '<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;">&#128205; ' + escHtml(place.name || pid) + '</div>'
       + reportsList
       + '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">'
       + (place.latitude ? '<button onclick="viewReportedPlace(\'' + pid + '\',' + place.latitude + ',' + place.longitude + ')" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);">&#128205; Voir sur la carte</button>' : '')
       + '<button onclick="hidePlace(\'' + pid + '\',\'' + escHtml(place.name||'').replace(/'/g,"\\'") + '\',true)" style="flex:1;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);color:#e74c3c;border-radius:6px;padding:5px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);">&#128683; Masquer</button>'
-      + '<button onclick="showConfirm(\'Ignorer ce signalement ?\',\'Le lieu sera conservé sans modification. Cette action est irréversible.\',\'✓ Ignorer\',\'\',function(){dismissPlaceReport(\'' + pid + '\',\'' + escHtml((place.name||'').replace(/'/g,"\\'")) + '\',\'dismissed\')})" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:5px;font-size:12px;cursor:pointer;font-family:var(--font-body);">&#10003; Ignorer</button>'
+      + '<button onclick="showConfirm(t(\'confirm_ignore_report\'),t(\'confirm_ignore_report_msg\'),\'✓\',\'\',function(){dismissPlaceReport(\'' + pid + '\',\'' + escHtml((place.name||'').replace(/'/g,"\\'")) + '\',\'dismissed\')})" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:5px;font-size:12px;cursor:pointer;font-family:var(--font-body);">&#10003; Ignorer</button>'
       + (g.reports.some(function(r) { return r.suggested_lat && r.suggested_lng; }) ? (function() { var sr = g.reports.find(function(r) { return r.suggested_lat && r.suggested_lng; }); return '<div style="margin:6px 0;padding:6px 8px;background:rgba(41,128,185,0.1);border:1px solid rgba(41,128,185,0.3);border-radius:6px;font-size:11px;color:#3498db;">&#128205; Emplacement suggéré : ' + sr.suggested_lat.toFixed(5) + ', ' + sr.suggested_lng.toFixed(5) + '<br><button onclick="showConfirm(\'Approuver cet emplacement ?\',\'Les coordonnées du lieu seront mises à jour avec la suggestion.\',\'📍 Approuver\',\'#2980b9\',function(){approveLocationSuggestion(\'' + sr.id + '\',\'' + pid + '\'' + ',' + sr.suggested_lat + ',' + sr.suggested_lng + ',\'' + escHtml((place.name||'').replace(/'/g,"\'")) + '\')})" style="margin-top:4px;background:rgba(41,128,185,0.2);border:1px solid rgba(41,128,185,0.5);color:#3498db;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;">&#128205; Approuver cet emplacement</button></div>'; })() : '')
       + '</div></div>';
   }).join('');
@@ -5146,7 +5454,7 @@ async function dismissPlaceReport(pid, placeName, action) {
   var reasons = (existing.data || []).map(function(r) { return r.reason; }).join(', ');
   var details = (existing.data || []).map(function(r) { return r.details; }).filter(Boolean).join(' / ');
   var res = await db.from('reports').delete().eq('place_id', pid);
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
   await db.from('report_history').insert({
     place_id: pid,
     place_name: placeName || pid,
@@ -5156,7 +5464,7 @@ async function dismissPlaceReport(pid, placeName, action) {
     handled_by: currentUsername || (currentUser && currentUser.email) || 'inconnu'
   });
   await db.from('notifications').update({ is_read: true }).eq('type', 'signalement').eq('place_id', pid);
-  showToast('✓ Signalement traité', 'success');
+  showToast(t('toast_report_handled'), 'success');
   loadReportedPlaces();
   loadModReportsCount();
   loadNotifCount();
@@ -5180,7 +5488,7 @@ function viewFromDashboard(pid, lat, lng, backLabel) {
   map.flyTo([lat, lng], 16, { duration: 0.8 });
   db.from('places').select('*, categories(name,icon,color), main_categories(name,icon)').eq('id', pid).maybeSingle().then(function(res) {
     if (res.data) { allPlaces = [res.data]; renderMarkers([res.data]); openPlaceSheet(res.data); }
-    else showToast('Lieu introuvable', 'error');
+    else showToast(t('toast_place_not_found'), 'error');
   });
 }
 
@@ -5208,7 +5516,7 @@ async function loadReportedComments() {
   el.innerHTML = '<div style="color:var(--text2);">Chargement...</div>';
   var res = await db.from('comment_reports').select('comment_id,user_id').order('created_at', { ascending: false });
   var reports = res.data || [];
-  if (!reports.length) { el.innerHTML = '<div style="color:var(--text2);">Aucun signalement</div>'; return; }
+  if (!reports.length) { el.innerHTML = '<div style="color:var(--text2);">' + t('dash_no_reports') + '</div>'; return; }
 
   // Récupère les pseudos des signaleurs
   var userIds = [...new Set(reports.map(function(r) { return r.user_id; }))];
@@ -5227,7 +5535,7 @@ async function loadReportedComments() {
   var ids = Object.keys(counts);
   var cmtRes = await db.from('comments').select('id,content,user_name,place_id,places(name)').in('id', ids);
   var cmts = cmtRes.data || [];
-  if (!cmts.length) { el.innerHTML = '<div style="color:var(--text2);">Aucun commentaire trouvé</div>'; return; }
+  if (!cmts.length) { el.innerHTML = '<div style="color:var(--text2);">' + t('lbl_no_comment') + '</div>'; return; }
   el.innerHTML = cmts.map(function(c) {
     var placeName = (c.places && c.places.name) ? c.places.name : 'Lieu inconnu';
     var n = counts[c.id] || 1;
@@ -5239,12 +5547,12 @@ async function loadReportedComments() {
       + '<span style="font-size:11px;font-weight:700;color:#e74c3c;">&#9888;&#65039; ' + n + ' signalement' + (n > 1 ? 's' : '') + '</span>'
       + '<span style="font-size:11px;color:var(--text2);">&#128205; ' + escHtml(placeName) + '</span>'
       + '</div>'
-      + '<div style="font-size:12px;color:var(--text2);margin-bottom:4px;">Auteur du commentaire : <b style="color:var(--text);">' + escHtml(c.user_name || 'Anonyme') + '</b></div>'
+      + '<div style="font-size:12px;color:var(--text2);margin-bottom:4px;">' + t('lbl_comment_author') + ' : <b style="color:var(--text);">' + escHtml(c.user_name || t('lbl_anonymous')) + '</b></div>'
       + '<div style="font-size:13px;color:var(--text);margin-bottom:8px;line-height:1.4;padding:6px 8px;background:var(--surface2);border-radius:6px;">' + escHtml(c.content) + '</div>'
-      + '<div style="margin-bottom:8px;font-size:11px;color:var(--text2);">Signal&#233; par : ' + reporterList + '</div>'
+      + '<div style="margin-bottom:8px;font-size:11px;color:var(--text2);">' + t('lbl_reported_by') + ' : ' + reporterList + '</div>'
       + '<div style="display:flex;gap:6px;">'
       + '<button onclick="deleteReportedComment(\'' + c.id + '\',\'' + escHtml(c.content || '').replace(/'/g,"\\'").slice(0,80) + '\')" style="flex:1;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.4);color:#e74c3c;border-radius:6px;padding:5px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);">&#128465;&#65039; Supprimer</button>'
-      + '<button onclick="showConfirm(\'Ignorer ce signalement ?\',\'Le signalement sera supprimé. Le commentaire restera visible.\',\'✓ Ignorer\',\'\',function(){dismissCommentReport(\'' + c.id + '\')})" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:5px;font-size:12px;cursor:pointer;font-family:var(--font-body);">&#10003; Ignorer</button>'
+      + '<button onclick="showConfirm(t(\'confirm_ignore_comment\'),t(\'confirm_ignore_comment_msg\'),\'✓\',\'\',function(){dismissCommentReport(\'' + c.id + '\')})" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:5px;font-size:12px;cursor:pointer;font-family:var(--font-body);">&#10003; Ignorer</button>'
       + '</div></div>';
   }).join('');
 }
@@ -5267,15 +5575,15 @@ async function confirmDeleteComment() {
     db.from('comments').delete().eq('id', cid),
     db.from('comment_reports').delete().eq('comment_id', cid)
   ]);
-  showToast('Commentaire supprimé', 'success');
+  showToast(t('toast_comment_deleted'), 'success');
   loadReportedComments();
   loadModReportsCount();
 }
 
 async function dismissCommentReport(cid) {
   var res = await db.from('comment_reports').delete().eq('comment_id', cid);
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
-  showToast('Signalement ignoré', 'success');
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
+  showToast(t('toast_report_ignored'), 'success');
   loadReportedComments();
   loadModReportsCount();
 }
@@ -5298,7 +5606,7 @@ async function saveCmt(cid, pid) {
   if (!isAdmin) q = q.eq('user_id', currentUser.id);
   await q;
   loadCmts(pid);
-  showToast('Commentaire modifié !', 'success');
+  showToast(t('toast_comment_modified'), 'success');
 }
 
 async function adminDeleteComment(cid, pid) {
@@ -5307,26 +5615,26 @@ async function adminDeleteComment(cid, pid) {
     db.from('comments').delete().eq('id', cid),
     db.from('comment_reports').delete().eq('comment_id', cid)
   ]);
-  showToast('Commentaire supprimé', 'success');
+  showToast(t('toast_comment_deleted'), 'success');
   loadCmts(pid);
   loadModReportsCount();
 }
 
 async function addCmt(pid) {
-  if (!currentUser) { showToast('Connectez-vous pour commenter', 'error'); return; }
+  if (!currentUser) { showToast(t('toast_login_comment'), 'error'); return; }
   var input = document.getElementById('ci-' + pid);
   var content = input.value.trim();
   if (!content) return;
   await db.from('comments').insert({ place_id: pid, user_id: currentUser.id, user_name: currentUsername || currentUser.email.split('@')[0], content: content });
   input.value = '';
   loadCmts(pid);
-  showToast('Commentaire ajout\u00e9 !', 'success');
+  showToast(t('toast_comment_sent'), 'success');
 }
 
 async function vote(pid, pos) {
-  if (!currentUser) { showToast('Connectez-vous pour voter', 'error'); return; }
+  if (!currentUser) { showToast(t('toast_login_vote'), 'error'); return; }
   var result = await db.from('votes').insert({ place_id: pid, user_id: currentUser.id, vote: pos });
-  if (result.error) { showToast('Vous avez déjà voté', 'error'); return; }
+  if (result.error) { showToast(t('toast_already_voted'), 'error'); return; }
   var place = allPlaces.find(function(p) { return p.id === pid; });
   if (place) {
     var newCount = (place.votes_positifs || 0) + 1;
@@ -5339,7 +5647,7 @@ async function vote(pid, pos) {
 var _closedHSPendingId = null;
 
 function openClosedHSModal(pid, name) {
-  if (!currentUser) { showToast('Connectez-vous pour voter', 'error'); return; }
+  if (!currentUser) { showToast(t('toast_login_vote'), 'error'); return; }
   _closedHSPendingId = pid;
   document.getElementById('closed-hs-place-name').textContent = name;
   document.getElementById('closed-hs-reason').value = '';
@@ -5352,9 +5660,9 @@ async function submitClosedHS() {
   if (!pid) return;
   var reason = document.getElementById('closed-hs-reason').value;
   var details = document.getElementById('closed-hs-details').value.trim();
-  if (!reason) { showToast('Choisissez une raison', 'error'); return; }
+  if (!reason) { showToast(t('toast_err_choose_reason'), 'error'); return; }
   var result = await db.from('votes').insert({ place_id: pid, user_id: currentUser.id, vote: false });
-  if (result.error) { showToast('Vous avez déjà voté pour ce lieu', 'error'); closeModal('modal-closed-hs'); return; }
+  if (result.error) { showToast(t('toast_already_voted_place'), 'error'); closeModal('modal-closed-hs'); return; }
   var place = allPlaces.find(function(p) { return p.id === pid; });
   if (place) {
     var newCount = (place.votes_negatifs || 0) + 1;
@@ -5368,7 +5676,7 @@ async function submitClosedHS() {
   notifyMods('closed_vote', '🚫 Fermé/HS — « ' + placeName + ' » — ' + (reasonLabels[reason] || reason) + (details ? ' : ' + details.slice(0, 60) : ''), pid);
   _closedHSPendingId = null;
   closeModal('modal-closed-hs');
-  showToast('🚫 Signalement envoyé', 'success');
+  showToast(t('toast_report_sent'), 'success');
   scheduleLoad();
 }
 
@@ -5421,16 +5729,16 @@ function onAddBtn() {
   if (addingMode) {
     addingMode = false;
     document.getElementById('info-adding').style.display = 'none';
-    showToast('Ajout annulé', 'error');
+    showToast(t('toast_add_cancelled'), 'error');
     return;
   }
-  if (!currentUser) { showToast('Connectez-vous pour ajouter un lieu', 'error'); openModal('modal-auth'); return; }
+  if (!currentUser) { showToast(t('toast_login_add'), 'error'); openModal('modal-auth'); return; }
   addingMode = true;
   selectedLatLng = null;
   document.getElementById('coord-display').textContent = 'Clique sur la carte...';
   document.getElementById('info-adding').style.display = 'block';
   if (isMobile()) { closeSheet('sheet-cats'); closeSheet('sheet-search'); closeSheet('sheet-profile'); }
-  showToast('&#128205; Clique sur la carte pour placer le lieu', 'success');
+  showToast(t('toast_click_place'), 'success');
 }
 
 function previewAddPhoto(input) {
@@ -5470,11 +5778,11 @@ async function submitPlace() {
   var catId = document.getElementById('add-sub-cat').value;
   var desc = document.getElementById('add-desc').value.trim();
   var is24h = add24hValue;
-  if (!name || !mainId || !catId) { showToast('Remplis les champs obligatoires *', 'error'); return; }
-  if (!selectedLatLng) { showToast('Clique sur la carte pour la position', 'error'); return; }
-  if (add24hValue === null) { showToast('Indique si le lieu est disponible 24h/24', 'error'); return; }
+  if (!name || !mainId || !catId) { showToast(t('toast_err_fields'), 'error'); return; }
+  if (!selectedLatLng) { showToast(t('toast_err_click_map'), 'error'); return; }
+  if (add24hValue === null) { showToast(t('toast_err_24h'), 'error'); return; }
   var photoInput = document.getElementById('add-photo-input');
-  if (!photoInput || !photoInput.files[0]) { showToast('Une photo est obligatoire', 'error'); return; }
+  if (!photoInput || !photoInput.files[0]) { showToast(t('toast_err_photo'), 'error'); return; }
   var placeStatus = 'pending';
   if (isAdmin || isModerator || isTrusted) {
     placeStatus = 'active';
@@ -5489,7 +5797,7 @@ async function submitPlace() {
     user_id: currentUser.id, user_name: currentUsername || currentUser.email.split('@')[0],
     disponible_24h: is24h, approved: true, status: placeStatus
   }).select('id').single();
-  if (result.error) { showToast('Erreur : ' + result.error.message, 'error'); return; }
+  if (result.error) { showToast(t('lbl_err_generic') + result.error.message, 'error'); return; }
   var newId = result.data.id;
 
   var photoInput = document.getElementById('add-photo-input');
@@ -5535,7 +5843,7 @@ function sharePlace(id, name, lat, lon) {
     navigator.share({ title: name, text: '📍 ' + name + ' — VanlifeMap', url: url });
   } else {
     navigator.clipboard.writeText(url).then(function() {
-      showToast('&#128279; Lien copié !', 'success');
+      showToast(t('toast_copied'), 'success');
     }).catch(function() {
       prompt('Copie ce lien :', url);
     });
@@ -5556,7 +5864,7 @@ function toggleLiveTracking() {
 }
 
 function startLiveTracking() {
-  if (!navigator.geolocation) { showToast('G\u00e9olocalisation non disponible', 'error'); return; }
+  if (!navigator.geolocation) { showToast(t('toast_location_error'), 'error'); return; }
   var addOrient = function() {
     if (!_orientListenerAdded) {
       window.addEventListener('deviceorientationabsolute', onDeviceOrientation, true);
@@ -5588,7 +5896,7 @@ function startLiveTracking() {
       liveAccCircle.setLatLng(latlng).setRadius(Math.max(acc / 2, 8));
     }
     updateLiveMarkerHeading();
-  }, function() { showToast('Localisation impossible', 'error'); stopLiveTracking(); },
+  }, function() { showToast(t('toast_location_error'), 'error'); stopLiveTracking(); },
   { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 });
 }
 
@@ -5633,9 +5941,9 @@ function locateMe() {
   map.locate({ setView: true, maxZoom: 14 });
   map.once('locationfound', function(e) {
     L.circle(e.latlng, { radius: e.accuracy / 2, color: '#ffd04f', fillOpacity: 0.15 }).addTo(map);
-    showToast('Position trouv\u00e9e !', 'success');
+    showToast(t('toast_pos_found'), 'success');
   });
-  map.once('locationerror', function() { showToast('Localisation impossible', 'error'); });
+  map.once('locationerror', function() { showToast(t('toast_location_error'), 'error'); });
 }
 
 function openModal(id) { document.getElementById(id).style.display = 'flex'; }
@@ -5664,7 +5972,7 @@ init();
 var reportPlaceId = null;
 
 function openReport(pid, name) {
-  if (!currentUser) { showToast('Connectez-vous pour signaler un lieu', 'error'); openModal('modal-auth'); return; }
+  if (!currentUser) { showToast(t('toast_login_report'), 'error'); openModal('modal-auth'); return; }
   reportPlaceId = pid;
   document.getElementById('report-place-name').textContent = name;
   document.getElementById('report-reason').value = '';
@@ -5692,29 +6000,29 @@ function clearReportPhoto() {
 }
 
 async function submitReport() {
-  if (!currentUser) { showToast('Connectez-vous pour signaler', 'error'); return; }
+  if (!currentUser) { showToast(t('toast_login_report'), 'error'); return; }
   var reason = document.getElementById('report-reason').value;
   var details = document.getElementById('report-details').value.trim();
-  if (!reason) { showToast('Choisissez un motif', 'error'); return; }
-  if (details.length < 2) { showToast('Décrivez le problème (min. 2 caractères)', 'error'); return; }
+  if (!reason) { showToast(t('toast_err_choose_reason'), 'error'); return; }
+  if (details.length < 2) { showToast(t('toast_err_details'), 'error'); return; }
   var photoUrl = null;
   var photoInput = document.getElementById('report-photo-input');
   if (photoInput && photoInput.files[0]) {
     var file = photoInput.files[0];
     var ext = file.name.split('.').pop().toLowerCase();
     var path = 'reports/' + reportPlaceId + '-' + Date.now() + '.' + ext;
-    showToast('Upload photo...', 'success');
+    showToast(t('toast_uploading'), 'success');
     var upRes = await db.storage.from('place-photos').upload(path, file, { contentType: file.type });
-    if (upRes.error) { showToast('Erreur upload photo : ' + upRes.error.message, 'error'); return; }
+    if (upRes.error) { showToast(t('lbl_err_generic') + upRes.error.message, 'error'); return; }
     photoUrl = db.storage.from('place-photos').getPublicUrl(path).data.publicUrl;
   }
   var payload = { place_id: reportPlaceId, user_id: currentUser.id, reason: reason, details: details || null };
   if (photoUrl) payload.photo_url = photoUrl;
   var result = await db.from('reports').insert(payload).select('id').single();
-  if (result.error) { showToast('Erreur : ' + result.error.message, 'error'); return; }
+  if (result.error) { showToast(t('lbl_err_generic') + result.error.message, 'error'); return; }
   var insertedReportId = result.data && result.data.id;
   closeModal('modal-report');
-  showToast('&#9888;&#65039; Signalement envoy\u00e9, merci !', 'success');
+  showToast(t('toast_report_sent'), 'success');
   var placeNameForNotif = document.getElementById('report-place-name').textContent || reportPlaceId;
   var reasonLabels = { closed:'Ferm\u00e9 d\u00e9finitivement', maintenance:'En maintenance', wrong_location:'Emplacement incorrect', duplicate:'Doublon', wrong_info:'Infos incorrectes', inappropriate:'Contenu inappropri\u00e9', other:'Autre' };
   notifyMods('signalement', '&#9888;&#65039; Signalement re\u00e7u \u2014 ' + (reasonLabels[reason] || reason) + ' \u2014 \u00ab ' + placeNameForNotif + ' \u00bb', reportPlaceId);
@@ -5842,7 +6150,7 @@ async function loadCommunity() {
   var detail = document.getElementById('comm-detail');
   detail.style.display = 'none';
   feed.style.display = 'block';
-  feed.innerHTML = '<div class="comm-empty">Chargement...</div>';
+  feed.innerHTML = '<div class="comm-empty">' + t('lbl_loading') + '</div>';
   if (commFilter === 'all') {
     var pinnedSlugs = commTypes.filter(function(t) { return t.pinned; }).map(function(t) { return t.slug; });
     var restSlugs   = commTypes.filter(function(t) { return !t.pinned; }).map(function(t) { return t.slug; });
@@ -5861,7 +6169,7 @@ async function loadCommunity() {
     commPosts = rf.data || [];
   }
   if (!commPosts.length) {
-    feed.innerHTML = '<div class="comm-empty">Aucun post pour le moment.<br>Sois le premier ! 👋</div>';
+    feed.innerHTML = '<div class="comm-empty">' + t('lbl_no_post') + '</div>';
     return;
   }
   feed.innerHTML = commPosts.map(renderPostCard).join('');
@@ -5871,25 +6179,25 @@ function renderPostCard(p) {
   var t = getTypeInfo(p.type);
   var date = new Date(p.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
   var statusHtml = (p.status && p.status !== 'ouvert')
-    ? '<span style="font-size:10px;font-weight:700;color:var(--accent);padding:2px 8px;background:rgba(255,208,79,0.1);border-radius:8px;">' + (p.status === 'resolu' ? '✅ Résolu' : '🗓️ Prévu') + '</span>' : '';
+    ? '<span style="font-size:10px;font-weight:700;color:var(--accent);padding:2px 8px;background:rgba(255,208,79,0.1);border-radius:8px;">' + (p.status === 'resolu' ? t('lbl_status_resolved') : t('lbl_status_planned')) + '</span>' : '';
   var placeHtml = p.place_name
     ? '<div class="comm-place-tag" onclick="goToCommPlace(' + p.place_lat + ',' + p.place_lon + ');event.stopPropagation()">📍 ' + escHtml(p.place_name) + '</div>' : '';
   var content = p.content.length > 130 ? p.content.slice(0, 130) + '…' : p.content;
   var canEdit = currentUser && (currentUser.id === p.user_id || isAdmin || isModerator);
   var editBtns = canEdit
     ? '<button class="comm-action-btn" onclick="openEditPost(\'' + p.id + '\');event.stopPropagation()" title="Modifier">✏️</button>'
-      + '<button class="comm-action-btn" onclick="showConfirm(\'Supprimer ce post ?\',\'Cette action supprimera le post et toutes ses réponses.\',\'🗑 Supprimer\',\'#e74c3c\',function(){deletePost(\'' + p.id + '\')});event.stopPropagation()" title="Supprimer">🗑️</button>'
+      + '<button class="comm-action-btn" onclick="showConfirm(t(\'confirm_del_post\'),t(\'confirm_del_post_msg\'),\'🗑\',\'#e74c3c\',function(){deletePost(\'' + p.id + '\')});event.stopPropagation()" title="Supprimer">🗑️</button>'
     : '';
   return '<div class="comm-post ' + (t.pinned ? 'annonce' : '') + '" onclick="openPostDetail(\'' + p.id + '\')">'
     + '<div class="comm-post-header">' + renderTypeBadge(p.type)
     + statusHtml + '<span class="comm-date">' + date + '</span></div>'
     + (p.title ? '<div class="comm-title">' + escHtml(p.title) + '</div>' : '')
     + '<div class="comm-content">' + escHtml(content) + '</div>'
-    + '<div style="font-size:11px;color:var(--text2);margin-top:5px;">par ' + escHtml(p.author_name || 'Anonyme') + '</div>'
+    + '<div style="font-size:11px;color:var(--text2);margin-top:5px;">' + t('lbl_by') + ' ' + escHtml(p.author_name || t('lbl_anonymous')) + '</div>'
     + placeHtml
     + '<div class="comm-actions">'
     + '<button class="comm-action-btn" onclick="likePost(\'' + p.id + '\');event.stopPropagation()">👍 ' + (p.likes_count || 0) + '</button>'
-    + '<button class="comm-action-btn">💬 ' + (p.replies_count || 0) + ' réponse' + ((p.replies_count || 0) > 1 ? 's' : '') + '</button>'
+    + '<button class="comm-action-btn">💬 ' + (p.replies_count || 0) + ' ' + ((p.replies_count || 0) > 1 ? t('lbl_reply_many') : t('lbl_reply_one')) + '</button>'
     + editBtns
     + '</div></div>';
 }
@@ -5955,17 +6263,17 @@ async function openPostDetail(id) {
   var placeHtml = post.place_name
     ? '<div class="comm-place-tag" onclick="goToCommPlace(' + post.place_lat + ',' + post.place_lon + ')">📍 ' + escHtml(post.place_name) + '</div>' : '';
   var statusBtn = (isAdmin && post.status !== undefined)
-    ? '<button onclick="cycleStatus(\'' + post.id + '\')" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:11px;cursor:pointer;color:var(--text);font-family:var(--font-body);">Changer statut</button>' : '';
+    ? '<button onclick="cycleStatus(\'' + post.id + '\')" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:11px;cursor:pointer;color:var(--text);font-family:var(--font-body);">' + t('lbl_change_status') + '</button>' : '';
   var canEdit = currentUser && (currentUser.id === post.user_id || isAdmin || isModerator);
   var editBtns = canEdit
     ? '<button class="comm-action-btn" onclick="openEditPost(\'' + post.id + '\')" title="Modifier">✏️</button>'
-      + '<button class="comm-action-btn" onclick="showConfirm(\'Supprimer ce post ?\',\'Cette action supprimera le post et toutes ses réponses.\',\'🗑 Supprimer\',\'#e74c3c\',function(){deletePost(\'' + post.id + '\')})" title="Supprimer">🗑️</button>'
+      + '<button class="comm-action-btn" onclick="showConfirm(t(\'confirm_del_post\'),t(\'confirm_del_post_msg\'),\'🗑\',\'#e74c3c\',function(){deletePost(\'' + post.id + '\')})" title="Supprimer">🗑️</button>'
     : '';
-  detail.innerHTML = '<button onclick="backToFeed()" style="background:none;border:none;color:var(--accent);font-size:14px;cursor:pointer;padding:10px 0;display:flex;align-items:center;gap:4px;font-family:var(--font-body);">&#8592; Retour</button>'
+  detail.innerHTML = '<button onclick="backToFeed()" style="background:none;border:none;color:var(--accent);font-size:14px;cursor:pointer;padding:10px 0;display:flex;align-items:center;gap:4px;font-family:var(--font-body);">' + t('btn_back') + '</button>'
     + '<div style="background:var(--surface2);border-radius:14px;padding:16px;margin-bottom:14px;border:1px solid var(--border);">'
     + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">'
     + renderTypeBadge(post.type)
-    + '<span style="font-size:12px;color:var(--text2);">par <b>' + escHtml(post.author_name || 'Anonyme') + '</b> · ' + date + '</span>'
+    + '<span style="font-size:12px;color:var(--text2);">' + t('lbl_by') + ' <b>' + escHtml(post.author_name || t('lbl_anonymous')) + '</b> · ' + date + '</span>'
     + '</div>'
     + (post.title ? '<div style="font-size:17px;font-weight:700;margin-bottom:8px;color:var(--text);">' + escHtml(post.title) + '</div>' : '')
     + '<div style="font-size:14px;color:var(--text);line-height:1.6;" id="post-detail-content-' + post.id + '">' + escHtml(post.content) + '</div>'
@@ -5974,14 +6282,14 @@ async function openPostDetail(id) {
     + '<button class="comm-action-btn" onclick="likePost(\'' + post.id + '\')">👍 ' + (post.likes_count || 0) + '</button>'
     + statusBtn + editBtns
     + '</div></div>'
-    + '<div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;">' + (post.replies_count || 0) + ' réponse' + ((post.replies_count || 0) > 1 ? 's' : '') + '</div>'
+    + '<div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;">' + (post.replies_count || 0) + ' ' + ((post.replies_count || 0) > 1 ? t('lbl_reply_many') : t('lbl_reply_one')) + '</div>'
     + '<div id="comm-replies-list"></div>'
     + (currentUser
       ? '<div style="display:flex;gap:8px;margin-top:12px;padding-bottom:20px;">'
-        + '<input type="text" id="reply-input" class="comm-input" style="flex:1;margin:0;" placeholder="Votre réponse...">'
-        + '<button onclick="submitReply(\'' + post.id + '\')" style="background:var(--accent);border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;color:#000;white-space:nowrap;">Envoyer</button>'
+        + '<input type="text" id="reply-input" class="comm-input" style="flex:1;margin:0;" placeholder="' + t('comm_reply_ph') + '">'
+        + '<button onclick="submitReply(\'' + post.id + '\')" style="background:var(--accent);border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;color:#000;white-space:nowrap;">' + t('place_send') + '</button>'
         + '</div>'
-      : '<p style="font-size:12px;color:var(--text2);text-align:center;margin-top:12px;padding-bottom:20px;">Connectez-vous pour répondre</p>');
+      : '<p style="font-size:12px;color:var(--text2);text-align:center;margin-top:12px;padding-bottom:20px;">' + t('toast_login_reply') + '</p>');
   loadReplies(id);
 }
 
@@ -5996,10 +6304,10 @@ async function loadReplies(postId) {
     var canDel = currentUser && (currentUser.id === r.user_id || isAdmin || isModerator);
     return '<div class="comm-reply-card">'
       + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
-      + '<span style="font-size:12px;font-weight:700;color:var(--accent);">' + escHtml(r.author_name || 'Anonyme') + '</span>'
+      + '<span style="font-size:12px;font-weight:700;color:var(--accent);">' + escHtml(r.author_name || t('lbl_anonymous')) + '</span>'
       + '<div style="display:flex;align-items:center;gap:6px;">'
       + '<span style="font-size:11px;color:var(--text2);">' + d + '</span>'
-      + (canDel ? '<button onclick="showConfirm(\'Supprimer cette réponse ?\',\'\',\'🗑 Supprimer\',\'#e74c3c\',function(){deleteReply(\'' + r.id + '\',\'' + postId + '\')})" style="background:none;border:none;color:var(--text2);font-size:14px;cursor:pointer;padding:0 2px;" title="Supprimer">🗑️</button>' : '')
+      + (canDel ? '<button onclick="showConfirm(t(\'confirm_del_reply\'),\'\',\'🗑\',\'#e74c3c\',function(){deleteReply(\'' + r.id + '\',\'' + postId + '\')})" style="background:none;border:none;color:var(--text2);font-size:14px;cursor:pointer;padding:0 2px;" title="Supprimer">🗑️</button>' : '')
       + '</div></div>'
       + '<div id="reply-text-' + r.id + '" style="font-size:13px;color:var(--text);line-height:1.5;">' + escHtml(r.content) + '</div>'
       + '<span id="trl-reply-' + r.id + '" data-orig="' + escHtml(r.content) + '" onclick="translateText(\'reply-text-' + r.id + '\',\'trl-reply-' + r.id + '\',this.dataset.orig)" style="font-size:11px;color:var(--text2);cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Traduire</span>'
@@ -6014,7 +6322,7 @@ function backToFeed() {
 }
 
 async function submitReply(postId) {
-  if (!currentUser) { showToast('Connectez-vous pour répondre', 'error'); return; }
+  if (!currentUser) { showToast(t('toast_login_reply'), 'error'); return; }
   var inp = document.getElementById('reply-input');
   var content = (inp.value || '').trim();
   if (!content) return;
@@ -6030,7 +6338,7 @@ async function submitReply(postId) {
 }
 
 async function likePost(id) {
-  if (!currentUser) { showToast('Connectez-vous pour liker', 'error'); return; }
+  if (!currentUser) { showToast(t('toast_login_like'), 'error'); return; }
   var res = await db.from('community_likes').insert({ user_id: currentUser.id, post_id: id });
   if (!res.error) {
     var post = commPosts.find(function(p) { return p.id === id; });
@@ -6042,11 +6350,11 @@ async function likePost(id) {
       insertNotif(post.user_id, 'like', name + ' a aimé votre post : "' + (post.title || post.content.slice(0,40)) + '"', id);
     }
     loadCommunity();
-  } else { showToast('Déjà liké !', 'error'); }
+  } else { showToast(t('toast_already_liked'), 'error'); }
 }
 
 function openNewPost() {
-  if (!currentUser) { showToast('Connectez-vous pour poster', 'error'); return; }
+  if (!currentUser) { showToast(t('toast_login_post'), 'error'); return; }
   editPostId = null;
   newPostPlace = null;
   document.getElementById('comm-place-input') && (document.getElementById('comm-place-input').value = '');
@@ -6100,7 +6408,7 @@ async function searchCommPlace(q) {
   if (!q || q.length < 2) { el.innerHTML = ''; return; }
   var res = await db.from('places').select('id,name,latitude,longitude').ilike('name', '%' + q + '%').limit(6);
   var data = res.data || [];
-  if (!data.length) { el.innerHTML = '<p style="font-size:12px;color:var(--text2);padding:4px 0;">Aucun lieu trouvé</p>'; return; }
+  if (!data.length) { el.innerHTML = '<p style="font-size:12px;color:var(--text2);padding:4px 0;">' + t('lbl_no_result') + '</p>'; return; }
   el.innerHTML = data.map(function(p) {
     return '<div onclick="selectCommPlace(\'' + p.id + '\',\'' + p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\',' + p.latitude + ',' + p.longitude + ')" style="padding:10px 12px;background:var(--surface2);border-radius:8px;margin-bottom:4px;cursor:pointer;font-size:13px;border:1px solid var(--border);">📍 ' + escHtml(p.name) + '</div>';
   }).join('');
@@ -6122,26 +6430,26 @@ async function submitPost() {
   if (!currentUser) return;
   var content = (document.getElementById('comm-content-input').value || '').trim();
   var title = (document.getElementById('comm-title-input').value || '').trim();
-  if (!content) { showToast('Écrivez quelque chose !', 'error'); return; }
+  if (!content) { showToast(t('toast_err_write'), 'error'); return; }
   if (editPostId) {
     var res = await db.from('community_posts').update({ content: content, title: title || null, type: newPostType }).eq('id', editPostId);
-    if (res.error) { showToast('Erreur lors de la modification', 'error'); return; }
+    if (res.error) { showToast(t('toast_err_modify'), 'error'); return; }
     closeNewPost();
-    showToast('Post modifié !', 'success');
+    showToast(t('toast_post_modified'), 'success');
     loadCommunity();
     return;
   }
   var minRole = (getTypeInfo(newPostType)).min_role || 'public';
   if ((minRole === 'admin' && !isAdmin) || (minRole === 'moderator' && !isAdmin && !isModerator)) {
-    showToast('Réservé aux admins/modérateurs', 'error'); return;
+    showToast(t('toast_comm_reserved'), 'error'); return;
   }
   var name = currentUsername || currentUser.email.split('@')[0];
   var row = { user_id: currentUser.id, author_name: name, type: newPostType, content: content, title: title || null, likes_count: 0, replies_count: 0, status: 'ouvert' };
   if (newPostPlace) { row.place_id = newPostPlace.id; row.place_name = newPostPlace.name; row.place_lat = newPostPlace.lat; row.place_lon = newPostPlace.lon; }
   var res2 = await db.from('community_posts').insert(row);
-  if (res2.error) { showToast('Erreur lors de la publication', 'error'); return; }
+  if (res2.error) { showToast(t('toast_err_publish'), 'error'); return; }
   closeNewPost();
-  showToast('Publié ! 🎉', 'success');
+  showToast(t('toast_post_published'), 'success');
   loadCommunity();
 }
 
@@ -6149,18 +6457,18 @@ async function deletePost(id) {
   await db.from('community_likes').delete().eq('post_id', id);
   await db.from('community_replies').delete().eq('post_id', id);
   var res = await db.from('community_posts').delete().eq('id', id);
-  if (res.error) { showToast('Erreur lors de la suppression', 'error'); return; }
-  showToast('Post supprimé', 'success');
+  if (res.error) { showToast(t('toast_err_delete'), 'error'); return; }
+  showToast(t('toast_post_deleted'), 'success');
   backToFeed();
   loadCommunity();
 }
 
 async function deleteReply(id, postId) {
   var res = await db.from('community_replies').delete().eq('id', id);
-  if (res.error) { showToast('Erreur lors de la suppression', 'error'); return; }
+  if (res.error) { showToast(t('toast_err_delete'), 'error'); return; }
   var cnt = await db.from('community_replies').select('id', { count: 'exact', head: true }).eq('post_id', postId);
   await db.from('community_posts').update({ replies_count: cnt.count || 0 }).eq('id', postId);
-  showToast('Réponse supprimée', 'success');
+  showToast(t('toast_reply_deleted'), 'success');
   loadReplies(postId);
 }
 
@@ -6194,15 +6502,15 @@ async function loadNotifCount() {
 
 async function loadNotifications() {
   var feed = document.getElementById('comm-feed');
-  feed.innerHTML = '<div class="comm-empty">Chargement...</div>';
+  feed.innerHTML = '<div class="comm-empty">' + t('lbl_loading') + '</div>';
   if (!currentUser) {
-    feed.innerHTML = '<div class="comm-empty">Connectez-vous pour voir vos notifications.</div>';
+    feed.innerHTML = '<div class="comm-empty">' + t('toast_login_required') + '</div>';
     return;
   }
   var res = await db.from('notifications').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }).limit(40);
   var data = res.data || [];
   if (!data.length) {
-    feed.innerHTML = '<div class="comm-empty">&#128276;<br>Aucune notification pour le moment.</div>';
+    feed.innerHTML = '<div class="comm-empty">' + t('lbl_no_notif') + '</div>';
     return;
   }
   var unreadIds = data.filter(function(n) { return !n.is_read; }).map(function(n) { return n.id; });
@@ -6246,7 +6554,7 @@ async function openNotifPlace(notifId, placeId) {
   await db.from('notifications').update({ is_read: true }).eq('id', notifId);
   loadNotifCount();
   var res = await db.from('places').select('*, categories(name,icon,color), main_categories(name,icon)').eq('id', placeId).maybeSingle();
-  if (!res.data) { showToast('Lieu introuvable (peut-être supprimé)', 'error'); return; }
+  if (!res.data) { showToast(t('toast_place_not_found'), 'error'); return; }
   closeSheet('sheet-community');
   soloPlaceId = placeId;
   soloReturnTo = null;
@@ -6335,14 +6643,14 @@ function startRealtimeReports() {
   if (!currentUser || realtimeReportsChannel) return;
   realtimeReportsChannel = db.channel('mod-reports')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reports' }, function() {
-      showToast('&#9888;&#65039; Nouveau lieu signalé', 'error');
+      showToast(t('toast_notif_report'), 'error');
       loadModReportsCount();
       if (document.getElementById('dash-grid')) loadDashboardTiles();
       var el = document.getElementById('reported-places-list');
       if (el) loadReportedPlaces();
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comment_reports' }, function() {
-      showToast('&#9888;&#65039; Nouveau commentaire signalé', 'error');
+      showToast(t('toast_notif_comment'), 'error');
       loadModReportsCount();
     })
     .subscribe();
@@ -6421,15 +6729,15 @@ async function loadDashboardTiles() {
       + '</div>';
   }
 
-  var html = tile('&#128101;', 'Membres inscrits', totalMembers, 'showDashMembers()')
-    + tile('&#127381;', 'Nouveaux membres', newMembers, 'showDashNewMembers()', 0, 'week', 'cette semaine')
-    + tile('&#128205;', 'Lieux validés total', totalPlaces, 'showDashValidatedPlaces()')
-    + tile('&#10024;', 'Nouveaux lieux', newPlaces, 'showDashNewPlaces()', 0, 'week', 'cette semaine')
+  var html = tile('&#128101;', t('dash_registered_members'), totalMembers, 'showDashMembers()')
+    + tile('&#127381;', t('dash_new_members'), newMembers, 'showDashNewMembers()', 0, 'week', t('lbl_this_week'))
+    + tile('&#128205;', t('dash_validated_total'), totalPlaces, 'showDashValidatedPlaces()')
+    + tile('&#10024;', t('dash_new_places'), newPlaces, 'showDashNewPlaces()', 0, 'week', t('lbl_this_week'))
     + tile('&#9888;&#65039;', 'Lieux signal&eacute;s', reportedPlaces, 'showDashReportedPlaces()', reportedPlaces, reportedPlaces > 0 ? 'urgent' : '')
     + tile('&#128172;', 'Commentaires signal&eacute;s', reportedCmts, 'showDashReportedComments()', reportedCmts, reportedCmts > 0 ? 'urgent' : '');
   // Ligne 4 : lieux en attente + statistiques globales
   html += tile('&#9203;', '&Agrave; valider', pendingCount, 'showDashPending()', pendingCount, pendingCount > 0 ? 'urgent' : '')
-    + tile('&#128202;', 'Statistiques globales', '', 'showDashStats()', 0, '');
+    + tile('&#128202;', t('dash_global_stats'), '', 'showDashStats()', 0, '');
   // Ligne 5 admin : équipe + sanctions
   if (isAdmin) {
     html += tile('&#128737;&#65039;', '&Eacute;quipe', '', 'showDashTeam()', 0, 'admin-only')
@@ -6480,12 +6788,12 @@ async function loadReportHistory() {
   var res = await db.from('report_history').select('*').order('handled_at', { ascending: false }).limit(100);
   if (res.error) { el.innerHTML = '<div style="color:#e74c3c;font-size:12px;">Erreur : ' + escHtml(res.error.message) + '</div>'; return; }
   var data = res.data || [];
-  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);padding:16px;text-align:center;">Aucune action de modération enregistrée</div>'; return; }
+  if (!data.length) { el.innerHTML = '<div style="color:var(--text2);padding:16px;text-align:center;">' + t('lbl_no_action_mod') + '</div>'; return; }
   var reasonLabels = { closed:'Fermé définitivement', maintenance:'En maintenance', wrong_location:'Emplacement incorrect', duplicate:'Doublon', wrong_info:'Infos incorrectes', inappropriate:'Contenu inapproprié', bad_photo:'Photo inappropriée', other:'Autre' };
   el.innerHTML = data.map(function(h) {
     var actionColor = h.action === 'hidden' ? '#e74c3c' : '#27ae60';
     var actionIcon = h.action === 'hidden' ? '&#128683;' : '&#10003;';
-    var actionLabel = h.action === 'hidden' ? 'Masqué' : 'Ignoré';
+    var actionLabel = h.action === 'hidden' ? t('lbl_status_hidden') : t('lbl_action_ignored');
     var date = new Date(h.handled_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
     var reasons = (h.reason || '').split(',').map(function(r) { return reasonLabels[r.trim()] || r.trim(); }).filter(Boolean).join(', ');
     var clickable = h.place_id ? ' onclick="openHistoryPlace(\'' + h.place_id + '\')" style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;cursor:pointer;transition:border-color 0.15s;" onmouseenter="this.style.borderColor=\'var(--accent)\'" onmouseleave="this.style.borderColor=\'var(--border)\'"' : ' style="border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;"';
@@ -6504,7 +6812,7 @@ async function loadReportHistory() {
 
 async function openHistoryPlace(placeId) {
   var res = await db.from('places').select('*, categories(name,icon,color), main_categories(name,icon)').eq('id', placeId).maybeSingle();
-  if (!res.data) { showToast('Lieu introuvable (peut-être supprimé)', 'error'); return; }
+  if (!res.data) { showToast(t('toast_place_not_found'), 'error'); return; }
   closeSheet('sheet-dashboard');
   soloPlaceId = placeId;
   soloReturnTo = 'history';
@@ -6523,23 +6831,23 @@ async function openHistoryPlace(placeId) {
 }
 
 function showDashNewMembers() {
-  showDashDetail('&#127381; Nouveaux membres cette semaine', function() {
+  showDashDetail('&#127381; ' + t('dash_new_members') + ' — ' + t('lbl_this_week'), function() {
     var c = document.getElementById('dash-detail-content');
-    c.innerHTML = '<div id="dash-new-members-list"><div style="color:var(--text2);font-size:13px;">Chargement...</div></div>';
+    c.innerHTML = '<div id="dash-new-members-list"><div style="color:var(--text2);font-size:13px;">' + t('lbl_loading') + '</div></div>';
     (async function() {
       var el = document.getElementById('dash-new-members-list');
       if (!el) return;
       var weekStart = getWeekStartISO();
       var res = await db.from('profiles').select('user_id,username,registered_at').not('username', 'is', null).gte('registered_at', weekStart).order('registered_at', { ascending: false });
       var members = res.data || [];
-      if (!members.length) { el.innerHTML = '<div style="color:var(--text2);font-size:13px;text-align:center;padding:16px 0;">Aucun nouveau membre cette semaine</div>'; return; }
-      el.innerHTML = '<div style="font-size:11px;color:var(--text2);margin-bottom:10px;">' + members.length + ' nouveau' + (members.length > 1 ? 'x' : '') + ' membre' + (members.length > 1 ? 's' : '') + ' cette semaine</div>'
+      if (!members.length) { el.innerHTML = '<div style="color:var(--text2);font-size:13px;text-align:center;padding:16px 0;">' + t('lbl_no_new_member_week') + '</div>'; return; }
+      el.innerHTML = '<div style="font-size:11px;color:var(--text2);margin-bottom:10px;">' + members.length + ' ' + t('dash_new_members').toLowerCase() + ' — ' + t('lbl_this_week') + '</div>'
         + members.map(function(m) {
           var date = m.registered_at ? new Date(m.registered_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
           return '<div onclick="closeSheet(\'sheet-dashboard\');openPublicProfile(\'' + escHtml(m.username).replace(/'/g,"\\'") + '\')" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
             + '<div style="width:30px;height:30px;border-radius:50%;background:rgba(39,174,96,0.15);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">&#127381;</div>'
             + '<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--text);">' + escHtml(m.username) + '</div>'
-            + (date ? '<div style="font-size:11px;color:var(--text2);">Inscrit le ' + date + '</div>' : '') + '</div>'
+            + (date ? '<div style="font-size:11px;color:var(--text2);">' + t('member_registered') + ' ' + date + '</div>' : '') + '</div>'
             + '<span style="color:var(--text2);font-size:16px;">&#8250;</span></div>';
         }).join('');
     })();
@@ -6547,27 +6855,27 @@ function showDashNewMembers() {
 }
 
 function showDashNewPlaces() {
-  showDashDetail('&#10024; Nouveaux lieux cette semaine', function() {
+  showDashDetail('&#10024; ' + t('dash_new_places') + ' — ' + t('lbl_this_week'), function() {
     var c = document.getElementById('dash-detail-content');
-    c.innerHTML = '<div id="dash-new-places-list"><div style="color:var(--text2);font-size:13px;">Chargement...</div></div>';
+    c.innerHTML = '<div id="dash-new-places-list"><div style="color:var(--text2);font-size:13px;">' + t('lbl_loading') + '</div></div>';
     (async function() {
       var el = document.getElementById('dash-new-places-list');
       if (!el) return;
       var weekStart = getWeekStartISO();
       var res = await db.from('places').select('id,name,user_name,status,created_at,latitude,longitude,categories(icon,name)').gte('created_at', weekStart).order('created_at', { ascending: false });
       var places = res.data || [];
-      if (!places.length) { el.innerHTML = '<div style="color:var(--text2);font-size:13px;text-align:center;padding:16px 0;">Aucun lieu ajouté cette semaine</div>'; return; }
-      el.innerHTML = '<div style="font-size:11px;color:var(--text2);margin-bottom:10px;">' + places.length + ' lieu' + (places.length > 1 ? 'x' : '') + ' ajouté' + (places.length > 1 ? 's' : '') + ' cette semaine</div>'
+      if (!places.length) { el.innerHTML = '<div style="color:var(--text2);font-size:13px;text-align:center;padding:16px 0;">' + t('lbl_no_new_place_week') + '</div>'; return; }
+      el.innerHTML = '<div style="font-size:11px;color:var(--text2);margin-bottom:10px;">' + places.length + ' ' + t('dash_new_places').toLowerCase() + ' — ' + t('lbl_this_week') + '</div>'
         + places.map(function(p) {
           var icon = (p.categories && p.categories.icon) || '📍';
           var statusColor = p.status === 'active' ? '#27ae60' : p.status === 'pending' ? '#f39c12' : '#e74c3c';
-          var statusLabel = p.status === 'active' ? 'Actif' : p.status === 'pending' ? 'En attente' : 'Masqué';
+          var statusLabel = p.status === 'active' ? t('lbl_status_active') : p.status === 'pending' ? t('lbl_status_pending') : t('lbl_status_hidden');
           var date = p.created_at ? new Date(p.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
           return '<div onclick="viewFromDashboard(\'' + p.id + '\',' + p.latitude + ',' + p.longitude + ',\'← Retour aux nouveaux lieux\')\" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
             + '<div style="font-size:22px;flex-shrink:0;">' + icon + '</div>'
             + '<div style="flex:1;min-width:0;">'
-            + '<div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(p.name || 'Sans nom') + '</div>'
-            + '<div style="font-size:11px;color:var(--text2);">' + escHtml(p.user_name || 'Anonyme') + (date ? ' · ' + date : '') + '</div>'
+            + '<div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(p.name || t('lbl_no_name')) + '</div>'
+            + '<div style="font-size:11px;color:var(--text2);">' + escHtml(p.user_name || t('lbl_anonymous')) + (date ? ' · ' + date : '') + '</div>'
             + '</div>'
             + '<span style="font-size:10px;font-weight:700;color:' + statusColor + ';background:' + statusColor + '22;border-radius:5px;padding:2px 7px;flex-shrink:0;">' + statusLabel + '</span>'
             + '<span style="color:var(--text2);font-size:14px;margin-left:4px;">›</span>'
@@ -6629,7 +6937,7 @@ function showDashValidatedPlaces() {
       if (!listEl) return;
       var res = await db.from('places').select('id,name,user_name,created_at,latitude,longitude,categories(icon,name)').eq('status', 'active').order('created_at', { ascending: false }).limit(60);
       var places = res.data || [];
-      if (!places.length) { listEl.innerHTML = '<div style="color:var(--text2);font-size:13px;text-align:center;padding:16px 0;">Aucun lieu actif</div>'; return; }
+      if (!places.length) { listEl.innerHTML = '<div style="color:var(--text2);font-size:13px;text-align:center;padding:16px 0;">' + t('lbl_no_active_place') + '</div>'; return; }
       listEl.innerHTML = '<div style="font-size:11px;color:var(--text2);margin-bottom:10px;">' + places.length + ' dernier' + (places.length > 1 ? 's' : '') + ' lieu' + (places.length > 1 ? 'x' : '') + ' validé' + (places.length > 1 ? 's' : '') + '</div>'
         + places.map(function(p) {
           var icon = (p.categories && p.categories.icon) || '\uD83D\uDCCD';
@@ -6638,7 +6946,7 @@ function showDashValidatedPlaces() {
           return '<div onclick="viewFromDashboard(\'' + p.id + '\',' + p.latitude + ',' + p.longitude + ',\'← Retour aux lieux validés\')" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;">'
             + '<div style="font-size:20px;flex-shrink:0;width:32px;text-align:center;">' + icon + '</div>'
             + '<div style="flex:1;min-width:0;">'
-            + '<div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(p.name || 'Sans nom') + '</div>'
+            + '<div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(p.name || t('lbl_no_name')) + '</div>'
             + '<div style="font-size:11px;color:var(--text2);">' + escHtml(catName) + (date ? ' · ' + date : '') + '</div>'
             + '</div>'
             + '<span style="color:var(--text2);font-size:14px;">›</span>'
@@ -6668,59 +6976,59 @@ function showDashStats() {
         + '</div>';
     }
     c.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
-      + sitem('&#128101;', 'Membres', results[0].count)
-      + sitem('&#128205;', 'Lieux actifs', results[1].count)
-      + sitem('&#9203;', 'En attente', results[2].count)
-      + sitem('&#128274;', 'Masqués', results[3].count)
-      + sitem('&#128172;', 'Commentaires', results[4].count)
-      + sitem('&#128683;', 'Bannis', results[5].count)
+      + sitem('&#128101;', t('dash_members'), results[0].count)
+      + sitem('&#128205;', t('dash_stats'), results[1].count)
+      + sitem('&#9203;', t('lbl_status_pending'), results[2].count)
+      + sitem('&#128274;', t('lbl_status_hiddens'), results[3].count)
+      + sitem('&#128172;', t('profile_comments'), results[4].count)
+      + sitem('&#128683;', t('lbl_banned'), results[5].count)
       + '</div>';
   });
 }
 
 function showDashTeam() {
-  showDashDetail('&#128737;&#65039; Équipe', function() {
+  showDashDetail('&#128737;&#65039; ' + t('dash_team'), function() {
     var c = document.getElementById('dash-detail-content');
-    c.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;">&#128737;&#65039; Modérateurs</div>'
-      + '<div id="validators-list" style="margin-bottom:10px;font-size:13px;color:var(--text2);">Chargement...</div>'
-      + '<div style="display:flex;gap:8px;margin-bottom:8px;"><input type="text" id="validator-username-input" placeholder="Pseudo de l\'utilisateur..." style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:var(--font-body);"></div>'
-      + '<button onclick="addValidator()" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-family:var(--font-body);font-size:13px;margin-bottom:16px;">+ Ajouter modérateur</button>'
+    c.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;">&#128737;&#65039; ' + t('dash_moderators') + '</div>'
+      + '<div id="validators-list" style="margin-bottom:10px;font-size:13px;color:var(--text2);">' + t('lbl_loading') + '</div>'
+      + '<div style="display:flex;gap:8px;margin-bottom:8px;"><input type="text" id="validator-username-input" placeholder="' + t('ph_username') + '" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:var(--font-body);"></div>'
+      + '<button onclick="addValidator()" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-family:var(--font-body);font-size:13px;margin-bottom:16px;">' + t('btn_add_mod') + '</button>'
       + '<div style="border-top:1px solid var(--border);padding-top:14px;">'
-      + '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">&#11088; Membres de confiance</div>'
-      + '<div style="font-size:11px;color:var(--text2);margin-bottom:10px;">Leur vote valide un lieu instantanément</div>'
-      + '<div id="trusted-list" style="margin-bottom:10px;font-size:13px;color:var(--text2);">Chargement...</div>'
-      + '<div style="display:flex;gap:8px;margin-bottom:8px;"><input type="text" id="trusted-username-input" placeholder="Pseudo de l\'utilisateur..." style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:var(--font-body);"></div>'
-      + '<button onclick="addTrusted()" style="width:100%;background:rgba(255,208,79,0.15);color:var(--accent);border:1px solid rgba(255,208,79,0.3);border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-family:var(--font-body);font-size:13px;">+ Ajouter membre de confiance</button>'
+      + '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">&#11088; ' + t('dash_trusted_members') + '</div>'
+      + '<div style="font-size:11px;color:var(--text2);margin-bottom:10px;">' + t('dash_trusted_desc') + '</div>'
+      + '<div id="trusted-list" style="margin-bottom:10px;font-size:13px;color:var(--text2);">' + t('lbl_loading') + '</div>'
+      + '<div style="display:flex;gap:8px;margin-bottom:8px;"><input type="text" id="trusted-username-input" placeholder="' + t('ph_username') + '" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:var(--font-body);"></div>'
+      + '<button onclick="addTrusted()" style="width:100%;background:rgba(255,208,79,0.15);color:var(--accent);border:1px solid rgba(255,208,79,0.3);border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-family:var(--font-body);font-size:13px;">' + t('btn_add_trusted') + '</button>'
       + '</div>'
       + '<div id="role-confirm-panel" style="display:none;margin-top:12px;background:rgba(255,208,79,0.07);border:1px solid rgba(255,208,79,0.3);border-radius:10px;padding:14px;">'
       + '<div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:12px;" id="role-confirm-msg"></div>'
       + '<div style="display:flex;gap:8px;">'
-      + '<button onclick="cancelRoleChange()" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);">Annuler</button>'
-      + '<button onclick="confirmRoleChange()" style="flex:1;background:rgba(255,208,79,0.2);border:1px solid rgba(255,208,79,0.4);color:var(--accent);border-radius:8px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);">&#10003; Confirmer</button>'
+      + '<button onclick="cancelRoleChange()" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);">' + t('btn_cancel') + '</button>'
+      + '<button onclick="confirmRoleChange()" style="flex:1;background:rgba(255,208,79,0.2);border:1px solid rgba(255,208,79,0.4);color:var(--accent);border-radius:8px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);">&#10003; ' + t('btn_confirm') + '</button>'
       + '</div></div>';
     loadValidatorsList();
   });
 }
 
 function showDashBan() {
-  showDashDetail('&#128296; Sanctions', function() {
+  showDashDetail('&#128296; ' + t('dash_bans'), function() {
     var c = document.getElementById('dash-detail-content');
-    c.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;">&#128683; Membres bannis</div>'
-      + '<div id="banned-list" style="margin-bottom:12px;font-size:13px;color:var(--text2);">Chargement...</div>'
-      + '<div style="display:flex;gap:8px;margin-bottom:8px;"><input type="text" id="ban-username-input" placeholder="Pseudo à bannir..." style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:var(--font-body);"></div>'
-      + '<button onclick="banByUsername()" style="width:100%;background:rgba(231,76,60,0.12);color:#e74c3c;border:1px solid rgba(231,76,60,0.35);border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-family:var(--font-body);font-size:13px;">&#128683; Bannir cet utilisateur</button>'
+    c.innerHTML = '<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;">&#128683; ' + t('dash_banned_members') + '</div>'
+      + '<div id="banned-list" style="margin-bottom:12px;font-size:13px;color:var(--text2);">' + t('lbl_loading') + '</div>'
+      + '<div style="display:flex;gap:8px;margin-bottom:8px;"><input type="text" id="ban-username-input" placeholder="' + t('ph_ban_username') + '" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;outline:none;font-family:var(--font-body);"></div>'
+      + '<button onclick="banByUsername()" style="width:100%;background:rgba(231,76,60,0.12);color:#e74c3c;border:1px solid rgba(231,76,60,0.35);border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-family:var(--font-body);font-size:13px;">&#128683; ' + t('lbl_ban_user') + '</button>'
       + '<div id="unban-confirm-panel" style="display:none;margin-top:12px;background:rgba(110,231,183,0.07);border:1px solid rgba(110,231,183,0.35);border-radius:10px;padding:14px;">'
-      + '<div style="font-size:13px;font-weight:700;color:#6ee7b7;margin-bottom:10px;">&#9888;&#65039; Lever le bannissement de <span id="unban-confirm-name"></span> ?</div>'
+      + '<div style="font-size:13px;font-weight:700;color:#6ee7b7;margin-bottom:10px;">&#9888;&#65039; ' + t('lbl_unban') + ' <span id="unban-confirm-name"></span> ?</div>'
       + '<div style="display:flex;gap:8px;">'
-      + '<button onclick="cancelUnban()" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);">Annuler</button>'
-      + '<button onclick="confirmUnban()" style="flex:1;background:rgba(110,231,183,0.15);border:1px solid rgba(110,231,183,0.4);color:#6ee7b7;border-radius:8px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);">&#10003; Confirmer</button>'
+      + '<button onclick="cancelUnban()" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);">' + t('btn_cancel') + '</button>'
+      + '<button onclick="confirmUnban()" style="flex:1;background:rgba(110,231,183,0.15);border:1px solid rgba(110,231,183,0.4);color:#6ee7b7;border-radius:8px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);">&#10003; ' + t('btn_confirm') + '</button>'
       + '</div></div>'
       + '<div id="ban-confirm-panel" style="display:none;margin-top:12px;background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.4);border-radius:10px;padding:14px;">'
-      + '<div style="font-size:13px;font-weight:700;color:#e74c3c;margin-bottom:10px;">&#9888;&#65039; Confirmer le bannissement de <span id="ban-confirm-name"></span> ?</div>'
-      + '<input type="text" id="ban-reason-input" placeholder="Raison (optionnel)..." style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;outline:none;font-family:var(--font-body);margin-bottom:10px;">'
+      + '<div style="font-size:13px;font-weight:700;color:#e74c3c;margin-bottom:10px;">&#9888;&#65039; ' + t('lbl_ban_user') + ' — <span id="ban-confirm-name"></span></div>'
+      + '<input type="text" id="ban-reason-input" placeholder="' + t('ph_ban_reason') + '" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;outline:none;font-family:var(--font-body);margin-bottom:10px;">'
       + '<div style="display:flex;gap:8px;">'
-      + '<button onclick="cancelBan()" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);">Annuler</button>'
-      + '<button onclick="confirmBan()" style="flex:1;background:#e74c3c;border:none;color:#fff;border-radius:8px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);">&#128683; Confirmer</button>'
+      + '<button onclick="cancelBan()" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);">' + t('btn_cancel') + '</button>'
+      + '<button onclick="confirmBan()" style="flex:1;background:#e74c3c;border:none;color:#fff;border-radius:8px;padding:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);">&#128683; ' + t('btn_confirm') + '</button>'
       + '</div></div>';
     loadBannedList();
   });
@@ -6776,30 +7084,30 @@ async function renderDashCommTypesContent() {
   var res = await db.from('community_types').select('*').order('sort_order');
   var types = res.data || [];
   var html = '<div style="margin-bottom:12px;">'
-    + '<button onclick="adminShowCreateCommTypeForm()" style="width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-family:var(--font-body);cursor:pointer;">+ Nouveau type</button>'
+    + '<button onclick="adminShowCreateCommTypeForm()" style="width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-family:var(--font-body);cursor:pointer;">+ ' + t('comm_new_type') + '</button>'
     + '</div>'
     + '<div id="comm-types-list">' + renderCommTypesList(types) + '</div>';
   c.innerHTML = html;
 }
 
 function renderCommTypesList(types) {
-  if (!types.length) return '<div style="color:var(--text2);text-align:center;padding:16px;">Aucun type configuré</div>';
-  var roleLabel = { public: 'Tous', moderator: '🛡️ Mods+', admin: '🔐 Admins' };
-  return types.map(function(t, i) {
-    return '<div id="comm-type-row-' + t.id + '" style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;" ontouchstart="adminStartCTLongPress(\'' + t.id + '\')" ontouchend="adminCancelCTLongPress()" ontouchmove="adminCancelCTLongPress()" onmousedown="adminStartCTLongPress(\'' + t.id + '\')" onmouseup="adminCancelCTLongPress()" onmouseleave="adminCancelCTLongPress()">'
+  if (!types.length) return '<div style="color:var(--text2);text-align:center;padding:16px;">' + t('comm_no_type') + '</div>';
+  var roleLabel = { public: t('comm_type_all').split(' ')[0], moderator: '🛡️ Mods+', admin: '🔐 Admins' };
+  return types.map(function(tp, i) {
+    return '<div id="comm-type-row-' + tp.id + '" style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;" ontouchstart="adminStartCTLongPress(\'' + tp.id + '\')" ontouchend="adminCancelCTLongPress()" ontouchmove="adminCancelCTLongPress()" onmousedown="adminStartCTLongPress(\'' + tp.id + '\')" onmouseup="adminCancelCTLongPress()" onmouseleave="adminCancelCTLongPress()">'
       + '<div style="display:flex;align-items:center;gap:8px;">'
-      + '<span style="font-size:22px;">' + t.icon + '</span>'
+      + '<span style="font-size:22px;">' + tp.icon + '</span>'
       + '<div style="flex:1;">'
-      + '<div style="font-size:14px;font-weight:700;color:var(--text);">' + escHtml(t.name) + '</div>'
-      + '<div style="font-size:11px;color:var(--text2);">slug: ' + escHtml(t.slug) + ' · ' + roleLabel[t.min_role || 'public'] + (t.pinned ? ' · 📌 Épinglé' : '') + '</div>'
-      + '<div style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:' + t.bg_color + ';color:' + t.color + ';">' + t.icon + ' ' + escHtml(t.name) + '</div>'
+      + '<div style="font-size:14px;font-weight:700;color:var(--text);">' + escHtml(tp.name) + '</div>'
+      + '<div style="font-size:11px;color:var(--text2);">slug: ' + escHtml(tp.slug) + ' · ' + roleLabel[tp.min_role || 'public'] + (tp.pinned ? ' · 📌' : '') + '</div>'
+      + '<div style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:' + tp.bg_color + ';color:' + tp.color + ';">' + tp.icon + ' ' + escHtml(tp.name) + '</div>'
       + '</div>'
-      + '<div id="reorder-ct-' + t.id + '" style="display:none;flex-direction:column;gap:4px;margin-right:6px;">'
-      + (i > 0 ? '<button onclick="adminMoveCommTypeOrder(\'' + t.id + '\',-1);event.stopPropagation();adminCancelCTLongPress();" style="background:var(--surface3,var(--surface));border:1px solid var(--border);border-radius:6px;padding:2px 7px;cursor:pointer;font-size:14px;color:var(--text);">▲</button>' : '<span style="width:28px;"></span>')
-      + (i < types.length - 1 ? '<button onclick="adminMoveCommTypeOrder(\'' + t.id + '\',1);event.stopPropagation();adminCancelCTLongPress();" style="background:var(--surface3,var(--surface));border:1px solid var(--border);border-radius:6px;padding:2px 7px;cursor:pointer;font-size:14px;color:var(--text);">▼</button>' : '<span style="width:28px;"></span>')
+      + '<div id="reorder-ct-' + tp.id + '" style="display:none;flex-direction:column;gap:4px;margin-right:6px;">'
+      + (i > 0 ? '<button onclick="adminMoveCommTypeOrder(\'' + tp.id + '\',-1);event.stopPropagation();adminCancelCTLongPress();" style="background:var(--surface3,var(--surface));border:1px solid var(--border);border-radius:6px;padding:2px 7px;cursor:pointer;font-size:14px;color:var(--text);">▲</button>' : '<span style="width:28px;"></span>')
+      + (i < types.length - 1 ? '<button onclick="adminMoveCommTypeOrder(\'' + tp.id + '\',1);event.stopPropagation();adminCancelCTLongPress();" style="background:var(--surface3,var(--surface));border:1px solid var(--border);border-radius:6px;padding:2px 7px;cursor:pointer;font-size:14px;color:var(--text);">▼</button>' : '<span style="width:28px;"></span>')
       + '</div>'
-      + '<button onclick="adminShowEditCommTypeForm(\'' + t.id + '\');event.stopPropagation();adminCancelCTLongPress();" style="background:none;border:none;font-size:18px;cursor:pointer;padding:4px;">✏️</button>'
-      + '<button onclick="showConfirm(\'Supprimer ce type ?\',\'Les posts existants garderont ce type.\',\'🗑 Supprimer\',\'#e74c3c\',function(){adminDeleteCommType(\'' + t.id + '\')});event.stopPropagation();adminCancelCTLongPress();" style="background:none;border:none;font-size:18px;cursor:pointer;padding:4px;">🗑️</button>'
+      + '<button onclick="adminShowEditCommTypeForm(\'' + tp.id + '\');event.stopPropagation();adminCancelCTLongPress();" style="background:none;border:none;font-size:18px;cursor:pointer;padding:4px;">✏️</button>'
+      + '<button onclick="showConfirm(t(\'confirm_del_type\'),t(\'confirm_del_type_msg\'),\'🗑\',\'#e74c3c\',function(){adminDeleteCommType(\'' + tp.id + '\')});event.stopPropagation();adminCancelCTLongPress();" style="background:none;border:none;font-size:18px;cursor:pointer;padding:4px;">🗑️</button>'
       + '</div>'
       + '</div>';
   }).join('');
@@ -6821,8 +7129,8 @@ function adminShowCreateCommTypeForm() {
   var c = document.getElementById('dash-detail-content');
   if (!c) return;
   c.innerHTML = '<div style="padding:4px 0;">'
-    + '<button onclick="renderDashCommTypesContent()" style="background:none;border:none;color:var(--accent);font-size:14px;cursor:pointer;padding:0 0 12px;font-family:var(--font-body);">&#8592; Retour</button>'
-    + '<div style="font-size:16px;font-weight:700;margin-bottom:14px;">Nouveau type</div>'
+    + '<button onclick="renderDashCommTypesContent()" style="background:none;border:none;color:var(--accent);font-size:14px;cursor:pointer;padding:0 0 12px;font-family:var(--font-body);">' + t('btn_back') + '</button>'
+    + '<div style="font-size:16px;font-weight:700;margin-bottom:14px;">' + t('comm_new_type') + '</div>'
     + '<label style="font-size:12px;color:var(--text2);">Nom</label>'
     + '<input id="ct-name" placeholder="Ex: Aide, Vente..." style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-size:14px;font-family:var(--font-body);margin-bottom:10px;margin-top:3px;">'
     + '<label style="font-size:12px;color:var(--text2);">Slug (identifiant unique, minuscules)</label>'
@@ -6835,14 +7143,14 @@ function adminShowCreateCommTypeForm() {
     + '<input id="ct-bg" placeholder="rgba(255,208,79,0.12)" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-size:13px;font-family:var(--font-body);margin-bottom:10px;margin-top:3px;">'
     + '<label style="font-size:12px;color:var(--text2);">Visibilité minimale</label>'
     + '<select id="ct-role" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-size:13px;font-family:var(--font-body);margin-bottom:10px;margin-top:3px;">'
-    + '<option value="public">Tous les membres</option>'
-    + '<option value="moderator">Modérateurs et admins</option>'
-    + '<option value="admin">Admins seulement</option>'
+    + '<option value="public">' + t('comm_type_all') + '</option>'
+    + '<option value="moderator">' + t('comm_type_mods') + '</option>'
+    + '<option value="admin">' + t('comm_type_admins') + '</option>'
     + '</select>'
     + '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);margin-bottom:14px;cursor:pointer;">'
-    + '<input id="ct-pinned" type="checkbox"> Épingler en haut (type prioritaire)'
+    + '<input id="ct-pinned" type="checkbox"> ' + t('comm_type_pin')
     + '</label>'
-    + '<button onclick="adminCreateCommType()" style="width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-family:var(--font-body);cursor:pointer;">Créer le type</button>'
+    + '<button onclick="adminCreateCommType()" style="width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-family:var(--font-body);cursor:pointer;">' + t('comm_create_type') + '</button>'
     + '</div>';
 }
 
@@ -6854,44 +7162,44 @@ async function adminCreateCommType() {
   var bg = (document.getElementById('ct-bg').value || '').trim() || 'rgba(255,208,79,0.12)';
   var minRole = document.getElementById('ct-role').value || 'public';
   var pinned = document.getElementById('ct-pinned').checked;
-  if (!name || !slug) { showToast('Nom et slug requis', 'error'); return; }
+  if (!name || !slug) { showToast(t('toast_err_slug'), 'error'); return; }
   var maxRes = await db.from('community_types').select('sort_order').order('sort_order', { ascending: false }).limit(1);
   var maxOrder = (maxRes.data && maxRes.data[0]) ? maxRes.data[0].sort_order + 1 : 0;
   var res = await db.from('community_types').insert({ name: name, slug: slug, icon: icon, color: color, bg_color: bg, min_role: minRole, pinned: pinned, sort_order: maxOrder });
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
-  showToast('Type créé !', 'success');
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
+  showToast(t('toast_type_created'), 'success');
   await loadCommTypes();
   renderDashCommTypesContent();
 }
 
 function adminShowEditCommTypeForm(id) {
-  var t = commTypes.find(function(t) { return t.id == id; });
-  if (!t) return;
+  var tp = commTypes.find(function(ct) { return ct.id == id; });
+  if (!tp) return;
   var c = document.getElementById('dash-detail-content');
   if (!c) return;
   c.innerHTML = '<div style="padding:4px 0;">'
-    + '<button onclick="renderDashCommTypesContent()" style="background:none;border:none;color:var(--accent);font-size:14px;cursor:pointer;padding:0 0 12px;font-family:var(--font-body);">&#8592; Retour</button>'
-    + '<div style="font-size:16px;font-weight:700;margin-bottom:14px;">Modifier le type</div>'
+    + '<button onclick="renderDashCommTypesContent()" style="background:none;border:none;color:var(--accent);font-size:14px;cursor:pointer;padding:0 0 12px;font-family:var(--font-body);">' + t('btn_back') + '</button>'
+    + '<div style="font-size:16px;font-weight:700;margin-bottom:14px;">' + t('comm_edit_type') + '</div>'
     + '<label style="font-size:12px;color:var(--text2);">Nom</label>'
-    + '<input id="ct-edit-name" value="' + escHtml(t.name) + '" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-size:14px;font-family:var(--font-body);margin-bottom:10px;margin-top:3px;">'
+    + '<input id="ct-edit-name" value="' + escHtml(tp.name) + '" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-size:14px;font-family:var(--font-body);margin-bottom:10px;margin-top:3px;">'
     + '<label style="font-size:12px;color:var(--text2);">Slug (identifiant unique)</label>'
-    + '<input id="ct-edit-slug" value="' + escHtml(t.slug) + '" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-size:14px;font-family:var(--font-body);margin-bottom:10px;margin-top:3px;">'
+    + '<input id="ct-edit-slug" value="' + escHtml(tp.slug) + '" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-size:14px;font-family:var(--font-body);margin-bottom:10px;margin-top:3px;">'
     + '<label style="font-size:12px;color:var(--text2);">Icône (emoji)</label>'
-    + '<input id="ct-edit-icon" value="' + escHtml(t.icon) + '" maxlength="4" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-size:20px;font-family:var(--font-body);margin-bottom:10px;margin-top:3px;">'
+    + '<input id="ct-edit-icon" value="' + escHtml(tp.icon) + '" maxlength="4" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-size:20px;font-family:var(--font-body);margin-bottom:10px;margin-top:3px;">'
     + '<label style="font-size:12px;color:var(--text2);">Couleur texte</label>'
-    + '<input id="ct-edit-color" type="color" value="' + t.color + '" style="width:100%;height:38px;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:3px 8px;margin-bottom:10px;margin-top:3px;cursor:pointer;">'
+    + '<input id="ct-edit-color" type="color" value="' + tp.color + '" style="width:100%;height:38px;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:3px 8px;margin-bottom:10px;margin-top:3px;cursor:pointer;">'
     + '<label style="font-size:12px;color:var(--text2);">Couleur fond badge</label>'
-    + '<input id="ct-edit-bg" value="' + escHtml(t.bg_color) + '" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-size:13px;font-family:var(--font-body);margin-bottom:10px;margin-top:3px;">'
+    + '<input id="ct-edit-bg" value="' + escHtml(tp.bg_color) + '" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-size:13px;font-family:var(--font-body);margin-bottom:10px;margin-top:3px;">'
     + '<label style="font-size:12px;color:var(--text2);">Visibilité minimale</label>'
     + '<select id="ct-edit-role" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-size:13px;font-family:var(--font-body);margin-bottom:10px;margin-top:3px;">'
-    + '<option value="public"' + (t.min_role === 'public' ? ' selected' : '') + '>Tous les membres</option>'
-    + '<option value="moderator"' + (t.min_role === 'moderator' ? ' selected' : '') + '>Modérateurs et admins</option>'
-    + '<option value="admin"' + (t.min_role === 'admin' ? ' selected' : '') + '>Admins seulement</option>'
+    + '<option value="public"' + (tp.min_role === 'public' ? ' selected' : '') + '>' + t('comm_type_all') + '</option>'
+    + '<option value="moderator"' + (tp.min_role === 'moderator' ? ' selected' : '') + '>' + t('comm_type_mods') + '</option>'
+    + '<option value="admin"' + (tp.min_role === 'admin' ? ' selected' : '') + '>' + t('comm_type_admins') + '</option>'
     + '</select>'
     + '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);margin-bottom:14px;cursor:pointer;">'
-    + '<input id="ct-edit-pinned" type="checkbox"' + (t.pinned ? ' checked' : '') + '> Épingler en haut (type prioritaire)'
+    + '<input id="ct-edit-pinned" type="checkbox"' + (tp.pinned ? ' checked' : '') + '> ' + t('comm_type_pin')
     + '</label>'
-    + '<button onclick="adminSaveEditCommType(\'' + t.id + '\')" style="width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-family:var(--font-body);cursor:pointer;">Enregistrer</button>'
+    + '<button onclick="adminSaveEditCommType(\'' + tp.id + '\')" style="width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-family:var(--font-body);cursor:pointer;">' + t('comm_save_type') + '</button>'
     + '</div>';
 }
 
@@ -6903,10 +7211,10 @@ async function adminSaveEditCommType(id) {
   var bg = (document.getElementById('ct-edit-bg').value || '').trim() || 'rgba(255,208,79,0.12)';
   var minRole = document.getElementById('ct-edit-role').value || 'public';
   var pinned = document.getElementById('ct-edit-pinned').checked;
-  if (!name || !slug) { showToast('Nom et slug requis', 'error'); return; }
+  if (!name || !slug) { showToast(t('toast_err_slug'), 'error'); return; }
   var res = await db.from('community_types').update({ name: name, slug: slug, icon: icon, color: color, bg_color: bg, min_role: minRole, pinned: pinned }).eq('id', id);
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
-  showToast('Type modifié !', 'success');
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
+  showToast(t('toast_type_modified'), 'success');
   await loadCommTypes();
   renderDashCommTypesContent();
 }
@@ -6927,8 +7235,8 @@ async function adminMoveCommTypeOrder(id, direction) {
 
 async function adminDeleteCommType(id) {
   var res = await db.from('community_types').delete().eq('id', id);
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
-  showToast('Type supprimé', 'success');
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
+  showToast(t('toast_type_deleted'), 'success');
   await loadCommTypes();
   renderDashCommTypesContent();
 }
@@ -7035,11 +7343,11 @@ async function adminCreateMainCat() {
   var name  = (document.getElementById('acm-name').value || '').trim();
   var icon  = (document.getElementById('acm-icon').value || '').trim();
   var role  = document.getElementById('acm-role').value || 'public';
-  if (!name || !icon) { showToast('Nom et icône requis'); return; }
+  if (!name || !icon) { showToast(t('toast_err_icon'), 'error'); return; }
   var maxSort = mainCats.reduce(function(acc, m) { return Math.max(acc, m.sort_order || 0); }, 0);
   var res = await db.from('main_categories').insert({ name: name, icon: icon, sort_order: maxSort + 1, min_role: role }).select().single();
-  if (res.error) { showToast('Erreur : ' + res.error.message); return; }
-  showToast('Grande catégorie créée !');
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
+  showToast(t('toast_cat_created'), 'success');
   await loadCats();
   renderDashCategoriesContent();
 }
@@ -7065,10 +7373,10 @@ async function adminSaveEditMainCat(mcId) {
   var name = (document.getElementById('acme-name-' + mcId).value || '').trim();
   var icon = (document.getElementById('acme-icon-' + mcId).value || '').trim();
   var role = document.getElementById('acme-role-' + mcId).value || 'public';
-  if (!name || !icon) { showToast('Nom et icône requis'); return; }
+  if (!name || !icon) { showToast(t('toast_err_icon'), 'error'); return; }
   var res = await db.from('main_categories').update({ name: name, icon: icon, min_role: role }).eq('id', mcId);
-  if (res.error) { showToast('Erreur : ' + res.error.message); return; }
-  showToast('Catégorie mise à jour !');
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
+  showToast(t('toast_cat_modified'), 'success');
   await loadCats();
   renderDashCategoriesContent();
 }
@@ -7096,10 +7404,10 @@ async function adminCreateSubCat(mainCatId) {
   var icon  = (document.getElementById('acs-icon-' + mainCatId).value || '').trim();
   var color = document.getElementById('acs-color-' + mainCatId).value || '#ffd04f';
   var role  = document.getElementById('acs-role-' + mainCatId).value || 'public';
-  if (!name || !icon) { showToast('Nom et icône requis'); return; }
+  if (!name || !icon) { showToast(t('toast_err_icon'), 'error'); return; }
   var res = await db.from('categories').insert({ name: name, icon: icon, color: color, main_category_id: mainCatId, min_role: role }).select().single();
-  if (res.error) { showToast('Erreur : ' + res.error.message); return; }
-  showToast('Sous-catégorie créée !');
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
+  showToast(t('toast_subcat_created'), 'success');
   await loadCats();
   renderDashCategoriesContent();
 }
@@ -7129,10 +7437,10 @@ async function adminSaveEditSubCat(subId) {
   var icon  = (document.getElementById('acse-icon-' + subId).value || '').trim();
   var color = document.getElementById('acse-color-' + subId).value || '#ffd04f';
   var role  = document.getElementById('acse-role-' + subId).value || 'public';
-  if (!name || !icon) { showToast('Nom et icône requis'); return; }
+  if (!name || !icon) { showToast(t('toast_err_icon'), 'error'); return; }
   var res = await db.from('categories').update({ name: name, icon: icon, color: color, min_role: role }).eq('id', subId);
-  if (res.error) { showToast('Erreur : ' + res.error.message); return; }
-  showToast('Sous-catégorie mise à jour !');
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
+  showToast(t('toast_subcat_modified'), 'success');
   await loadCats();
   renderDashCategoriesContent();
 }
@@ -7151,7 +7459,7 @@ async function adminMoveCatOrder(mcId, dir) {
     db.from('main_categories').update({ sort_order: sortB }).eq('id', mc.id),
     db.from('main_categories').update({ sort_order: sortA }).eq('id', swap.id)
   ]);
-  if (res[0].error || res[1].error) { showToast('Erreur lors du déplacement'); return; }
+  if (res[0].error || res[1].error) { showToast(t('toast_err_modify'), 'error'); return; }
   await loadCats();
   renderDashCategoriesContent();
 }
@@ -7170,7 +7478,7 @@ async function adminMoveSubCatOrder(subId, dir, mainCatId) {
     db.from('categories').update({ sort_order: sortB }).eq('id', s1.id),
     db.from('categories').update({ sort_order: sortA }).eq('id', s2.id)
   ]);
-  if (res[0].error || res[1].error) { showToast('Erreur lors du déplacement'); return; }
+  if (res[0].error || res[1].error) { showToast(t('toast_err_modify'), 'error'); return; }
   await loadCats();
   renderDashCategoriesContent();
 }
@@ -7182,7 +7490,7 @@ async function adminMoveSubCat(subCatId, newMainCatId, selectEl) {
   var dest = mainCats.find(function(m) { return m.id === newMainCatId; });
   if (!sub || !dest) return;
   var res = await db.from('categories').update({ main_category_id: newMainCatId }).eq('id', subCatId);
-  if (res.error) { showToast('Erreur : ' + res.error.message); if (selectEl) selectEl.value = ''; return; }
+  if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); if (selectEl) selectEl.value = ''; return; }
   showToast(sub.icon + ' ' + sub.name + ' déplacée vers ' + dest.icon + ' ' + dest.name);
   await loadCats();
   renderDashCategoriesContent();
