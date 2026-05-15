@@ -1066,7 +1066,7 @@ fr:{
   profile_satellite:'🛰 Vue satellite hybride', profile_satellite_desc:'Carte en vue aérienne avec noms de rues',
   profile_push:'🔔 Notifications push', profile_push_desc:'Recevez une alerte même quand l\'app est fermée',
   profile_push_active:'Notifications actives sur cet appareil',
-  profile_signout:'🚪 Se déconnecter', profile_language:'🌐 Langue',
+  profile_share:'🔗 Partager', profile_signout:'🚪 Se déconnecter', profile_language:'🌐 Langue',
   profile_member_since:'Inscrit le', profile_member_badge:'Membre #',
   profile_unranked:'Non classé', profile_banner_close:'✕ Fermer',
   profile_tab_places:'📍 Ajouts', profile_tab_ratings:'⭐ Notes',
@@ -1256,7 +1256,7 @@ en:{
   profile_satellite:'🛰 Hybrid satellite view', profile_satellite_desc:'Aerial map with street names',
   profile_push:'🔔 Push notifications', profile_push_desc:'Get an alert even when the app is closed',
   profile_push_active:'Notifications active on this device',
-  profile_signout:'🚪 Sign out', profile_language:'🌐 Language',
+  profile_share:'🔗 Share', profile_signout:'🚪 Sign out', profile_language:'🌐 Language',
   profile_member_since:'Member since', profile_member_badge:'Member #',
   profile_unranked:'Unranked', profile_banner_close:'✕ Close',
   profile_tab_places:'📍 Added', profile_tab_ratings:'⭐ Ratings',
@@ -1445,7 +1445,7 @@ es:{
   profile_satellite:'🛰 Vista satélite híbrida', profile_satellite_desc:'Mapa aéreo con nombres de calles',
   profile_push:'🔔 Notificaciones push', profile_push_desc:'Recibe una alerta aunque la app esté cerrada',
   profile_push_active:'Notificaciones activas en este dispositivo',
-  profile_signout:'🚪 Cerrar sesión', profile_language:'🌐 Idioma',
+  profile_share:'🔗 Compartir', profile_signout:'🚪 Cerrar sesión', profile_language:'🌐 Idioma',
   profile_member_since:'Miembro desde', profile_member_badge:'Miembro #',
   profile_unranked:'Sin clasificar', profile_banner_close:'✕ Cerrar',
   profile_tab_places:'📍 Añadidos', profile_tab_ratings:'⭐ Notas',
@@ -1634,7 +1634,7 @@ de:{
   profile_satellite:'🛰 Hybride Satellitenansicht', profile_satellite_desc:'Luftkarte mit Straßennamen',
   profile_push:'🔔 Push-Benachrichtigungen', profile_push_desc:'Benachrichtigung auch wenn die App geschlossen ist',
   profile_push_active:'Benachrichtigungen auf diesem Gerät aktiv',
-  profile_signout:'🚪 Abmelden', profile_language:'🌐 Sprache',
+  profile_share:'🔗 Teilen', profile_signout:'🚪 Abmelden', profile_language:'🌐 Sprache',
   profile_member_since:'Mitglied seit', profile_member_badge:'Mitglied #',
   profile_unranked:'Nicht gerankt', profile_banner_close:'✕ Schließen',
   profile_tab_places:'📍 Hinzugefügt', profile_tab_ratings:'⭐ Bewertungen',
@@ -1823,7 +1823,7 @@ it:{
   profile_satellite:'🛰 Vista satellitare ibrida', profile_satellite_desc:'Mappa aerea con nomi delle strade',
   profile_push:'🔔 Notifiche push', profile_push_desc:'Ricevi un avviso anche quando l\'app è chiusa',
   profile_push_active:'Notifiche attive su questo dispositivo',
-  profile_signout:'🚪 Esci', profile_language:'🌐 Lingua',
+  profile_share:'🔗 Condividi', profile_signout:'🚪 Esci', profile_language:'🌐 Lingua',
   profile_member_since:'Membro dal', profile_member_badge:'Membro #',
   profile_unranked:'Non classificato', profile_banner_close:'✕ Chiudi',
   profile_tab_places:'📍 Aggiunti', profile_tab_ratings:'⭐ Valutazioni',
@@ -2012,7 +2012,7 @@ pt:{
   profile_satellite:'🛰 Vista satélite híbrida', profile_satellite_desc:'Mapa aéreo com nomes das ruas',
   profile_push:'🔔 Notificações push', profile_push_desc:'Receba um alerta mesmo com a app fechada',
   profile_push_active:'Notificações ativas neste dispositivo',
-  profile_signout:'🚪 Sair', profile_language:'🌐 Idioma',
+  profile_share:'🔗 Partilhar', profile_signout:'🚪 Sair', profile_language:'🌐 Idioma',
   profile_member_since:'Membro desde', profile_member_badge:'Membro #',
   profile_unranked:'Sem classificação', profile_banner_close:'✕ Fechar',
   profile_tab_places:'📍 Adicionados', profile_tab_ratings:'⭐ Avaliações',
@@ -2201,7 +2201,7 @@ nl:{
   profile_satellite:'🛰 Hybride satellietweergave', profile_satellite_desc:'Luchtkaart met straatnamen',
   profile_push:'🔔 Pushmeldingen', profile_push_desc:'Ontvang een melding ook als de app gesloten is',
   profile_push_active:'Meldingen actief op dit apparaat',
-  profile_signout:'🚪 Uitloggen', profile_language:'🌐 Taal',
+  profile_share:'🔗 Delen', profile_signout:'🚪 Uitloggen', profile_language:'🌐 Taal',
   profile_member_since:'Lid sinds', profile_member_badge:'Lid #',
   profile_unranked:'Niet gerangschikt', profile_banner_close:'✕ Sluiten',
   profile_tab_places:'📍 Toegevoegd', profile_tab_ratings:'⭐ Beoordelingen',
@@ -2406,6 +2406,7 @@ async function init() {
     await db.auth.exchangeCodeForSession(params.get('code'));
     window.history.replaceState({}, '', window.location.pathname);
   }
+  var sharedProfil = params.get('profil') || '';
   var sharedLat = parseFloat(params.get('lat'));
   var sharedLon = parseFloat(params.get('lon'));
   var sharedZoom = parseInt(params.get('zoom')) || 16;
@@ -2470,6 +2471,10 @@ async function init() {
   }
 
   setupListeners(hasSharedLocation, sharedLat, sharedLon, sharedZoom);
+  if (sharedProfil) {
+    window.history.replaceState({}, '', window.location.pathname);
+    setTimeout(function() { openPublicProfile(decodeURIComponent(sharedProfil)); }, 400);
+  }
 }
 
 function setupListeners(hasSharedLocation, sharedLat, sharedLon, sharedZoom) {
@@ -2872,7 +2877,10 @@ async function renderProfile() {
     + '<div class="prof-avatar" id="prof-avatar">' + avatarInner + '</div>'
     + '</div>'
     + '<div class="prof-identity">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">'
     + '<div class="prof-username">' + username + '</div>'
+    + '<button onclick="shareProfile()" style="flex-shrink:0;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:7px 13px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:var(--font-body);font-weight:600;transition:border-color 0.15s,color 0.15s;" onmouseenter="this.style.borderColor=\'var(--accent)\';this.style.color=\'var(--accent)\';" onmouseleave="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--text2)\';">' + t('profile_share') + '</button>'
+    + '</div>'
     + '<div class="prof-meta" style="display:flex;flex-direction:column;gap:4px;margin-top:4px;">'
     + '<span id="prof-role-label" style="font-size:13px;font-weight:600;color:var(--accent);"></span>'
     + '<span style="font-size:12px;color:var(--text2);">&#128197; ' + t('profile_member_since') + ' ' + dateStr + ' &nbsp;&middot;&nbsp; <span id="prof-member-num"></span></span>'
@@ -2973,6 +2981,31 @@ async function renderProfile() {
   loadProfileStats(username);
 }
 
+
+function shareProfile() {
+  var url = window.location.origin + window.location.pathname + '?profil=' + encodeURIComponent(currentUsername);
+  if (navigator.share) {
+    navigator.share({ title: 'ANY — ' + currentUsername, url: url }).catch(function() {});
+    return;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(function() {
+      showToast(t('toast_copied'), 'success');
+    }).catch(function() { _fallbackCopyText(url); });
+  } else {
+    _fallbackCopyText(url);
+  }
+}
+
+function _fallbackCopyText(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); showToast(t('toast_copied'), 'success'); } catch(e) {}
+  document.body.removeChild(ta);
+}
 
 function handleAvatarPhoto(file) {
   var reader = new FileReader();
