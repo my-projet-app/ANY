@@ -60,24 +60,6 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
 .sub-cat-name{font-size:12px;color:var(--text2);flex:1;cursor:pointer;}
 .chk-sm{width:12px;height:12px;border-radius:3px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:transparent;transition:all 0.15s;}
 .chk-sm.on{background:var(--accent);border-color:var(--accent);color:#fff;}
-/* COUNTRY PICKER */
-#country-picker{position:fixed;inset:0;z-index:10000;background:var(--bg);display:flex;flex-direction:column;}
-#picker-header{padding:20px 20px 12px;flex-shrink:0;border-bottom:1px solid var(--border);}
-#picker-header h2{font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--accent);margin-bottom:4px;}
-#picker-header p{font-size:12px;color:var(--text2);}
-#picker-country-grid{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start;}
-.picker-flag-btn{display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--border);color:var(--text);border-radius:12px;padding:10px 14px;font-size:14px;cursor:pointer;transition:all 0.15s;min-width:44px;}
-.picker-flag-btn .pfb-flag{font-size:22px;line-height:1;}
-.picker-flag-btn .pfb-name{font-size:13px;font-weight:600;}
-.picker-flag-btn.sel{background:rgba(11,166,179,0.12);border-color:var(--accent);color:var(--accent);}
-#picker-footer{padding:12px 16px calc(12px + var(--safe-bottom));background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;gap:8px;}
-#picker-selected-label{font-size:11px;color:var(--text2);min-height:16px;}
-#picker-actions{display:flex;gap:8px;}
-#picker-btn-confirm{flex:1;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);padding:13px;font-family:var(--font-head);font-size:14px;font-weight:700;cursor:pointer;opacity:0.35;pointer-events:none;transition:opacity 0.2s;}
-#picker-btn-confirm.ready{opacity:1;pointer-events:all;}
-#picker-btn-all{background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px 14px;font-size:12px;cursor:pointer;white-space:nowrap;}
-#btn-change-country{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:var(--radius-sm);padding:9px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
-#btn-change-country:hover{border-color:var(--accent);color:var(--accent);}
 #sidebar-footer{padding:14px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:8px;flex-shrink:0;}
 #btn-valider{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);padding:11px;font-family:var(--font-head);font-size:14px;font-weight:700;cursor:pointer;}
 #sidebar.hidden{display:none !important;}
@@ -568,7 +550,6 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
         <button id="btn-show-all" onclick="toggleAllFilters(true)" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:9px;font-size:12px;cursor:pointer;" data-i18n="btn_show_all">&#128065; Tout afficher</button>
         <button onclick="toggleAllFilters(false)" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:9px;font-size:12px;cursor:pointer;" data-i18n="btn_hide_all">&#10005; Tout masquer</button>
       </div>
-      <button id="btn-change-country" onclick="openCountryPicker()">&#127758; <span id="country-label" data-i18n="btn_change_country">Changer ou ajouter un pays</span></button>
       <button id="btn-add-desk" data-i18n="btn_add_place">&#65291; Ajouter un lieu</button>
       <div id="auth-zone">
         <span id="auth-info" style="cursor:pointer;" onclick="onAuthInfoClick()" data-i18n="auth_not_connected">Non connect&#233;</span>
@@ -2559,20 +2540,8 @@ async function init() {
 
   document.getElementById('loading').style.display = 'none';
 
-  // Country selection
-  var savedCountries = localStorage.getItem('vlm_countries');
-  var noFilter = localStorage.getItem('vlm_no_filter');
-  if (savedCountries) {
-    selectedCountries = JSON.parse(savedCountries);
-    await loadWorldGeo();
-    applyCountryView();
-    applyMaskLayer();
-    updateCountryLabel();
-  } else if (!noFilter) {
-    setupListeners(hasSharedLocation, sharedLat, sharedLon, sharedZoom);
-    await openCountryPicker();
-    return;
-  }
+  localStorage.removeItem('vlm_countries');
+  localStorage.removeItem('vlm_no_filter');
 
   setupListeners(hasSharedLocation, sharedLat, sharedLon, sharedZoom);
   if (sharedProfil) {
@@ -2800,16 +2769,6 @@ function haversineDistance(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-function isInSelectedCountries(lat, lng) {
-  var noFilter = localStorage.getItem('vlm_no_filter');
-  if (noFilter || !selectedCountries.length) return true;
-  return selectedCountries.some(function(id) {
-    var c = EU_COUNTRIES[id];
-    if (!c || !c.bbox) return false;
-    return lat >= c.bbox[0][0] && lat <= c.bbox[1][0] && lng >= c.bbox[0][1] && lng <= c.bbox[1][1];
-  });
-}
-
 async function loadPlacesInRadius() {
   if (!radiusCenter) return;
   var ok = new Set();
@@ -2837,8 +2796,7 @@ async function loadPlacesInRadius() {
   allPlaces = raw.filter(function(p) {
     if (p.hidden && !isAdmin && !isModerator) return false;
     if (p.status === 'pending' && !isAdmin && !isModerator && (!currentUser || p.user_id !== currentUser.id)) return false;
-    return haversineDistance(radiusCenter.lat, radiusCenter.lng, p.latitude, p.longitude) <= radiusKm
-      && isInSelectedCountries(p.latitude, p.longitude);
+    return haversineDistance(radiusCenter.lat, radiusCenter.lng, p.latitude, p.longitude) <= radiusKm;
   });
   renderMarkers(allPlaces);
   var label = radiusKm >= 99999 ? 'France' : radiusKm + 'km';
@@ -2865,8 +2823,7 @@ function navTo(tab) {
   document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active'); });
   var btn = document.getElementById('nav-' + tab);
   if (btn) btn.classList.add('active');
-  if (tab === 'map') { openCountryPicker(); }
-  else if (tab === 'cats') { saveFiltersSnapshot(); renderSheetCats(); openSheet('sheet-cats'); }
+  if (tab === 'cats') { saveFiltersSnapshot(); renderSheetCats(); openSheet('sheet-cats'); }
   else if (tab === 'search') { renderSrchCatList(); updateSrchApplyLabel(); openSheet('sheet-search'); setTimeout(function() { document.getElementById('search-mobile').focus(); }, 300); }
   else if (tab === 'profile') { renderProfile(); openSheet('sheet-profile'); }
   else if (tab === 'settings') { renderProfile(); openSheet('sheet-profile'); }
@@ -2920,23 +2877,6 @@ function toggleCatSheet(id, hdr) {
   if (a) a.classList.toggle('open');
 }
 
-function getZoneBlock() {
-  var noFilter = localStorage.getItem('vlm_no_filter');
-  var flagsHtml;
-  if (noFilter || !selectedCountries.length) {
-    flagsHtml = '<span style="font-size:26px;">🌍</span>';
-  } else {
-    flagsHtml = selectedCountries.map(function(id) {
-      return EU_COUNTRIES[id] ? '<span style="font-size:26px;" title="' + EU_COUNTRIES[id].name + '">' + EU_COUNTRIES[id].flag + '</span>' : '';
-    }).filter(Boolean).join('');
-  }
-  return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:10px;">'
-    + '<div style="font-size:10px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Zone actuelle</div>'
-    + '<div style="display:flex;flex-wrap:wrap;gap:4px;">' + flagsHtml + '</div>'
-    + '</div>'
-    + '<button class="btn-s" onclick="closeSheet(\'sheet-profile\');openCountryPicker()" style="margin-bottom:16px;">' + t('btn_change_country') + '</button>';
-}
-
 async function renderProfile() {
   var el = document.getElementById('profile-content');
   if (!currentUser) {
@@ -2945,8 +2885,7 @@ async function renderProfile() {
       + '<p style="font-family:var(--font-head);font-size:18px;font-weight:700;margin-bottom:8px">' + t('profile_join') + '</p>'
       + '<p style="font-size:13px;color:var(--text2);margin-bottom:20px">' + t('profile_join_desc') + '</p>'
       + '<button id="prof-login-btn" class="btn-p" style="margin-bottom:16px">' + t('profile_login_btn') + '</button>'
-      + '</div>'
-      + getZoneBlock();
+      + '</div>';
     var lb = document.getElementById('prof-login-btn');
     if (lb) lb.addEventListener('click', function() { closeSheet('sheet-profile'); openModal('modal-auth'); });
     return;
@@ -3050,10 +2989,6 @@ async function renderProfile() {
     + '</div>'
     + '<div style="border-top:1px solid var(--border);padding:16px 20px 4px;">'
     + '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text2);margin-bottom:12px;">' + t('profile_settings') + '</div>'
-    + '<div class="setting-row" style="cursor:pointer;" onclick="closeSheet(\'sheet-profile\');openCountryPicker()">'
-    + '<div><div class="setting-label">' + t('profile_change_country') + '</div><div class="setting-desc">' + t('profile_country_desc') + '</div></div>'
-    + '<span style="color:var(--text2);font-size:20px;">&#8250;</span>'
-    + '</div>'
     + '<div class="setting-row"><div><div class="setting-label">' + t('profile_satellite') + '</div><div class="setting-desc">' + t('profile_satellite_desc') + '</div></div>'
     + '<div class="toggle" id="toggle-sat" onclick="toggleSatSetting()"></div>'
     + '</div>'
@@ -4292,7 +4227,7 @@ async function loadPlaces() {
   allPlaces = (result.data || []).filter(function(p) {
     if (p.hidden && !isAdmin && !isModerator) return false;
     if (p.status === 'pending' && !isAdmin && !isModerator && (!currentUser || p.user_id !== currentUser.id)) return false;
-    return isInSelectedCountries(p.latitude, p.longitude);
+    return true;
   });
   renderMarkers(allPlaces);
   document.getElementById('count-num').textContent = allPlaces.length;
@@ -7920,138 +7855,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// ===== COUNTRY PICKER =====
-var selectedCountries = [];
-var maskLayer = null;
-var maskBorderLayer = null;
-var worldGeoData = null;
-
-async function loadWorldGeo() {
-  if (worldGeoData) return;
-  var topo = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(function(r) { return r.json(); });
-  worldGeoData = topojson.feature(topo, topo.objects.countries);
-}
-
-var EU_COUNTRIES = {
-  '250':{'name':'France','flag':'🇫🇷','bbox':[[42.0,-5.0],[51.5,9.5]]},
-  '724':{'name':'Espagne','flag':'🇪🇸','bbox':[[35.9,-9.4],[43.8,4.4]]},
-  '380':{'name':'Italie','flag':'🇮🇹','bbox':[[36.5,6.6],[47.1,18.5]]},
-  '620':{'name':'Portugal','flag':'🇵🇹','bbox':[[36.8,-9.5],[42.2,-6.2]]},
-  '756':{'name':'Suisse','flag':'🇨🇭','bbox':[[45.8,6.0],[47.8,10.5]]},
-  '276':{'name':'Allemagne','flag':'🇩🇪','bbox':[[47.3,5.9],[55.1,15.0]]},
-  '528':{'name':'Pays-Bas','flag':'🇳🇱','bbox':[[50.8,3.3],[53.5,7.2]]},
-  '56': {'name':'Belgique','flag':'🇧🇪','bbox':[[49.5,2.5],[51.5,6.4]]},
-  '826':{'name':'Grande-Bretagne','flag':'🇬🇧','bbox':[[49.9,-8.6],[60.9,1.8]]},
-};
-
-var PICKER_ORDER = ['250','724','380','620','756','276','528','56','826'];
-
-function openCountryPicker() {
-  document.getElementById('country-picker').style.display = 'flex';
-  renderPickerCountryGrid();
-  updatePickerFooter();
-}
-
-function renderPickerCountryGrid() {
-  PICKER_ORDER.forEach(function(id) {
-    var btn = document.getElementById('pfb-' + id);
-    if (btn) btn.className = 'picker-flag-btn' + (selectedCountries.indexOf(id) >= 0 ? ' sel' : '');
-  });
-}
-
-function togglePickerCountry(id) {
-  var idx = selectedCountries.indexOf(id);
-  if (idx >= 0) selectedCountries.splice(idx, 1);
-  else selectedCountries.push(id);
-  var gridBtn = document.getElementById('pfb-' + id);
-  if (gridBtn) gridBtn.className = 'picker-flag-btn' + (selectedCountries.indexOf(id) >= 0 ? ' sel' : '');
-  updatePickerFooter();
-}
-
-function updatePickerFooter() {
-  var lbl = document.getElementById('picker-selected-label');
-  var btn = document.getElementById('picker-btn-confirm');
-  if (!selectedCountries.length) {
-    if (lbl) lbl.textContent = 'Aucun pays sélectionné';
-    if (btn) { btn.classList.remove('ready'); }
-  } else {
-    var names = selectedCountries.map(function(id) { return EU_COUNTRIES[id] ? EU_COUNTRIES[id].flag + ' ' + EU_COUNTRIES[id].name : ''; }).filter(Boolean).join(', ');
-    if (lbl) lbl.textContent = names;
-    if (btn) btn.classList.add('ready');
-  }
-}
-
-function confirmCountries(all) {
-  if (all) {
-    selectedCountries = [];
-    localStorage.removeItem('vlm_countries');
-    localStorage.setItem('vlm_no_filter', '1');
-    document.getElementById('country-label').textContent = 'Changer ou ajouter un pays';
-  } else {
-    localStorage.setItem('vlm_countries', JSON.stringify(selectedCountries));
-    localStorage.removeItem('vlm_no_filter');
-    applyCountryView();
-    updateCountryLabel();
-  }
-  applyMaskLayer();
-  document.getElementById('country-picker').style.display = 'none';
-  document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('active'); });
-  var nm = document.getElementById('nav-map');
-  if (nm) nm.classList.add('active');
-  applyFilters();
-}
-
-function applyCountryView() {
-  if (!selectedCountries.length) return;
-  var bounds = L.latLngBounds();
-  selectedCountries.forEach(function(id) {
-    var c = EU_COUNTRIES[id];
-    if (c) bounds.extend(L.latLngBounds(c.bbox[0], c.bbox[1]));
-  });
-  if (bounds.isValid()) map.fitBounds(bounds.pad(0.08));
-}
-
-function updateCountryLabel() {
-  var el = document.getElementById('country-label');
-  if (!el) return;
-  if (!selectedCountries.length) { el.textContent = 'Changer ou ajouter un pays'; return; }
-  var flags = selectedCountries.slice(0,3).map(function(id) { return EU_COUNTRIES[id] ? EU_COUNTRIES[id].flag : ''; }).join(' ');
-  el.textContent = flags + (selectedCountries.length > 3 ? ' +' + (selectedCountries.length - 3) : '');
-}
-
-function applyMaskLayer() {
-  if (maskLayer) { map.removeLayer(maskLayer); maskLayer = null; }
-  if (maskBorderLayer) { map.removeLayer(maskBorderLayer); maskBorderLayer = null; }
-  if (!selectedCountries.length || !worldGeoData) return;
-
-}
 </script>
-
-<!-- COUNTRY PICKER OVERLAY -->
-<div id="country-picker" style="display:none">
-  <div id="picker-header">
-    <h2>🗺️ Filtrer par pays</h2>
-    <p>Seuls les lieux du ou des pays sélectionnés s'afficheront sur la carte</p>
-  </div>
-  <div id="picker-country-grid">
-    <button class="picker-flag-btn" id="pfb-250" onclick="togglePickerCountry('250')"><span class="pfb-flag">🇫🇷</span><span class="pfb-name">France</span></button>
-    <button class="picker-flag-btn" id="pfb-724" onclick="togglePickerCountry('724')"><span class="pfb-flag">🇪🇸</span><span class="pfb-name">Espagne</span></button>
-    <button class="picker-flag-btn" id="pfb-380" onclick="togglePickerCountry('380')"><span class="pfb-flag">🇮🇹</span><span class="pfb-name">Italie</span></button>
-    <button class="picker-flag-btn" id="pfb-620" onclick="togglePickerCountry('620')"><span class="pfb-flag">🇵🇹</span><span class="pfb-name">Portugal</span></button>
-    <button class="picker-flag-btn" id="pfb-756" onclick="togglePickerCountry('756')"><span class="pfb-flag">🇨🇭</span><span class="pfb-name">Suisse</span></button>
-    <button class="picker-flag-btn" id="pfb-276" onclick="togglePickerCountry('276')"><span class="pfb-flag">🇩🇪</span><span class="pfb-name">Allemagne</span></button>
-    <button class="picker-flag-btn" id="pfb-528" onclick="togglePickerCountry('528')"><span class="pfb-flag">🇳🇱</span><span class="pfb-name">Pays-Bas</span></button>
-    <button class="picker-flag-btn" id="pfb-56"  onclick="togglePickerCountry('56')"><span class="pfb-flag">🇧🇪</span><span class="pfb-name">Belgique</span></button>
-    <button class="picker-flag-btn" id="pfb-826" onclick="togglePickerCountry('826')"><span class="pfb-flag">🇬🇧</span><span class="pfb-name">Grande-Bretagne</span></button>
-  </div>
-  <div id="picker-footer">
-    <div id="picker-selected-label">Aucun pays sélectionné</div>
-    <div id="picker-actions">
-      <button id="picker-btn-all" onclick="confirmCountries(true)">&#127758; Voir tout</button>
-      <button id="picker-btn-confirm" onclick="confirmCountries(false)">Valider ✓</button>
-    </div>
-  </div>
-</div>
 
 <!-- MOVE MODE BANNER -->
 <div id="location-suggest-modal" style="display:none;position:fixed;inset:0;z-index:9500;background:linear-gradient(160deg,#56b4f7 0%,#2e8fcf 100%);color:#fff;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;">
