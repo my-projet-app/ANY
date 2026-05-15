@@ -2811,8 +2811,8 @@ async function renderProfile() {
   var memberSince = new Date(currentUser.created_at);
   var dateStr = memberSince.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
   var avatarInner = currentUserAvatar || localStorage.getItem('vlm_avatar') || initials;
-  var bannerGrad = currentUserBannerColor || BANNER_PRESETS[0].g;
-  var bio = currentUserBio || '';
+  var bannerGrad = currentUserBannerColor || localStorage.getItem('vlm_banner_color') || BANNER_PRESETS[0].g;
+  var bio = currentUserBio || localStorage.getItem('vlm_bio') || '';
   var swatchesHtml = BANNER_PRESETS.map(function(p) {
     return '<div class="pbe-swatch' + (p.g === bannerGrad ? ' sel' : '') + '" data-g="' + p.g + '" style="background:linear-gradient(' + p.g + ')"></div>';
   }).join('');
@@ -2992,6 +2992,8 @@ async function saveBannerProfile() {
   if (currentUserAvatar) upsertData.avatar_url = currentUserAvatar;
   var r = await db.from('profiles').upsert(upsertData, { onConflict: 'user_id' });
   if (r.error) { showToast('Erreur : ' + r.error.message, 'error'); return; }
+  localStorage.setItem('vlm_banner_color', color);
+  if (bio) localStorage.setItem('vlm_bio', bio); else localStorage.removeItem('vlm_bio');
   showToast('Profil mis à jour !', 'success');
 }
 
@@ -3026,6 +3028,7 @@ async function loadProfileStats(username) {
     }
     if (avatarData && avatarData.bio) {
       currentUserBio = avatarData.bio;
+      localStorage.setItem('vlm_bio', currentUserBio);
       var bioEl = document.getElementById('prof-bio-display');
       if (bioEl) bioEl.textContent = currentUserBio;
       var bioInput = document.getElementById('pbe-bio-input');
@@ -3033,6 +3036,7 @@ async function loadProfileStats(username) {
     }
     if (avatarData && avatarData.banner_color) {
       currentUserBannerColor = avatarData.banner_color;
+      localStorage.setItem('vlm_banner_color', currentUserBannerColor);
       var bannerEl = document.getElementById('prof-banner');
       if (bannerEl) bannerEl.style.background = 'linear-gradient(' + currentUserBannerColor + ')';
       document.querySelectorAll('.pbe-swatch').forEach(function(s) {
