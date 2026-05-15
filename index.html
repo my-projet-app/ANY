@@ -419,7 +419,16 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
 .prof-xp-row b{color:var(--text);}
 .prof-banner-badge{position:absolute;top:12px;right:12px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.35);color:#fff;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;backdrop-filter:blur(6px);}
 .prof-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#0ba6b3,#0480b3);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#fff;border:3px solid var(--bg);position:absolute;bottom:-36px;left:20px;box-shadow:0 4px 16px rgba(0,0,0,0.4);cursor:pointer;overflow:hidden;}
-.prof-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.prof-avatar-edit{position:absolute;inset:0;background:rgba(0,0,0,0.42);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:15px;}
+.prof-avatar:hover .prof-avatar-edit{display:flex;}
+#avatar-picker{position:fixed;inset:0;z-index:9500;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.55);}
+#avatar-picker.show{display:flex;}
+.av-panel{background:var(--surface);border-radius:20px 20px 0 0;padding:18px 16px 32px;width:100%;max-width:440px;}
+.av-panel-title{font-family:var(--font-head);font-size:15px;font-weight:800;color:var(--text);margin-bottom:14px;text-align:center;}
+.av-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;}
+.av-btn{font-size:24px;background:var(--surface2);border:2px solid transparent;border-radius:10px;padding:7px 2px;cursor:pointer;text-align:center;line-height:1.3;transition:border-color 0.12s,transform 0.1s;}
+.av-btn.sel{border-color:var(--accent);}
+.av-btn:active{transform:scale(0.85);}
 .prof-banner-edit{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.45);border:none;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;backdrop-filter:blur(4px);z-index:2;}
 .prof-banner-picker{position:absolute;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:3;border-radius:0;}
 .prof-banner-picker.open{display:flex;}
@@ -1018,6 +1027,13 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
   </div>
 </div>
 
+<div id="avatar-picker" onclick="if(event.target===this)closeAvatarPicker()">
+  <div class="av-panel">
+    <div class="av-panel-title">Choisir un avatar</div>
+    <div class="av-grid" id="av-grid"></div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -1033,6 +1049,8 @@ var currentUsername = '';
 var ADMINS = ['mypoiuytreza@gmail.com', 'unverredericard@gmail.com'];
 var isAdmin = false, isModerator = false, isTrusted = false;
 var userXPIdx = 0;
+var currentUserAvatar = null;
+var AVATAR_EMOJIS = ['🐺','🦊','🐻','🦁','🐯','🦝','🦉','🐸','🐧','🦋','🌵','🌊','🏔️','🌿','🍄','🌻','🔥','⭐','💎','🌈','😎','🤠','🧗','🏄','⛵','🚵','🏕️','🎯','👾','🌙','❄️','🎪'];
 var BADGES_DEF = [
   { icon:'🗺️', key:'badge_first_place', check:function(s){ return s.places>=1; } },
   { icon:'📍', key:'badge_mapper',       check:function(s){ return s.places>=10; } },
@@ -2774,11 +2792,7 @@ async function renderProfile() {
   }
   var DEFAULT_BANNER = '160deg,#0ba6b3,#0480b3';
   var bannerStyle = 'background:linear-gradient(' + (bannerData && bannerData.value ? bannerData.value : DEFAULT_BANNER) + ')';
-  // Avatar
-  var avatarImg = localStorage.getItem('vlm_avatar_img');
-  var avatarInner = avatarImg
-    ? '<img src="' + avatarImg + '" alt="">'
-    : initials;
+  var avatarInner = currentUserAvatar || initials;
   // Build swatches HTML
   var PRESETS = [
     {"k":"logo", "g":"160deg,#0ba6b3,#0480b3"},
@@ -2803,7 +2817,7 @@ async function renderProfile() {
     + '<div class="prof-picker-btns">'
     + '<button class="prof-picker-btn" id="prof-picker-close">' + t('profile_banner_close') + '</button>'
     + '</div></div>'
-    + '<div class="prof-avatar" id="prof-avatar">' + avatarInner + '</div>'
+    + '<div class="prof-avatar" id="prof-avatar">' + avatarInner + '<div class="prof-avatar-edit">&#9998;</div></div>'
     + '</div>'
     + '<div class="prof-identity">'
     + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">'
@@ -2899,14 +2913,10 @@ async function renderProfile() {
   });
 
 
-  // Avatar photo upload
-  document.getElementById('prof-avatar').addEventListener('click', function(e) {
+  document.getElementById('prof-avatar').addEventListener('click', function() {
     var picker = document.getElementById('prof-banner-picker');
     if (picker && picker.classList.contains('open')) return;
-    var inp = document.createElement('input');
-    inp.type = 'file'; inp.accept = 'image/*';
-    inp.onchange = function() { if (inp.files[0]) handleAvatarPhoto(inp.files[0]); };
-    inp.click();
+    openAvatarPicker();
   });
 
   applySat(isSat);
@@ -2940,27 +2950,28 @@ function _fallbackCopyText(text) {
   document.body.removeChild(ta);
 }
 
-function handleAvatarPhoto(file) {
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var img = new Image();
-    img.onload = function() {
-      var size = 200;
-      var canvas = document.createElement('canvas');
-      canvas.width = size; canvas.height = size;
-      var ctx = canvas.getContext('2d');
-      var s = Math.min(img.width, img.height);
-      var ox = (img.width - s) / 2;
-      var oy = (img.height - s) / 2;
-      ctx.drawImage(img, ox, oy, s, s, 0, 0, size, size);
-      var dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-      localStorage.setItem('vlm_avatar_img', dataUrl);
-      var av = document.getElementById('prof-avatar');
-      if (av) av.innerHTML = '<img src="' + dataUrl + '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
+function openAvatarPicker() {
+  var grid = document.getElementById('av-grid');
+  if (!grid) return;
+  grid.innerHTML = AVATAR_EMOJIS.map(function(e) {
+    return '<button class="av-btn' + (currentUserAvatar === e ? ' sel' : '') + '" onclick="selectAvatar(\'' + e + '\')">' + e + '</button>';
+  }).join('');
+  document.getElementById('avatar-picker').classList.add('show');
+}
+
+function closeAvatarPicker() {
+  var p = document.getElementById('avatar-picker');
+  if (p) p.classList.remove('show');
+}
+
+async function selectAvatar(emoji) {
+  if (!currentUser) return;
+  currentUserAvatar = emoji;
+  closeAvatarPicker();
+  var av = document.getElementById('prof-avatar');
+  if (av) av.innerHTML = emoji + '<div class="prof-avatar-edit">&#9998;</div>';
+  await db.from('profiles').update({ avatar_url: emoji }).eq('user_id', currentUser.id);
+  showToast('Avatar mis à jour !', 'success');
 }
 
 async function loadProfileStats(username) {
@@ -2974,7 +2985,8 @@ async function loadProfileStats(username) {
       db.from('place_validations').select('*', { count: 'exact', head: true }).eq('user_id', uid),
       db.from('profiles').select('user_id', { count: 'exact', head: true }).not('username', 'is', null).lte('registered_at', currentUser.created_at),
       db.from('places').select('id', { count: 'exact', head: true }).eq('approved_by_id', uid),
-      db.from('places').select('votes_positifs').eq('user_id', uid)
+      db.from('places').select('votes_positifs').eq('user_id', uid),
+      db.from('profiles').select('avatar_url').eq('user_id', uid).maybeSingle()
     ]);
     var BOT_NAMES = ['Import OSM', 'OpenStreetMap', 'Prix-Carburants-gouv'];
     var lbData = (res[0].data || []).filter(function(u) { return BOT_NAMES.indexOf(u.user_name) === -1; });
@@ -2984,6 +2996,12 @@ async function loadProfileStats(username) {
     var validatedCount = (res[4].count || 0) + (res[6].count || 0);
     var memberNum = res[5].count || null;
     var merciCount = (res[7].data || []).reduce(function(s,p){ return s+(p.votes_positifs||0); }, 0);
+    var avatarData = res[8] && res[8].data;
+    if (avatarData && avatarData.avatar_url) {
+      currentUserAvatar = avatarData.avatar_url;
+      var avEl = document.getElementById('prof-avatar');
+      if (avEl) avEl.innerHTML = currentUserAvatar + '<div class="prof-avatar-edit">&#9998;</div>';
+    }
     var myIdx = lbData.findIndex(function(u) { return u.user_name === username; });
     var myRank = myIdx + 1;
     var total = lbData.length;
@@ -3097,7 +3115,7 @@ async function openPublicProfile(username) {
   content.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text2);">Chargement...</div>';
   openSheet('sheet-pub-profile');
 
-  var profileRes = await db.from('profiles').select('user_id,username,created_at,registered_at').eq('username', username).maybeSingle();
+  var profileRes = await db.from('profiles').select('user_id,username,created_at,registered_at,avatar_url').eq('username', username).maybeSingle();
   var profile = profileRes.data;
   var placesCount = 0, commentsCount = 0, validatedCount = 0, votesCount = 0, rankPos = null, rankTotal = null;
 
@@ -3139,6 +3157,7 @@ async function openPublicProfile(username) {
   }
 
   var initials = username.slice(0, 2).toUpperCase();
+  var pubAvatar = (profile && profile.avatar_url) ? profile.avatar_url : initials;
   var isSelf = !!(currentUser && profile && profile.user_id === currentUser.id);
   var rawDate = isSelf ? currentUser.created_at : (profile ? (profile.registered_at || profile.created_at) : (typeof firstPlaceDate !== 'undefined' ? firstPlaceDate : null));
   var joinDate = rawDate ? new Date(rawDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : null;
@@ -3170,7 +3189,7 @@ async function openPublicProfile(username) {
   content.innerHTML = '<div class="prof-card">'
     + '<div class="prof-banner" style="background:linear-gradient(' + bannerGrad + ')">'
     + '<div class="prof-banner-badge">' + lvl + '</div>'
-    + '<div class="prof-avatar" style="cursor:default;">' + escHtml(initials) + '</div>'
+    + '<div class="prof-avatar" style="cursor:default;">' + escHtml(pubAvatar) + '</div>'
     + '</div>'
     + '<div class="prof-identity">'
     + '<div class="prof-username">' + escHtml(username) + '</div>'
