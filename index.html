@@ -2805,7 +2805,7 @@ async function renderProfile() {
   }
   var DEFAULT_BANNER = '160deg,#0ba6b3,#0480b3';
   var bannerStyle = 'background:linear-gradient(' + (bannerData && bannerData.value ? bannerData.value : DEFAULT_BANNER) + ')';
-  var avatarInner = currentUserAvatar || initials;
+  var avatarInner = currentUserAvatar || localStorage.getItem('vlm_avatar') || initials;
   // Build swatches HTML
   var PRESETS = [
     {"k":"logo", "g":"160deg,#0ba6b3,#0480b3"},
@@ -2983,7 +2983,12 @@ async function selectAvatar(emoji) {
   closeAvatarPicker();
   var av = document.getElementById('prof-avatar');
   if (av) av.innerHTML = emoji + '<div class="prof-avatar-edit">&#9998;</div>';
-  await db.from('profiles').update({ avatar_url: emoji }).eq('user_id', currentUser.id);
+  localStorage.setItem('vlm_avatar', emoji);
+  var saveRes = await db.from('profiles').upsert(
+    { user_id: currentUser.id, username: currentUsername, avatar_url: emoji },
+    { onConflict: 'user_id' }
+  );
+  if (saveRes.error) { showToast('Erreur sauvegarde : ' + saveRes.error.message, 'error'); return; }
   showToast('Avatar mis à jour !', 'success');
 }
 
@@ -3012,6 +3017,7 @@ async function loadProfileStats(username) {
     var avatarData = res[8] && res[8].data;
     if (avatarData && avatarData.avatar_url) {
       currentUserAvatar = avatarData.avatar_url;
+      localStorage.setItem('vlm_avatar', currentUserAvatar);
       var avEl = document.getElementById('prof-avatar');
       if (avEl) avEl.innerHTML = currentUserAvatar + '<div class="prof-avatar-edit">&#9998;</div>';
     }
