@@ -5363,6 +5363,31 @@ function renderPhotos(pid, photos, maxPhotos, placeOwnerId) {
     + (photos.length === 0 && !currentUser ? '<span style="font-size:11px;color:var(--text2);">Aucune photo</span>' : '');
 }
 
+function compressImage(file, maxPx, quality) {
+  maxPx = maxPx || 1200; quality = quality || 0.82;
+  return new Promise(function(resolve) {
+    var reader = new FileReader();
+    reader.onerror = function() { resolve(file); };
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onerror = function() { resolve(file); };
+      img.onload = function() {
+        var w = img.width, h = img.height;
+        if (w > maxPx || h > maxPx) {
+          if (w >= h) { h = Math.round(h * maxPx / w); w = maxPx; }
+          else { w = Math.round(w * maxPx / h); h = maxPx; }
+        }
+        var c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        c.toBlob(function(blob) { resolve(blob || file); }, 'image/jpeg', quality);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 async function uploadPhoto(pid, input) {
   var file = input.files[0];
   if (!file) return;
@@ -5373,9 +5398,9 @@ async function uploadPhoto(pid, input) {
     return;
   }
   showToast(t('toast_uploading'), 'success');
-  var ext = file.name.split('.').pop().toLowerCase();
-  var path = pid + '/' + Date.now() + '.' + ext;
-  var upRes = await db.storage.from('place-photos').upload(path, file, { contentType: file.type });
+  var blob = await compressImage(file);
+  var path = pid + '/' + Date.now() + '.jpg';
+  var upRes = await db.storage.from('place-photos').upload(path, blob, { contentType: 'image/jpeg' });
   if (upRes.error) { showToast(t('lbl_err_generic') + upRes.error.message, 'error'); return; }
   var pub = db.storage.from('place-photos').getPublicUrl(path);
   var url = pub.data.publicUrl;
@@ -5958,16 +5983,16 @@ async function submitPlace() {
   var photoInput = document.getElementById('add-photo-input');
   if (photoInput && photoInput.files[0]) {
     var file = photoInput.files[0];
-    var ext = file.name.split('.').pop().toLowerCase() || 'jpg';
-    var path = newId + '/' + Date.now() + '.' + ext;
+    var blob = await compressImage(file);
+    var path = newId + '/' + Date.now() + '.jpg';
     var progressEl = document.getElementById('add-photo-progress');
     var barEl = document.getElementById('add-photo-bar');
     var pctEl = document.getElementById('add-photo-pct');
     var previewEl = document.getElementById('add-photo-preview');
     if (progressEl) { progressEl.style.display = 'block'; }
     if (previewEl) { previewEl.style.display = 'none'; }
-    var upRes = await db.storage.from('place-photos').upload(path, file, {
-      contentType: file.type,
+    var upRes = await db.storage.from('place-photos').upload(path, blob, {
+      contentType: 'image/jpeg',
       onUploadProgress: function(e) {
         var pct = e.total ? Math.round((e.loaded / e.total) * 100) : 0;
         if (barEl) barEl.style.width = pct + '%';
@@ -6164,10 +6189,10 @@ async function submitReport() {
   var photoInput = document.getElementById('report-photo-input');
   if (photoInput && photoInput.files[0]) {
     var file = photoInput.files[0];
-    var ext = file.name.split('.').pop().toLowerCase();
-    var path = 'reports/' + reportPlaceId + '-' + Date.now() + '.' + ext;
+    var blob = await compressImage(file);
+    var path = 'reports/' + reportPlaceId + '-' + Date.now() + '.jpg';
     showToast(t('toast_uploading'), 'success');
-    var upRes = await db.storage.from('place-photos').upload(path, file, { contentType: file.type });
+    var upRes = await db.storage.from('place-photos').upload(path, blob, { contentType: 'image/jpeg' });
     if (upRes.error) { showToast(t('lbl_err_generic') + upRes.error.message, 'error'); return; }
     photoUrl = db.storage.from('place-photos').getPublicUrl(path).data.publicUrl;
   }
