@@ -2898,6 +2898,7 @@ async function renderProfile() {
     document.getElementById('prof-banner-overlay').classList.toggle('open');
   });
   document.getElementById('pbe-swatches').addEventListener('click', function(e) {
+    e.stopPropagation();
     var sw = e.target.closest('.pbe-swatch');
     if (!sw) return;
     currentUserBannerColor = sw.dataset.g;
@@ -2905,8 +2906,12 @@ async function renderProfile() {
     sw.classList.add('sel');
     document.getElementById('prof-banner').style.background = 'linear-gradient(' + currentUserBannerColor + ')';
   });
-  document.getElementById('pbe-save').addEventListener('click', saveBannerProfile);
-  document.getElementById('pbe-close').addEventListener('click', function() {
+  document.getElementById('pbe-save').addEventListener('click', function(e) {
+    e.stopPropagation();
+    saveBannerProfile();
+  });
+  document.getElementById('pbe-close').addEventListener('click', function(e) {
+    e.stopPropagation();
     document.getElementById('prof-banner-overlay').classList.remove('open');
   });
   document.getElementById('prof-avatar').addEventListener('click', function() {
@@ -2979,13 +2984,13 @@ async function saveBannerProfile() {
   var bio = bioInput ? bioInput.value.trim() : '';
   var color = currentUserBannerColor || BANNER_PRESETS[0].g;
   currentUserBio = bio;
-  document.getElementById('prof-banner-overlay').classList.remove('open');
+  var overlay = document.getElementById('prof-banner-overlay');
+  if (overlay) overlay.classList.remove('open');
   var bioEl = document.getElementById('prof-bio-display');
   if (bioEl) bioEl.textContent = bio;
-  var r = await db.from('profiles').upsert(
-    { user_id: currentUser.id, username: currentUsername, avatar_url: currentUserAvatar || null, bio: bio, banner_color: color },
-    { onConflict: 'user_id' }
-  );
+  var upsertData = { user_id: currentUser.id, username: currentUsername, bio: bio || null, banner_color: color };
+  if (currentUserAvatar) upsertData.avatar_url = currentUserAvatar;
+  var r = await db.from('profiles').upsert(upsertData, { onConflict: 'user_id' });
   if (r.error) { showToast('Erreur : ' + r.error.message, 'error'); return; }
   showToast('Profil mis à jour !', 'success');
 }
