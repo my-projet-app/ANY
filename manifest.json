@@ -1,12 +1,12 @@
 {
-  "name": "VanLifeMap",
-  "short_name": "VanLifeMap",
-  "description": "Carte communautaire des services en libre-service 24h/24",
+  "name": "ANY — Anything, Anywhere, Anytime",
+  "short_name": "ANY",
+  "description": "La carte communautaire des services autour de vous, 24h/24 — vanlifer, vacancier, citadin ou nomade.",
   "start_url": "/",
   "display": "fullscreen",
   "display_override": ["fullscreen", "standalone"],
-  "background_color": "#0d1530",
-  "theme_color": "#0d1530",
+  "background_color": "#1ab8a0",
+  "theme_color": "#1a7ac8",
   "orientation": "portrait-primary",
   "icons": [
     {
