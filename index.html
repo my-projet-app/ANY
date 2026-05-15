@@ -2945,7 +2945,7 @@ function handleAvatarPhoto(file) {
   reader.onload = function(e) {
     var img = new Image();
     img.onload = function() {
-      var size = 72;
+      var size = 200;
       var canvas = document.createElement('canvas');
       canvas.width = size; canvas.height = size;
       var ctx = canvas.getContext('2d');
