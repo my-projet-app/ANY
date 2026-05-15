@@ -8,10 +8,10 @@
 <meta name="theme-color" content="#0d1530">
 <link rel="manifest" href="manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="VanLifeMap">
+<meta name="apple-mobile-web-app-title" content="ANY">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" href="favicon.png">
-<title>VanLifeMap</title>
+<title>ANY</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
@@ -416,7 +416,14 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
 }
 /* ── PROFILE CARD ── */
 .prof-banner{height:110px;background:linear-gradient(135deg,#0f2460 0%,#1a3a8c 40%,#2d6a9f 100%);position:relative;}
-.prof-banner::before{content:"🚐";position:absolute;font-size:120px;right:-18px;bottom:-28px;opacity:0.12;pointer-events:none;}
+.prof-banner::before{content:"📍";position:absolute;font-size:120px;right:-18px;bottom:-28px;opacity:0.12;pointer-events:none;}
+.prof-xp-wrap{background:var(--surface);padding:14px 20px;border-bottom:1px solid var(--border);}
+.prof-xp-bar{height:8px;background:var(--bg);border-radius:10px;overflow:hidden;margin-top:4px;}
+.prof-xp-fill{height:100%;background:linear-gradient(90deg,#ffd04f,#ff8c42);border-radius:10px;transition:width 0.7s cubic-bezier(.4,0,.2,1);}
+.prof-xp-breakdown{margin-top:10px;}
+.prof-xp-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border);}
+.prof-xp-row:last-child{border-bottom:none;}
+.prof-xp-row b{color:var(--text);}
 .prof-banner-badge{position:absolute;top:12px;right:12px;background:rgba(255,208,79,0.18);border:1px solid rgba(255,208,79,0.4);color:#ffd04f;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;backdrop-filter:blur(6px);}
 .prof-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#ffd04f,#ff8c42);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#000;border:3px solid var(--bg);position:absolute;bottom:-36px;left:20px;box-shadow:0 4px 16px rgba(0,0,0,0.4);cursor:pointer;overflow:hidden;}
 .prof-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
@@ -469,16 +476,16 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
 </style>
 </head>
 <body>
-<div id="loading"><img src="icon-192.png" style="width:80px;height:80px;border-radius:18px;margin-bottom:4px;"><div class="spinner"></div><h2>VanLifeMap</h2></div>
+<div id="loading"><img src="icon-192.png" style="width:80px;height:80px;border-radius:18px;margin-bottom:4px;"><div class="spinner"></div><h2>ANY</h2></div>
 
 <div id="app">
   <div id="sidebar">
     <div id="sidebar-header">
       <div style="display:flex;align-items:center;gap:10px;">
-        <img src="icon-192.png" alt="VanLifeMap" style="width:40px;height:40px;border-radius:10px;flex-shrink:0;">
+        <img src="icon-192.png" alt="ANY" style="width:40px;height:40px;border-radius:10px;flex-shrink:0;">
         <div style="flex:1;">
-          <h1 style="margin:0;">VanLifeMap</h1>
-          <p style="margin:0;" data-i18n="sidebar_subtitle">Spots, services & bons plans vanlife</p>
+          <h1 style="margin:0;">ANY</h1>
+          <p style="margin:0;" data-i18n="sidebar_subtitle">Anything, Anywhere, Anytime</p>
         </div>
         <button onclick="closeSidebar()" title="Fermer" style="background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px;line-height:1;border-radius:8px;display:none;" id="btn-close-sidebar">&#10005;</button>
       </div>
@@ -963,7 +970,7 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
 
 <div id="install-banner">
   <div class="ib-header">
-    <div class="ib-title">&#128205; Installer VanLifeMap</div>
+    <div class="ib-title">&#128205; Installer ANY</div>
     <button class="ib-close" onclick="dismissInstall()">&#10005;</button>
   </div>
   <div class="ib-steps" id="install-steps-ios" style="display:none">
@@ -992,6 +999,24 @@ var currentUser = null;
 var currentUsername = '';
 var ADMINS = ['mypoiuytreza@gmail.com', 'unverredericard@gmail.com'];
 var isAdmin = false, isModerator = false, isTrusted = false;
+
+// ===== XP SYSTEM =====
+var XP_THRESHOLDS = [
+  { min:0,   key:'role_new',      next:50  },
+  { min:50,  key:'role_active',   next:150 },
+  { min:150, key:'role_beginner', next:350 },
+  { min:350, key:'role_explorer', next:700 },
+  { min:700, key:'role_expert',   next:null }
+];
+function calcXP(places, validated, comments, votes, merci) {
+  return (places||0)*10 + (validated||0)*3 + (comments||0)*2 + (votes||0)*1 + (merci||0)*5;
+}
+function getXPLevel(xp) {
+  for (var i = XP_THRESHOLDS.length-1; i >= 0; i--) {
+    if (xp >= XP_THRESHOLDS[i].min) return { idx:i, data:XP_THRESHOLDS[i] };
+  }
+  return { idx:0, data:XP_THRESHOLDS[0] };
+}
 
 // ===== I18N =====
 var SUPPORTED_LANGS = ['fr','en','es','de','it','pt','nl'];
@@ -1060,7 +1085,7 @@ fr:{
   search_ph:'Ville, lieu, commune...', search_my_pos:'Ma position actuelle', search_center:'Centrer la carte sur moi',
   search_categories:'Catégories',
   loc_ph:'Ville, département...', loc_radius:'Rayon :', loc_exact:'Exact',
-  sidebar_subtitle:'Spots, services & bons plans vanlife', sidebar_location:'📍 Localisation',
+  sidebar_subtitle:'Anything, Anywhere, Anytime', sidebar_location:'📍 Localisation',
   places_label:'Lieux :', zone_current:'Zone actuelle',
   report_title:'⚠️ Signaler un lieu', report_reason:'Motif du signalement *',
   report_details_ph:'Décrivez le problème...', report_details:'Précisions (optionnel)', report_submit:'Envoyer le signalement',
@@ -1081,7 +1106,7 @@ fr:{
   modal_hide_place_title:'🚫 Masquer ce lieu', modal_approve_place_title:'✅ Valider ce lieu',
   modal_reject_place_title:'❌ Refuser ce lieu',
   modal_delete_comment_title:'🗑️ Supprimer ce commentaire',
-  install_title:'📍 Installer VanLifeMap',
+  install_title:'📍 Installer ANY',
   install_ios_1:'Appuyez sur le bouton Partager ⬇️ en bas de Safari',
   install_ios_2:'Faites défiler et appuyez sur "Sur l\'écran d\'accueil"',
   install_ios_3:'Appuyez sur "Ajouter" en haut à droite',
@@ -1121,9 +1146,9 @@ fr:{
   move_mode_cancel:'Annuler',
   fuel_title:'Prix du carburant', fuel_updated:'Mis à jour',
   val_loading:'Chargement des votes...', val_validate_btn:'👍 Valider ce lieu',
-  role_admin:'👑 Administrateur', role_moderator:'🛡️ Modérateur', role_trusted:'⭐ Membre de confiance',
-  role_expert:'🥇 Expert', role_explorer:'🥈 Explorateur', role_beginner:'🥉 Débutant',
-  role_active:'Membre actif', role_new:'Nouveau membre',
+  role_admin:'👑 Administrateur', role_moderator:'🛡️ Modérateur', role_trusted:'💎 Membre de confiance',
+  role_expert:'🏆 Ambassadeur', role_explorer:'⭐ Guide', role_beginner:'📍 Contributeur',
+  role_active:'🗺️ Explorateur', role_new:'🌱 Curieux',
   member_registered:'Inscrit le', member_no_pseudo:'(sans pseudo)',
   toast_login_reply:'Connectez-vous pour répondre', toast_login_like:'Connectez-vous pour liker', toast_login_post:'Connectez-vous pour poster', toast_login_add:'Connectez-vous pour ajouter un lieu', toast_login_rate:'Connectez-vous pour noter',
   toast_already_liked:'Déjà liké !', toast_already_voted:'Vous avez déjà voté', toast_already_voted_place:'Vous avez déjà voté pour ce lieu',
@@ -1148,7 +1173,7 @@ fr:{
   lbl_status_resolved:'✅ Résolu', lbl_status_planned:'🗓️ Prévu', lbl_change_status:'Changer statut',
   lbl_validated_by:'✅ Lieu validé par', lbl_person_one:'personne', lbl_person_many:'personnes',
   lbl_unban:'Lever le bannissement', lbl_ban_user:'Bannir cet utilisateur', lbl_not_available:'Non disponible', lbl_err_generic:'Erreur : ',
-  confirm_logout_title:'Se déconnecter ?', confirm_logout_msg:'Vous serez déconnecté de votre compte VanLifeMap.', confirm_logout_btn:'Déconnecter',
+  confirm_logout_title:'Se déconnecter ?', confirm_logout_msg:'Vous serez déconnecté de votre compte ANY.', confirm_logout_btn:'Déconnecter',
   confirm_del_photo:'Supprimer cette photo ?', confirm_del_photo_msg:'La photo sera supprimée définitivement. Action irréversible.',
   confirm_del_post:'Supprimer ce post ?', confirm_del_post_msg:'Cette action supprimera le post et toutes ses réponses.', confirm_del_reply:'Supprimer cette réponse ?',
   confirm_ignore_report:'Ignorer ce signalement ?', confirm_ignore_report_msg:'Le lieu sera conservé sans modification. Cette action est irréversible.',
@@ -1250,7 +1275,7 @@ en:{
   search_ph:'City, place, town...', search_my_pos:'My current location', search_center:'Center map on me',
   search_categories:'Categories',
   loc_ph:'City, department...', loc_radius:'Radius:', loc_exact:'Exact',
-  sidebar_subtitle:'Van life spots, services & tips', sidebar_location:'📍 Location',
+  sidebar_subtitle:'Anything, Anywhere, Anytime', sidebar_location:'📍 Location',
   places_label:'Places:', zone_current:'Current zone',
   report_title:'⚠️ Report a place', report_reason:'Reason *',
   report_details_ph:'Describe the issue...', report_details:'Details (optional)', report_submit:'Send report',
@@ -1271,7 +1296,7 @@ en:{
   modal_hide_place_title:'🚫 Hide this place', modal_approve_place_title:'✅ Validate this place',
   modal_reject_place_title:'❌ Reject this place',
   modal_delete_comment_title:'🗑️ Delete this comment',
-  install_title:'📍 Install VanLifeMap',
+  install_title:'📍 Install ANY',
   install_ios_1:'Tap the Share button ⬇️ at the bottom of Safari',
   install_ios_2:'Scroll and tap "Add to Home Screen"',
   install_ios_3:'Tap "Add" in the top right',
@@ -1310,9 +1335,9 @@ en:{
   move_mode_cancel:'Cancel',
   fuel_title:'Fuel prices', fuel_updated:'Updated',
   val_loading:'Loading votes...', val_validate_btn:'👍 Validate this place',
-  role_admin:'👑 Administrator', role_moderator:'🛡️ Moderator', role_trusted:'⭐ Trusted member',
-  role_expert:'🥇 Expert', role_explorer:'🥈 Explorer', role_beginner:'🥉 Beginner',
-  role_active:'Active member', role_new:'New member',
+  role_admin:'👑 Administrator', role_moderator:'🛡️ Moderator', role_trusted:'💎 Trusted member',
+  role_expert:'🏆 Ambassador', role_explorer:'⭐ Guide', role_beginner:'📍 Contributor',
+  role_active:'🗺️ Explorer', role_new:'🌱 Curious',
   member_registered:'Registered on', member_no_pseudo:'(no username)',
   toast_login_reply:'Sign in to reply', toast_login_like:'Sign in to like', toast_login_post:'Sign in to post', toast_login_add:'Sign in to add a place', toast_login_rate:'Sign in to rate',
   toast_already_liked:'Already liked!', toast_already_voted:'You have already voted', toast_already_voted_place:'You have already voted for this place',
@@ -1337,7 +1362,7 @@ en:{
   lbl_status_resolved:'✅ Resolved', lbl_status_planned:'🗓️ Planned', lbl_change_status:'Change status',
   lbl_validated_by:'✅ Place validated by', lbl_person_one:'person', lbl_person_many:'people',
   lbl_unban:'Lift ban', lbl_ban_user:'Ban this user', lbl_not_available:'Not available', lbl_err_generic:'Error: ',
-  confirm_logout_title:'Sign out?', confirm_logout_msg:'You will be signed out of your VanLifeMap account.', confirm_logout_btn:'Sign out',
+  confirm_logout_title:'Sign out?', confirm_logout_msg:'You will be signed out of your ANY account.', confirm_logout_btn:'Sign out',
   confirm_del_photo:'Delete this photo?', confirm_del_photo_msg:'The photo will be permanently deleted. This action is irreversible.',
   confirm_del_post:'Delete this post?', confirm_del_post_msg:'This action will delete the post and all its replies.', confirm_del_reply:'Delete this reply?',
   confirm_ignore_report:'Dismiss this report?', confirm_ignore_report_msg:'The place will be kept without changes. This action is irreversible.',
@@ -1439,7 +1464,7 @@ es:{
   search_ph:'Ciudad, lugar, municipio...', search_my_pos:'Mi ubicación actual', search_center:'Centrar mapa en mí',
   search_categories:'Categorías',
   loc_ph:'Ciudad, departamento...', loc_radius:'Radio:', loc_exact:'Exacto',
-  sidebar_subtitle:'Spots, servicios y consejos vanlife', sidebar_location:'📍 Ubicación',
+  sidebar_subtitle:'Anything, Anywhere, Anytime', sidebar_location:'📍 Ubicación',
   places_label:'Lugares:', zone_current:'Zona actual',
   report_title:'⚠️ Reportar un lugar', report_reason:'Motivo *',
   report_details_ph:'Describe el problema...', report_details:'Detalles (opcional)', report_submit:'Enviar informe',
@@ -1460,7 +1485,7 @@ es:{
   modal_hide_place_title:'🚫 Ocultar este lugar', modal_approve_place_title:'✅ Validar este lugar',
   modal_reject_place_title:'❌ Rechazar este lugar',
   modal_delete_comment_title:'🗑️ Eliminar este comentario',
-  install_title:'📍 Instalar VanLifeMap',
+  install_title:'📍 Instalar ANY',
   install_ios_1:'Pulsa el botón Compartir ⬇️ en la parte inferior de Safari',
   install_ios_2:'Desplázate y pulsa "En la pantalla de inicio"',
   install_ios_3:'Pulsa "Añadir" en la esquina superior derecha',
@@ -1499,9 +1524,9 @@ es:{
   move_mode_cancel:'Cancelar',
   fuel_title:'Precios combustible', fuel_updated:'Actualizado',
   val_loading:'Cargando votos...', val_validate_btn:'👍 Validar este lugar',
-  role_admin:'👑 Administrador', role_moderator:'🛡️ Moderador', role_trusted:'⭐ Miembro de confianza',
-  role_expert:'🥇 Experto', role_explorer:'🥈 Explorador', role_beginner:'🥉 Principiante',
-  role_active:'Miembro activo', role_new:'Nuevo miembro',
+  role_admin:'👑 Administrador', role_moderator:'🛡️ Moderador', role_trusted:'💎 Miembro de confianza',
+  role_expert:'🏆 Embajador', role_explorer:'⭐ Guía', role_beginner:'📍 Contribuidor',
+  role_active:'🗺️ Explorador', role_new:'🌱 Curioso',
   member_registered:'Registrado el', member_no_pseudo:'(sin nombre)',
   toast_login_reply:'Inicia sesión para responder', toast_login_like:'Inicia sesión para dar me gusta', toast_login_post:'Inicia sesión para publicar', toast_login_add:'Inicia sesión para añadir un lugar', toast_login_rate:'Inicia sesión para valorar',
   toast_already_liked:'¡Ya te gustó!', toast_already_voted:'Ya has votado', toast_already_voted_place:'Ya has votado por este lugar',
@@ -1526,7 +1551,7 @@ es:{
   lbl_status_resolved:'✅ Resuelto', lbl_status_planned:'🗓️ Planificado', lbl_change_status:'Cambiar estado',
   lbl_validated_by:'✅ Lugar validado por', lbl_person_one:'persona', lbl_person_many:'personas',
   lbl_unban:'Levantar el baneo', lbl_ban_user:'Banear a este usuario', lbl_not_available:'No disponible', lbl_err_generic:'Error: ',
-  confirm_logout_title:'¿Cerrar sesión?', confirm_logout_msg:'Cerrarás sesión en tu cuenta VanLifeMap.', confirm_logout_btn:'Cerrar sesión',
+  confirm_logout_title:'¿Cerrar sesión?', confirm_logout_msg:'Cerrarás sesión en tu cuenta ANY.', confirm_logout_btn:'Cerrar sesión',
   confirm_del_photo:'¿Eliminar esta foto?', confirm_del_photo_msg:'La foto se eliminará definitivamente. Esta acción es irreversible.',
   confirm_del_post:'¿Eliminar este post?', confirm_del_post_msg:'Esta acción eliminará el post y todas sus respuestas.', confirm_del_reply:'¿Eliminar esta respuesta?',
   confirm_ignore_report:'¿Ignorar este informe?', confirm_ignore_report_msg:'El lugar se conservará sin cambios. Esta acción es irreversible.',
@@ -1628,7 +1653,7 @@ de:{
   search_ph:'Stadt, Ort, Gemeinde...', search_my_pos:'Mein aktueller Standort', search_center:'Karte auf mich zentrieren',
   search_categories:'Kategorien',
   loc_ph:'Stadt, Departement...', loc_radius:'Radius:', loc_exact:'Genau',
-  sidebar_subtitle:'Vanlife-Spots, Services & Tipps', sidebar_location:'📍 Standort',
+  sidebar_subtitle:'Anything, Anywhere, Anytime', sidebar_location:'📍 Standort',
   places_label:'Orte:', zone_current:'Aktuelle Zone',
   report_title:'⚠️ Ort melden', report_reason:'Grund *',
   report_details_ph:'Beschreibe das Problem...', report_details:'Details (optional)', report_submit:'Meldung senden',
@@ -1649,7 +1674,7 @@ de:{
   modal_hide_place_title:'🚫 Diesen Ort ausblenden', modal_approve_place_title:'✅ Diesen Ort validieren',
   modal_reject_place_title:'❌ Diesen Ort ablehnen',
   modal_delete_comment_title:'🗑️ Diesen Kommentar löschen',
-  install_title:'📍 VanLifeMap installieren',
+  install_title:'📍 ANY installieren',
   install_ios_1:'Tippe auf die Teilen-Schaltfläche ⬇️ unten in Safari',
   install_ios_2:'Scrolle und tippe auf "Zum Home-Bildschirm"',
   install_ios_3:'Tippe oben rechts auf "Hinzufügen"',
@@ -1688,9 +1713,9 @@ de:{
   move_mode_cancel:'Abbrechen',
   fuel_title:'Kraftstoffpreise', fuel_updated:'Aktualisiert',
   val_loading:'Stimmen werden geladen...', val_validate_btn:'👍 Diesen Ort validieren',
-  role_admin:'👑 Administrator', role_moderator:'🛡️ Moderator', role_trusted:'⭐ Vertrauensmitglied',
-  role_expert:'🥇 Experte', role_explorer:'🥈 Entdecker', role_beginner:'🥉 Anfänger',
-  role_active:'Aktives Mitglied', role_new:'Neues Mitglied',
+  role_admin:'👑 Administrator', role_moderator:'🛡️ Moderator', role_trusted:'💎 Vertrauensmitglied',
+  role_expert:'🏆 Botschafter', role_explorer:'⭐ Guide', role_beginner:'📍 Mitwirkender',
+  role_active:'🗺️ Entdecker', role_new:'🌱 Neugierig',
   member_registered:'Registriert am', member_no_pseudo:'(kein Benutzername)',
   toast_login_reply:'Anmelden um zu antworten', toast_login_like:'Anmelden um zu liken', toast_login_post:'Anmelden um zu posten', toast_login_add:'Anmelden um einen Ort hinzuzufügen', toast_login_rate:'Anmelden um zu bewerten',
   toast_already_liked:'Bereits geliked!', toast_already_voted:'Du hast bereits abgestimmt', toast_already_voted_place:'Du hast bereits für diesen Ort abgestimmt',
@@ -1715,7 +1740,7 @@ de:{
   lbl_status_resolved:'✅ Gelöst', lbl_status_planned:'🗓️ Geplant', lbl_change_status:'Status ändern',
   lbl_validated_by:'✅ Ort validiert von', lbl_person_one:'Person', lbl_person_many:'Personen',
   lbl_unban:'Sperre aufheben', lbl_ban_user:'Diesen Benutzer sperren', lbl_not_available:'Nicht verfügbar', lbl_err_generic:'Fehler: ',
-  confirm_logout_title:'Abmelden?', confirm_logout_msg:'Du wirst von deinem VanLifeMap-Konto abgemeldet.', confirm_logout_btn:'Abmelden',
+  confirm_logout_title:'Abmelden?', confirm_logout_msg:'Du wirst von deinem ANY-Konto abgemeldet.', confirm_logout_btn:'Abmelden',
   confirm_del_photo:'Dieses Foto löschen?', confirm_del_photo_msg:'Das Foto wird dauerhaft gelöscht. Diese Aktion ist unwiderruflich.',
   confirm_del_post:'Diesen Beitrag löschen?', confirm_del_post_msg:'Diese Aktion löscht den Beitrag und alle Antworten.', confirm_del_reply:'Diese Antwort löschen?',
   confirm_ignore_report:'Diese Meldung ignorieren?', confirm_ignore_report_msg:'Der Ort bleibt ohne Änderungen. Diese Aktion ist unwiderruflich.',
@@ -1817,7 +1842,7 @@ it:{
   search_ph:'Città, luogo, comune...', search_my_pos:'La mia posizione attuale', search_center:'Centra mappa su di me',
   search_categories:'Categorie',
   loc_ph:'Città, dipartimento...', loc_radius:'Raggio:', loc_exact:'Esatto',
-  sidebar_subtitle:'Spot, servizi e consigli vanlife', sidebar_location:'📍 Posizione',
+  sidebar_subtitle:'Anything, Anywhere, Anytime', sidebar_location:'📍 Posizione',
   places_label:'Luoghi:', zone_current:'Zona attuale',
   report_title:'⚠️ Segnala un luogo', report_reason:'Motivo *',
   report_details_ph:'Descrivi il problema...', report_details:'Dettagli (opzionale)', report_submit:'Invia segnalazione',
@@ -1838,7 +1863,7 @@ it:{
   modal_hide_place_title:'🚫 Nascondi questo luogo', modal_approve_place_title:'✅ Valida questo luogo',
   modal_reject_place_title:'❌ Rifiuta questo luogo',
   modal_delete_comment_title:'🗑️ Elimina questo commento',
-  install_title:'📍 Installa VanLifeMap',
+  install_title:'📍 Installa ANY',
   install_ios_1:'Tocca il pulsante Condividi ⬇️ in fondo a Safari',
   install_ios_2:'Scorri e tocca "Aggiungi alla schermata Home"',
   install_ios_3:'Tocca "Aggiungi" in alto a destra',
@@ -1877,9 +1902,9 @@ it:{
   move_mode_cancel:'Annulla',
   fuel_title:'Prezzi carburante', fuel_updated:'Aggiornato',
   val_loading:'Caricamento voti...', val_validate_btn:'👍 Valida questo luogo',
-  role_admin:'👑 Amministratore', role_moderator:'🛡️ Moderatore', role_trusted:'⭐ Membro fidato',
-  role_expert:'🥇 Esperto', role_explorer:'🥈 Esploratore', role_beginner:'🥉 Principiante',
-  role_active:'Membro attivo', role_new:'Nuovo membro',
+  role_admin:'👑 Amministratore', role_moderator:'🛡️ Moderatore', role_trusted:'💎 Membro fidato',
+  role_expert:'🏆 Ambasciatore', role_explorer:'⭐ Guida', role_beginner:'📍 Contributore',
+  role_active:'🗺️ Esploratore', role_new:'🌱 Curioso',
   member_registered:'Registrato il', member_no_pseudo:'(nessun nome utente)',
   toast_login_reply:'Accedi per rispondere', toast_login_like:'Accedi per mettere mi piace', toast_login_post:'Accedi per pubblicare', toast_login_add:'Accedi per aggiungere un luogo', toast_login_rate:'Accedi per valutare',
   toast_already_liked:'Già piaciuto!', toast_already_voted:'Hai già votato', toast_already_voted_place:'Hai già votato per questo luogo',
@@ -1904,7 +1929,7 @@ it:{
   lbl_status_resolved:'✅ Risolto', lbl_status_planned:'🗓️ Pianificato', lbl_change_status:'Cambia stato',
   lbl_validated_by:'✅ Luogo validato da', lbl_person_one:'persona', lbl_person_many:'persone',
   lbl_unban:'Rimuovi il ban', lbl_ban_user:'Banna questo utente', lbl_not_available:'Non disponibile', lbl_err_generic:'Errore: ',
-  confirm_logout_title:'Esci?', confirm_logout_msg:'Verrai disconnesso dal tuo account VanLifeMap.', confirm_logout_btn:'Esci',
+  confirm_logout_title:'Esci?', confirm_logout_msg:'Verrai disconnesso dal tuo account ANY.', confirm_logout_btn:'Esci',
   confirm_del_photo:'Eliminare questa foto?', confirm_del_photo_msg:'La foto sarà eliminata definitivamente. Azione irreversibile.',
   confirm_del_post:'Eliminare questo post?', confirm_del_post_msg:'Questa azione eliminerà il post e tutte le risposte.', confirm_del_reply:'Eliminare questa risposta?',
   confirm_ignore_report:'Ignorare questa segnalazione?', confirm_ignore_report_msg:'Il luogo sarà mantenuto senza modifiche. Azione irreversibile.',
@@ -2006,7 +2031,7 @@ pt:{
   search_ph:'Cidade, local, município...', search_my_pos:'Minha localização atual', search_center:'Centrar mapa em mim',
   search_categories:'Categorias',
   loc_ph:'Cidade, departamento...', loc_radius:'Raio:', loc_exact:'Exato',
-  sidebar_subtitle:'Spots, serviços e dicas vanlife', sidebar_location:'📍 Localização',
+  sidebar_subtitle:'Anything, Anywhere, Anytime', sidebar_location:'📍 Localização',
   places_label:'Locais:', zone_current:'Zona atual',
   report_title:'⚠️ Reportar um local', report_reason:'Motivo *',
   report_details_ph:'Descreva o problema...', report_details:'Detalhes (opcional)', report_submit:'Enviar relatório',
@@ -2027,7 +2052,7 @@ pt:{
   modal_hide_place_title:'🚫 Ocultar este local', modal_approve_place_title:'✅ Validar este local',
   modal_reject_place_title:'❌ Rejeitar este local',
   modal_delete_comment_title:'🗑️ Excluir este comentário',
-  install_title:'📍 Instalar VanLifeMap',
+  install_title:'📍 Instalar ANY',
   install_ios_1:'Toque no botão Partilhar ⬇️ na parte inferior do Safari',
   install_ios_2:'Role e toque em "Adicionar ao Ecrã Principal"',
   install_ios_3:'Toque em "Adicionar" no canto superior direito',
@@ -2066,9 +2091,9 @@ pt:{
   move_mode_cancel:'Cancelar',
   fuel_title:'Preços de combustível', fuel_updated:'Atualizado',
   val_loading:'A carregar votos...', val_validate_btn:'👍 Validar este local',
-  role_admin:'👑 Administrador', role_moderator:'🛡️ Moderador', role_trusted:'⭐ Membro de confiança',
-  role_expert:'🥇 Especialista', role_explorer:'🥈 Explorador', role_beginner:'🥉 Principiante',
-  role_active:'Membro ativo', role_new:'Novo membro',
+  role_admin:'👑 Administrador', role_moderator:'🛡️ Moderador', role_trusted:'💎 Membro de confiança',
+  role_expert:'🏆 Embaixador', role_explorer:'⭐ Guia', role_beginner:'📍 Contribuidor',
+  role_active:'🗺️ Explorador', role_new:'🌱 Curioso',
   member_registered:'Registado a', member_no_pseudo:'(sem nome de utilizador)',
   toast_login_reply:'Entre para responder', toast_login_like:'Entre para gostar', toast_login_post:'Entre para publicar', toast_login_add:'Entre para adicionar um local', toast_login_rate:'Entre para avaliar',
   toast_already_liked:'Já gostou!', toast_already_voted:'Já votou', toast_already_voted_place:'Já votou neste local',
@@ -2093,7 +2118,7 @@ pt:{
   lbl_status_resolved:'✅ Resolvido', lbl_status_planned:'🗓️ Planeado', lbl_change_status:'Alterar estado',
   lbl_validated_by:'✅ Local validado por', lbl_person_one:'pessoa', lbl_person_many:'pessoas',
   lbl_unban:'Levantar o ban', lbl_ban_user:'Banir este utilizador', lbl_not_available:'Não disponível', lbl_err_generic:'Erro: ',
-  confirm_logout_title:'Sair?', confirm_logout_msg:'Irá sair da sua conta VanLifeMap.', confirm_logout_btn:'Sair',
+  confirm_logout_title:'Sair?', confirm_logout_msg:'Irá sair da sua conta ANY.', confirm_logout_btn:'Sair',
   confirm_del_photo:'Eliminar esta foto?', confirm_del_photo_msg:'A foto será eliminada definitivamente. Esta ação é irreversível.',
   confirm_del_post:'Eliminar esta publicação?', confirm_del_post_msg:'Esta ação eliminará a publicação e todas as respostas.', confirm_del_reply:'Eliminar esta resposta?',
   confirm_ignore_report:'Ignorar esta denúncia?', confirm_ignore_report_msg:'O local será mantido sem alterações. Esta ação é irreversível.',
@@ -2195,7 +2220,7 @@ nl:{
   search_ph:'Stad, locatie, gemeente...', search_my_pos:'Mijn huidige locatie', search_center:'Kaart op mij centreren',
   search_categories:'Categorieën',
   loc_ph:'Stad, departement...', loc_radius:'Straal:', loc_exact:'Exact',
-  sidebar_subtitle:'Vanlife-spots, services & tips', sidebar_location:'📍 Locatie',
+  sidebar_subtitle:'Anything, Anywhere, Anytime', sidebar_location:'📍 Locatie',
   places_label:'Locaties:', zone_current:'Huidige zone',
   report_title:'⚠️ Locatie melden', report_reason:'Reden *',
   report_details_ph:'Beschrijf het probleem...', report_details:'Details (optioneel)', report_submit:'Melding versturen',
@@ -2216,7 +2241,7 @@ nl:{
   modal_hide_place_title:'🚫 Locatie verbergen', modal_approve_place_title:'✅ Locatie valideren',
   modal_reject_place_title:'❌ Locatie weigeren',
   modal_delete_comment_title:'🗑️ Deze reactie verwijderen',
-  install_title:'📍 VanLifeMap installeren',
+  install_title:'📍 ANY installeren',
   install_ios_1:'Tik op de Deel-knop ⬇️ onderaan Safari',
   install_ios_2:'Scroll en tik op "Zet op beginscherm"',
   install_ios_3:'Tik rechtsboven op "Voeg toe"',
@@ -2255,9 +2280,9 @@ nl:{
   move_mode_cancel:'Annuleren',
   fuel_title:'Brandstofprijzen', fuel_updated:'Bijgewerkt',
   val_loading:'Stemmen laden...', val_validate_btn:'👍 Deze locatie valideren',
-  role_admin:'👑 Beheerder', role_moderator:'🛡️ Moderator', role_trusted:'⭐ Vertrouwd lid',
-  role_expert:'🥇 Expert', role_explorer:'🥈 Ontdekker', role_beginner:'🥉 Beginner',
-  role_active:'Actief lid', role_new:'Nieuw lid',
+  role_admin:'👑 Beheerder', role_moderator:'🛡️ Moderator', role_trusted:'💎 Vertrouwd lid',
+  role_expert:'🏆 Ambassadeur', role_explorer:'⭐ Gids', role_beginner:'📍 Bijdrager',
+  role_active:'🗺️ Ontdekker', role_new:'🌱 Nieuwsgierig',
   member_registered:'Geregistreerd op', member_no_pseudo:'(geen gebruikersnaam)',
   toast_login_reply:'Inloggen om te reageren', toast_login_like:'Inloggen om te liken', toast_login_post:'Inloggen om te posten', toast_login_add:'Inloggen om een locatie toe te voegen', toast_login_rate:'Inloggen om te beoordelen',
   toast_already_liked:'Al geliked!', toast_already_voted:'Je hebt al gestemd', toast_already_voted_place:'Je hebt al gestemd op deze locatie',
@@ -2282,7 +2307,7 @@ nl:{
   lbl_status_resolved:'✅ Opgelost', lbl_status_planned:'🗓️ Gepland', lbl_change_status:'Status wijzigen',
   lbl_validated_by:'✅ Locatie gevalideerd door', lbl_person_one:'persoon', lbl_person_many:'personen',
   lbl_unban:'Ban opheffen', lbl_ban_user:'Deze gebruiker verbannen', lbl_not_available:'Niet beschikbaar', lbl_err_generic:'Fout: ',
-  confirm_logout_title:'Uitloggen?', confirm_logout_msg:'Je wordt uitgelogd van je VanLifeMap-account.', confirm_logout_btn:'Uitloggen',
+  confirm_logout_title:'Uitloggen?', confirm_logout_msg:'Je wordt uitgelogd van je ANY-account.', confirm_logout_btn:'Uitloggen',
   confirm_del_photo:'Deze foto verwijderen?', confirm_del_photo_msg:'De foto wordt definitief verwijderd. Deze actie is onomkeerbaar.',
   confirm_del_post:'Dit bericht verwijderen?', confirm_del_post_msg:'Deze actie verwijdert het bericht en alle reacties.', confirm_del_reply:'Deze reactie verwijderen?',
   confirm_ignore_report:'Deze melding negeren?', confirm_ignore_report_msg:'De locatie blijft ongewijzigd. Deze actie is onomkeerbaar.',
@@ -2865,6 +2890,14 @@ async function renderProfile() {
     + '<div id="prof-validated-panel" style="display:none;padding:0 16px 4px;"></div>'
     + '<div id="prof-cmts-panel" style="display:none;padding:0 16px 4px;"></div>'
     + '<div id="prof-votes-panel" style="display:none;padding:0 16px 4px;"></div>'
+    + '<div class="prof-xp-wrap">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">'
+    + '<span style="font-size:13px;font-weight:700;color:var(--text);">🏅 <span id="prof-xp-total">—</span> XP <span id="prof-xp-level" style="font-weight:600;color:var(--accent);font-size:12px;"></span></span>'
+    + '<span style="font-size:11px;color:var(--text2);" id="prof-xp-next"></span>'
+    + '</div>'
+    + '<div class="prof-xp-bar"><div class="prof-xp-fill" id="prof-xp-fill" style="width:0%;"></div></div>'
+    + '<div class="prof-xp-breakdown" id="prof-xp-breakdown"></div>'
+    + '</div>'
     + '<div class="prof-ranking" onclick="toggleProfRank()" style="cursor:pointer;" title="Voir le classement g\u00e9n\u00e9ral">'
     + '<div class="prof-rank-icon">&#127942;</div>'
     + '<div class="prof-rank-bar-wrap"><div class="prof-rank-label">' + t('profile_ranking') + '</div>'
@@ -3013,12 +3046,34 @@ async function loadProfileStats(username) {
         rankEl.textContent = t('profile_unranked');
       }
     }
-    var roleLabel = isAdmin ? t('role_admin') : isModerator ? t('role_moderator') : isTrusted ? t('role_trusted') : placesCount >= 100 ? t('role_expert') : placesCount >= 30 ? t('role_explorer') : placesCount >= 10 ? t('role_beginner') : placesCount >= 5 ? t('role_active') : t('role_new');
+    var totalXP = calcXP(placesCount, validatedCount, commentsCount, votesCount, merciCount);
+    var xpLvl = getXPLevel(totalXP);
+    var roleLabel = isAdmin ? t('role_admin') : isModerator ? t('role_moderator') : isTrusted ? t('role_trusted') : t(xpLvl.data.key);
     if (badge) badge.textContent = roleLabel;
     var roleLabelEl = document.getElementById('prof-role-label');
     if (roleLabelEl) roleLabelEl.textContent = roleLabel;
     var memberNumEl = document.getElementById('prof-member-num');
     if (memberNumEl) memberNumEl.textContent = memberNum ? '\ud83d\udc64 Membre #' + memberNum : '';
+    var xpTotalEl = document.getElementById('prof-xp-total');
+    var xpLevelEl = document.getElementById('prof-xp-level');
+    var xpNextEl  = document.getElementById('prof-xp-next');
+    var xpFillEl  = document.getElementById('prof-xp-fill');
+    var xpBreakEl = document.getElementById('prof-xp-breakdown');
+    if (xpTotalEl) xpTotalEl.textContent = totalXP;
+    if (xpLevelEl) xpLevelEl.textContent = '\u2014 ' + t(xpLvl.data.key);
+    if (xpNextEl) xpNextEl.textContent = xpLvl.data.next ? (xpLvl.data.next - totalXP) + ' XP \u2192 ' + t(XP_THRESHOLDS[xpLvl.idx + 1].key) : '\ud83c\udfc6 Niveau maximum';
+    var xpPct = xpLvl.data.next ? Math.round(((totalXP - xpLvl.data.min) / (xpLvl.data.next - xpLvl.data.min)) * 100) : 100;
+    if (xpFillEl) xpFillEl.style.width = Math.min(100, Math.max(2, xpPct)) + '%';
+    if (xpBreakEl) xpBreakEl.innerHTML = [
+      ['\ud83d\udccd', t('profile_places_added'), placesCount, 10],
+      ['\u2705', t('profile_validated'), validatedCount, 3],
+      ['\ud83d\udcac', t('profile_comments'), commentsCount, 2],
+      ['\ud83d\udc4d', t('profile_votes'), votesCount, 1],
+      ['\ud83d\ude4f', t('profile_thanks_received'), merciCount, 5]
+    ].map(function(r){
+      var pts = r[2]*r[3];
+      return '<div class="prof-xp-row"><span><b>' + r[0] + ' ' + r[2] + '</b> ' + r[1] + ' \u00d7 ' + r[3] + '</span><span style="font-weight:700;color:' + (pts>0?'#ffd04f':'var(--text2)') + ';">+' + pts + ' XP</span></div>';
+    }).join('');
   } catch(e) {
     console.warn('Profile stats error:', e);
   }
@@ -3091,9 +3146,13 @@ async function openPublicProfile(username) {
   else if (isSelf && isModerator) pubUserRole = pubUserRole || 'moderator';
   var pubUserBanned = typeof pubUserBanned !== 'undefined' ? pubUserBanned : false;
   var memberNum = typeof memberNum !== 'undefined' ? memberNum : null;
+  var merciCountPub = (typeof merciCount !== 'undefined' ? merciCount : 0);
+  var pubXP = calcXP(placesCount, validatedCount, commentsCount, votesCount, merciCountPub);
+  var pubXPLvl = getXPLevel(pubXP);
+  var pubXPPct = pubXPLvl.data.next ? Math.round(((pubXP - pubXPLvl.data.min) / (pubXPLvl.data.next - pubXPLvl.data.min)) * 100) : 100;
   var roleBadge = pubUserRole === 'admin' ? t('role_admin') : pubUserRole === 'moderator' ? t('role_moderator') : pubUserRole === 'trusted' ? t('role_trusted') : null;
-  var communityRole = roleBadge || (placesCount >= 100 ? t('role_expert') : placesCount >= 30 ? t('role_explorer') : placesCount >= 10 ? t('role_beginner') : placesCount >= 5 ? t('role_active') : t('role_new'));
-  var lvl = roleBadge || (placesCount >= 100 ? t('role_expert') : placesCount >= 30 ? t('role_explorer') : placesCount >= 10 ? t('role_beginner') : t('role_new'));
+  var communityRole = roleBadge || t(pubXPLvl.data.key);
+  var lvl = communityRole;
 
   var BANNER_PRESETS = ['135deg,#0a0a0a,#1a1a1a,#2d2d2d','135deg,#13110a,#28230a,#3d3510','135deg,#070d1a,#0d1830,#162544','135deg,#0f0814,#1c1228,#2a1a3d','135deg,#080f08,#0f1f0e,#1a2e18','135deg,#140606,#250a0a,#361010','135deg,#060f0f,#0a1c1c,#112828','135deg,#080b12,#10151f,#1a2030'];
   var hash = username.split('').reduce(function(a, c) { return a + c.charCodeAt(0); }, 0);
@@ -3132,6 +3191,7 @@ async function openPublicProfile(username) {
     + '<div id="pub-places-panel" style="display:none;padding:0 16px 4px;"></div>'
     + '<div id="pub-validated-panel" style="display:none;padding:0 16px 4px;"></div>'
     + '<div id="pub-cmts-panel" style="display:none;padding:0 16px 4px;"></div>'
+    + '<div class="prof-xp-wrap"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;"><span style="font-size:13px;font-weight:700;color:var(--text);">🏅 ' + pubXP + ' XP <span style="font-weight:600;color:var(--accent);font-size:12px;">— ' + communityRole + '</span></span><span style="font-size:11px;color:var(--text2);">' + (pubXPLvl.data.next ? (pubXPLvl.data.next - pubXP) + ' XP → ' + t(XP_THRESHOLDS[pubXPLvl.idx + 1].key) : '🏆 Niveau maximum') + '</span></div><div class="prof-xp-bar"><div class="prof-xp-fill" style="width:' + Math.min(100, Math.max(2, pubXPPct)) + '%;"></div></div></div>'
     + rankHtml
     + (isAdmin && profile && profile.id !== (currentUser && currentUser.id) ? '<div style="padding:12px 16px;border-top:1px solid var(--border);">'
       + (pubUserBanned
@@ -6001,7 +6061,7 @@ async function submitPlace() {
 function sharePlace(id, name, lat, lon) {
   var url = window.location.origin + window.location.pathname + '?lat=' + lat + '&lon=' + lon + '&zoom=16';
   if (navigator.share) {
-    navigator.share({ title: name, text: '📍 ' + name + ' — VanlifeMap', url: url });
+    navigator.share({ title: name, text: '📍 ' + name + ' — ANY', url: url });
   } else {
     navigator.clipboard.writeText(url).then(function() {
       showToast(t('toast_copied'), 'success');
