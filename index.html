@@ -419,6 +419,18 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
 .prof-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#0ba6b3,#0480b3);display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:900;color:#fff;border:3px solid var(--bg);position:absolute;bottom:-36px;left:20px;box-shadow:0 4px 16px rgba(0,0,0,0.4);cursor:pointer;overflow:hidden;}
 .prof-avatar-edit{position:absolute;inset:0;background:rgba(0,0,0,0.42);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:15px;}
 .prof-avatar:hover .prof-avatar-edit{display:flex;}
+.prof-bio-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:13px;font-style:italic;font-weight:600;text-align:center;text-shadow:0 1px 5px rgba(0,0,0,0.65);max-width:65%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;letter-spacing:0.2px;}
+.prof-banner-edit-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.78);display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:3;padding:10px 14px;box-sizing:border-box;}
+.prof-banner-edit-overlay.open{display:flex;}
+.pbe-swatches{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.pbe-swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;flex-shrink:0;transition:border-color 0.15s,transform 0.12s;}
+.pbe-swatch:hover,.pbe-swatch.sel{border-color:#fff;transform:scale(1.18);}
+.pbe-bio-input{width:100%;max-width:260px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.32);color:#fff;border-radius:8px;padding:7px 10px;font-size:12px;font-family:var(--font-body);outline:none;box-sizing:border-box;}
+.pbe-bio-input::placeholder{color:rgba(255,255,255,0.45);}
+.pbe-row{display:flex;gap:8px;}
+.pbe-btn{border:none;border-radius:8px;padding:6px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-head);}
+.pbe-btn-save{background:#fff;color:#0ba6b3;}
+.pbe-btn-close{background:rgba(255,255,255,0.18);color:#fff;}
 #avatar-picker{position:fixed;inset:0;z-index:9500;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.55);}
 #avatar-picker.show{display:flex;}
 .av-panel{background:var(--surface);border-radius:20px 20px 0 0;padding:18px 16px 32px;width:100%;max-width:480px;max-height:75vh;overflow-y:auto;}
@@ -1040,6 +1052,18 @@ var ADMINS = ['mypoiuytreza@gmail.com', 'unverredericard@gmail.com'];
 var isAdmin = false, isModerator = false, isTrusted = false;
 var userXPIdx = 0;
 var currentUserAvatar = null;
+var currentUserBio = '';
+var currentUserBannerColor = '';
+var BANNER_PRESETS = [
+  {k:'teal',   g:'135deg,#0ba6b3,#0480b3'},
+  {k:'ocean',  g:'135deg,#071820,#0d3a5a'},
+  {k:'aurora', g:'135deg,#0d4f3c,#0ba6b3'},
+  {k:'sunset', g:'135deg,#c0392b,#f39c12'},
+  {k:'purple', g:'135deg,#4c1d95,#2563eb'},
+  {k:'forest', g:'135deg,#1a4731,#2d6a4f'},
+  {k:'rose',   g:'135deg,#9d174d,#db2777'},
+  {k:'slate',  g:'135deg,#1e293b,#475569'}
+];
 var AVATAR_EMOJIS = [
   '🐺','🦊','🐻','🦁','🐯','🐨','🦝','🦉',
   '🦅','🐸','🐧','🦋','🐙','🦈','🐬','🦜',
@@ -2787,8 +2811,19 @@ async function renderProfile() {
   var memberSince = new Date(currentUser.created_at);
   var dateStr = memberSince.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
   var avatarInner = currentUserAvatar || localStorage.getItem('vlm_avatar') || initials;
+  var bannerGrad = currentUserBannerColor || BANNER_PRESETS[0].g;
+  var bio = currentUserBio || '';
+  var swatchesHtml = BANNER_PRESETS.map(function(p) {
+    return '<div class="pbe-swatch' + (p.g === bannerGrad ? ' sel' : '') + '" data-g="' + p.g + '" style="background:linear-gradient(' + p.g + ')"></div>';
+  }).join('');
   el.innerHTML = '<div class="prof-card">'
-    + '<div class="prof-banner" id="prof-banner">'
+    + '<div class="prof-banner" id="prof-banner" style="background:linear-gradient(' + bannerGrad + ')">'
+    + '<div class="prof-bio-text" id="prof-bio-display">' + escHtml(bio) + '</div>'
+    + '<div class="prof-banner-edit-overlay" id="prof-banner-overlay">'
+    + '<div class="pbe-swatches" id="pbe-swatches">' + swatchesHtml + '</div>'
+    + '<input class="pbe-bio-input" id="pbe-bio-input" placeholder="Ta devise…" maxlength="60" value="' + escHtml(bio) + '">'
+    + '<div class="pbe-row"><button class="pbe-btn pbe-btn-save" id="pbe-save">&#10003; Enregistrer</button><button class="pbe-btn pbe-btn-close" id="pbe-close">&#10005;</button></div>'
+    + '</div>'
     + '<div class="prof-avatar" id="prof-avatar">' + avatarInner + '<div class="prof-avatar-edit">&#9998;</div></div>'
     + '</div>'
     + '<div class="prof-identity">'
@@ -2858,6 +2893,22 @@ async function renderProfile() {
     + '</div>'
     + '</div>';
 
+  document.getElementById('prof-banner').addEventListener('click', function(e) {
+    if (e.target.closest('#prof-avatar') || e.target.closest('#prof-banner-overlay')) return;
+    document.getElementById('prof-banner-overlay').classList.toggle('open');
+  });
+  document.getElementById('pbe-swatches').addEventListener('click', function(e) {
+    var sw = e.target.closest('.pbe-swatch');
+    if (!sw) return;
+    currentUserBannerColor = sw.dataset.g;
+    document.querySelectorAll('.pbe-swatch').forEach(function(s) { s.classList.remove('sel'); });
+    sw.classList.add('sel');
+    document.getElementById('prof-banner').style.background = 'linear-gradient(' + currentUserBannerColor + ')';
+  });
+  document.getElementById('pbe-save').addEventListener('click', saveBannerProfile);
+  document.getElementById('pbe-close').addEventListener('click', function() {
+    document.getElementById('prof-banner-overlay').classList.remove('open');
+  });
   document.getElementById('prof-avatar').addEventListener('click', function() {
     openAvatarPicker();
   });
@@ -2915,11 +2966,28 @@ async function selectAvatar(emoji) {
   if (av) av.innerHTML = emoji + '<div class="prof-avatar-edit">&#9998;</div>';
   localStorage.setItem('vlm_avatar', emoji);
   var saveRes = await db.from('profiles').upsert(
-    { user_id: currentUser.id, username: currentUsername, avatar_url: emoji },
+    { user_id: currentUser.id, username: currentUsername, avatar_url: emoji, bio: currentUserBio || null, banner_color: currentUserBannerColor || null },
     { onConflict: 'user_id' }
   );
   if (saveRes.error) { showToast('Erreur sauvegarde : ' + saveRes.error.message, 'error'); return; }
   showToast('Avatar mis à jour !', 'success');
+}
+
+async function saveBannerProfile() {
+  if (!currentUser) return;
+  var bioInput = document.getElementById('pbe-bio-input');
+  var bio = bioInput ? bioInput.value.trim() : '';
+  var color = currentUserBannerColor || BANNER_PRESETS[0].g;
+  currentUserBio = bio;
+  document.getElementById('prof-banner-overlay').classList.remove('open');
+  var bioEl = document.getElementById('prof-bio-display');
+  if (bioEl) bioEl.textContent = bio;
+  var r = await db.from('profiles').upsert(
+    { user_id: currentUser.id, username: currentUsername, avatar_url: currentUserAvatar || null, bio: bio, banner_color: color },
+    { onConflict: 'user_id' }
+  );
+  if (r.error) { showToast('Erreur : ' + r.error.message, 'error'); return; }
+  showToast('Profil mis à jour !', 'success');
 }
 
 async function loadProfileStats(username) {
@@ -2934,7 +3002,7 @@ async function loadProfileStats(username) {
       db.from('profiles').select('user_id', { count: 'exact', head: true }).not('username', 'is', null).lte('registered_at', currentUser.created_at),
       db.from('places').select('id', { count: 'exact', head: true }).eq('approved_by_id', uid),
       db.from('places').select('votes_positifs').eq('user_id', uid),
-      db.from('profiles').select('avatar_url').eq('user_id', uid).maybeSingle()
+      db.from('profiles').select('avatar_url,bio,banner_color').eq('user_id', uid).maybeSingle()
     ]);
     var BOT_NAMES = ['Import OSM', 'OpenStreetMap', 'Prix-Carburants-gouv'];
     var lbData = (res[0].data || []).filter(function(u) { return BOT_NAMES.indexOf(u.user_name) === -1; });
@@ -2950,6 +3018,21 @@ async function loadProfileStats(username) {
       localStorage.setItem('vlm_avatar', currentUserAvatar);
       var avEl = document.getElementById('prof-avatar');
       if (avEl) avEl.innerHTML = currentUserAvatar + '<div class="prof-avatar-edit">&#9998;</div>';
+    }
+    if (avatarData && avatarData.bio) {
+      currentUserBio = avatarData.bio;
+      var bioEl = document.getElementById('prof-bio-display');
+      if (bioEl) bioEl.textContent = currentUserBio;
+      var bioInput = document.getElementById('pbe-bio-input');
+      if (bioInput) bioInput.value = currentUserBio;
+    }
+    if (avatarData && avatarData.banner_color) {
+      currentUserBannerColor = avatarData.banner_color;
+      var bannerEl = document.getElementById('prof-banner');
+      if (bannerEl) bannerEl.style.background = 'linear-gradient(' + currentUserBannerColor + ')';
+      document.querySelectorAll('.pbe-swatch').forEach(function(s) {
+        s.classList.toggle('sel', s.dataset.g === currentUserBannerColor);
+      });
     }
     var myIdx = lbData.findIndex(function(u) { return u.user_name === username; });
     var myRank = myIdx + 1;
@@ -3064,7 +3147,7 @@ async function openPublicProfile(username) {
   content.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text2);">Chargement...</div>';
   openSheet('sheet-pub-profile');
 
-  var profileRes = await db.from('profiles').select('user_id,username,created_at,registered_at,avatar_url').eq('username', username).maybeSingle();
+  var profileRes = await db.from('profiles').select('user_id,username,created_at,registered_at,avatar_url,bio,banner_color').eq('username', username).maybeSingle();
   var profile = profileRes.data;
   var placesCount = 0, commentsCount = 0, validatedCount = 0, votesCount = 0, rankPos = null, rankTotal = null;
 
@@ -3107,6 +3190,8 @@ async function openPublicProfile(username) {
 
   var initials = username.slice(0, 2).toUpperCase();
   var pubAvatar = (profile && profile.avatar_url) ? profile.avatar_url : initials;
+  var pubBio = (profile && profile.bio) ? profile.bio : '';
+  var pubBannerGrad = (profile && profile.banner_color) ? profile.banner_color : BANNER_PRESETS[0].g;
   var isSelf = !!(currentUser && profile && profile.user_id === currentUser.id);
   var rawDate = isSelf ? currentUser.created_at : (profile ? (profile.registered_at || profile.created_at) : (typeof firstPlaceDate !== 'undefined' ? firstPlaceDate : null));
   var joinDate = rawDate ? new Date(rawDate).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : null;
@@ -3132,7 +3217,8 @@ async function openPublicProfile(username) {
     + '</div>' : '';
 
   content.innerHTML = '<div class="prof-card">'
-    + '<div class="prof-banner">'
+    + '<div class="prof-banner" style="background:linear-gradient(' + pubBannerGrad + ')">'
+    + (pubBio ? '<div class="prof-bio-text">' + escHtml(pubBio) + '</div>' : '')
     + '<div class="prof-avatar" style="cursor:default;">' + escHtml(pubAvatar) + '</div>'
     + '</div>'
     + '<div class="prof-identity">'
