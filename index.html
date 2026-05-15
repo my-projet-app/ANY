@@ -2851,17 +2851,30 @@ async function renderProfile() {
   var dateStr = memberSince.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
   // Banner style
   var bannerData = JSON.parse(localStorage.getItem('vlm_banner') || 'null');
-  // Clear any stored image banners (image option removed)
-  if (bannerData && bannerData.type === 'image') { localStorage.removeItem('vlm_banner'); bannerData = null; }
-  var bannerStyle = 'background:linear-gradient(' + (bannerData && bannerData.value ? bannerData.value : '135deg,#0a0a0a,#1a1a1a,#2d2d2d') + ')';
+  // Clear legacy dark presets (b1-b8) and image banners from old branding
+  var LEGACY_KEYS = ['b1','b2','b3','b4','b5','b6','b7','b8'];
+  if (bannerData && (bannerData.type === 'image' || LEGACY_KEYS.indexOf(bannerData.key) !== -1)) {
+    localStorage.removeItem('vlm_banner'); bannerData = null;
+  }
+  var DEFAULT_BANNER = '160deg,#0ba6b3,#0480b3';
+  var bannerStyle = 'background:linear-gradient(' + (bannerData && bannerData.value ? bannerData.value : DEFAULT_BANNER) + ')';
   // Avatar
   var avatarImg = localStorage.getItem('vlm_avatar_img');
   var avatarInner = avatarImg
     ? '<img src="' + avatarImg + '" alt="">'
     : initials;
   // Build swatches HTML
-  var PRESETS = [{"k":"b1","g":"135deg,#0a0a0a,#1a1a1a,#2d2d2d"},{"k":"b2","g":"135deg,#13110a,#28230a,#3d3510"},{"k":"b3","g":"135deg,#070d1a,#0d1830,#162544"},{"k":"b4","g":"135deg,#0f0814,#1c1228,#2a1a3d"},{"k":"b5","g":"135deg,#080f08,#0f1f0e,#1a2e18"},{"k":"b6","g":"135deg,#140606,#250a0a,#361010"},{"k":"b7","g":"135deg,#060f0f,#0a1c1c,#112828"},{"k":"b8","g":"135deg,#080b12,#10151f,#1a2030"}];
-  var selKey = bannerData && bannerData.key ? bannerData.key : 'b1';
+  var PRESETS = [
+    {"k":"logo", "g":"160deg,#0ba6b3,#0480b3"},
+    {"k":"c1",   "g":"160deg,#056070,#043d6b"},
+    {"k":"c2",   "g":"160deg,#0dd4e6,#1a95d8"},
+    {"k":"c3",   "g":"135deg,#071820,#0d2535,#1d4a60"},
+    {"k":"c4",   "g":"135deg,#0d0828,#1a1052,#2e1a82"},
+    {"k":"c5",   "g":"135deg,#0a1f0e,#193820,#2a5535"},
+    {"k":"c6",   "g":"135deg,#0a0a0a,#181818,#262626"},
+    {"k":"c7",   "g":"135deg,#0d1219,#1a2233,#263345"}
+  ];
+  var selKey = bannerData && bannerData.key ? bannerData.key : 'logo';
   var swatchesHtml = PRESETS.map(function(p) {
     return '<div class="prof-swatch' + (p.k === selKey ? ' sel' : '') + '" data-key="' + p.k + '" data-g="' + p.g + '" style="background:linear-gradient(' + p.g + ')"></div>';
   }).join('');
