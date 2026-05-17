@@ -4944,7 +4944,7 @@ async function loadWeeklyRankProfile() {
   var el = document.getElementById('rank-list');
   if (!el) return;
   el.innerHTML = '<div style="color:var(--text2);font-size:12px;text-align:center;padding:16px 0;">Chargement...</div>';
-  var res = await db.rpc('get_weekly_leaderboard');
+  var res = await db.rpc('get_weekly_leaderboard', {});
   if (res.error) { el.innerHTML = '<div style="color:#e74c3c;font-size:12px;">Erreur : ' + res.error.message + '</div>'; return; }
   var entries = res.data || [];
   if (!entries.length) {
@@ -6783,7 +6783,7 @@ function showDashLeaderboard() {
 async function loadDashLeaderboard() {
   var el = document.getElementById('dash-leaderboard');
   if (!el) return;
-  var res = await db.rpc('get_weekly_leaderboard');
+  var res = await db.rpc('get_weekly_leaderboard', {});
   if (res.error) { el.innerHTML = '<div style="color:#e74c3c;font-size:13px;">Erreur : ' + res.error.message + '</div>'; return; }
   var entries = res.data || [];
   if (!entries.length) {
