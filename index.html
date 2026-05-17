@@ -2846,9 +2846,10 @@ async function renderProfile() {
     + '<span id="prof-rank-arrow" style="color:var(--text2);font-size:20px;">\u203a</span>'
     + '</div>'
     + '<div id="prof-rank-panel" style="display:none;padding:0 16px 12px;">'
-    + '<div style="display:flex;gap:8px;margin-bottom:10px;">'
-    + '<button id="rank-tab-places" onclick="switchRankTab(\'places\')" style="flex:1;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px;font-size:12px;font-weight:700;cursor:pointer;">' + t('profile_tab_places') + '</button>'
-    + '<button id="rank-tab-ratings" onclick="switchRankTab(\'ratings\')" style="flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px;font-size:12px;cursor:pointer;">' + t('profile_tab_ratings') + '</button>'
+    + '<div style="display:flex;gap:6px;margin-bottom:10px;">'
+    + '<button id="rank-tab-places" onclick="switchRankTab(\'places\')" style="flex:1;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px;font-size:11px;font-weight:700;cursor:pointer;">' + t('profile_tab_places') + '</button>'
+    + '<button id="rank-tab-ratings" onclick="switchRankTab(\'ratings\')" style="flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px;font-size:11px;cursor:pointer;">' + t('profile_tab_ratings') + '</button>'
+    + '<button id="rank-tab-week" onclick="switchRankTab(\'week\')" style="flex:1;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:7px;font-size:11px;cursor:pointer;">🏆 Semaine</button>'
     + '</div>'
     + '<div id="rank-list"></div>'
     + '</div>'
@@ -4925,9 +4926,60 @@ function switchRankTab(tab) {
   currentRankTab = tab;
   var tp = document.getElementById('rank-tab-places');
   var tr = document.getElementById('rank-tab-ratings');
-  if (tp) { tp.style.background = tab === 'places' ? 'var(--accent)' : 'var(--surface2)'; tp.style.color = tab === 'places' ? '#000' : 'var(--text)'; }
-  if (tr) { tr.style.background = tab === 'ratings' ? 'var(--accent)' : 'var(--surface2)'; tr.style.color = tab === 'ratings' ? '#000' : 'var(--text)'; }
-  loadLeaderboard(tab);
+  var tw = document.getElementById('rank-tab-week');
+  var tabs = { places: tp, ratings: tr, week: tw };
+  Object.keys(tabs).forEach(function(k) {
+    var btn = tabs[k];
+    if (!btn) return;
+    var active = k === tab;
+    btn.style.background = active ? 'var(--accent)' : 'var(--surface2)';
+    btn.style.color = active ? '#fff' : 'var(--text)';
+    btn.style.border = active ? 'none' : '1px solid var(--border)';
+    btn.style.fontWeight = active ? '700' : '400';
+  });
+  if (tab === 'week') { loadWeeklyRankProfile(); } else { loadLeaderboard(tab); }
+}
+
+async function loadWeeklyRankProfile() {
+  var el = document.getElementById('rank-list');
+  if (!el) return;
+  el.innerHTML = '<div style="color:var(--text2);font-size:12px;text-align:center;padding:16px 0;">Chargement...</div>';
+  var res = await db.rpc('get_weekly_leaderboard');
+  if (res.error) { el.innerHTML = '<div style="color:#e74c3c;font-size:12px;">Erreur</div>'; return; }
+  var entries = res.data || [];
+  if (!entries.length) {
+    el.innerHTML = '<div style="color:var(--text2);font-size:12px;text-align:center;padding:16px 0;">Aucune activité cette semaine 🚀</div>';
+    return;
+  }
+  var medals = ['🥇', '🥈', '🥉'];
+  var selfIdx = entries.findIndex(function(e) { return e.username === currentUsername; });
+  var selfEntry = selfIdx >= 0 ? entries[selfIdx] : null;
+  var html = '';
+  if (selfEntry) {
+    html += '<div style="background:rgba(11,166,179,0.1);border:1px solid rgba(11,166,179,0.3);border-radius:10px;padding:10px 12px;margin-bottom:10px;display:flex;align-items:center;gap:10px;">'
+      + '<div style="font-size:' + (selfIdx < 3 ? '20' : '13') + 'px;font-weight:700;width:24px;text-align:center;flex-shrink:0;">' + (selfIdx < 3 ? medals[selfIdx] : '#' + (selfIdx + 1)) + '</div>'
+      + '<div style="flex:1;"><div style="font-size:13px;font-weight:800;color:var(--accent);">👤 ' + escHtml(currentUsername) + '</div>'
+      + '<div style="font-size:11px;color:var(--text2);">Ma position cette semaine</div></div>'
+      + '<div style="text-align:right;"><div style="font-size:15px;font-weight:800;color:var(--accent);">' + selfEntry.weekly_xp + '</div><div style="font-size:10px;color:var(--text2);">XP</div></div>'
+      + '</div>';
+  }
+  html += entries.slice(0, 10).map(function(e, i) {
+    var isSelf = e.username === currentUsername;
+    if (isSelf) return '';
+    var avatar = e.avatar_url || (e.username ? e.username.slice(0, 2).toUpperCase() : '?');
+    var isEmoji = avatar.length > 2;
+    var avatarBg = e.avatar_bg ? 'background:linear-gradient(' + e.avatar_bg + ');color:#fff;' : 'background:rgba(11,166,179,0.15);color:var(--accent);';
+    return '<div onclick="' + (e.username ? 'openPublicProfile(\'' + escHtml(e.username).replace(/'/g, "\\'") + '\')' : '') + '" style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);' + (e.username ? 'cursor:pointer;' : '') + '">'
+      + '<div style="font-size:' + (i < 3 ? '18' : '12') + 'px;width:24px;text-align:center;flex-shrink:0;' + (i >= 3 ? 'color:var(--text2);font-weight:700;' : '') + '">' + (i < 3 ? medals[i] : i + 1) + '</div>'
+      + '<div style="width:32px;height:32px;border-radius:50%;' + avatarBg + 'display:flex;align-items:center;justify-content:center;font-size:' + (isEmoji ? '18' : '12') + 'px;font-weight:700;flex-shrink:0;">' + avatar + '</div>'
+      + '<div style="flex:1;font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(e.username || '(sans pseudo)') + '</div>'
+      + '<div style="font-size:13px;font-weight:800;color:var(--accent);flex-shrink:0;">' + e.weekly_xp + ' <span style="font-size:10px;font-weight:400;color:var(--text2);">XP</span></div>'
+      + '</div>';
+  }).join('');
+  if (entries.length > 10) {
+    html += '<div style="text-align:center;font-size:11px;color:var(--text2);padding:8px 0;">' + entries.length + ' participants au total</div>';
+  }
+  el.innerHTML = html;
 }
 
 var _profRankOpen = false;
