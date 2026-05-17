@@ -2854,16 +2854,6 @@ async function renderProfile() {
   });
   document.getElementById('pbe-bio-input').addEventListener('keydown', function(e) {
     e.stopPropagation();
-    if (e.key === 'Enter') return;
-    var ta = this;
-    var lines = ta.value.split('\n');
-    var pos = ta.selectionStart;
-    var lineIdx = ta.value.slice(0, pos).split('\n').length - 1;
-    var currentLine = lines[lineIdx] || '';
-    var sel = ta.selectionEnd - ta.selectionStart;
-    if (currentLine.length >= 32 && !e.ctrlKey && !e.metaKey && e.key.length === 1 && sel === 0) {
-      e.preventDefault();
-    }
   });
   document.getElementById('prof-avatar').addEventListener('click', function() {
     openAvatarPicker();
