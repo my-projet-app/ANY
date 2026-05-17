@@ -387,6 +387,10 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
 .av-btn.sel{border-color:var(--accent);background:rgba(11,166,179,0.12);}
 .av-btn:active{transform:scale(0.85);}
 .av-bg-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.pbe-av-grid{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;max-width:340px;max-height:180px;overflow-y:auto;background:rgba(0,0,0,0.2);border-radius:10px;padding:8px;}
+.pbe-av-btn{font-size:22px;background:none;border:2.5px solid transparent;border-radius:10px;padding:4px;cursor:pointer;line-height:1;transition:border-color 0.12s,transform 0.1s;}
+.pbe-av-btn.sel{border-color:#fff;}
+.pbe-av-btn:active{transform:scale(0.85);}
 .av-bg-swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;flex-shrink:0;transition:border-color 0.15s,transform 0.12s;}
 .av-bg-swatch:hover,.av-bg-swatch.sel{border-color:var(--accent);transform:scale(1.15);}
 .prof-identity{background:var(--surface);padding:46px 20px 16px;border-bottom:1px solid var(--border);}
@@ -992,18 +996,24 @@ var BANNER_PRESETS = [
   {k:'cherry',    g:'135deg,#eb3349,#f45c43'}
 ];
 var AVATAR_EMOJIS = [
+  '😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩',
+  '😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐',
+  '🤨','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒',
+  '🤕','🤢','🤮','🤧','🥵','🥶','🥴','😵','🤯','🥳','🥸','😎','🤓','🧐','😕','🙁',
+  '☹️','😮','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞',
+  '😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺',
+  '👻','👽','👾','🤖',
   '🐺','🦊','🐻','🦁','🐯','🐨','🦝','🦉',
   '🦅','🐸','🐧','🦋','🐙','🦈','🐬','🦜',
-  '🐝','🦌','🦔','🐓','🦩','🦚','🦋','🐊',
+  '🐝','🦌','🦔','🐓','🦩','🦚','🐊','🦖',
   '🌵','🌊','🏔️','🌿','🍄','🌻','🌺','🍀',
   '🌸','🍁','🌾','🪸','🌙','❄️','🔥','🌈',
   '🧗','🏄','⛵','🚵','🏕️','🚀','🏍️','🪂',
-  '🤿','🎯','🛻','⛺','🗺️','🧭','🎣','🧗',
-  '😎','🤠','👾','💎','🌟','⭐','💫','🪐',
-  '🔮','✨','🌴','🏖️','🌞','🌝','🌚','🌛',
-  '🤖','🎮','🔭','🎲','🎵','🎨','🎸','🎭',
-  '🃏','🏆','🎯','🥷','🧙','🦸','🏋️','🤸',
-  '☕','🍕','🌮','🧃','🍺','🎪','🎡','🎠'
+  '🤿','🎯','🛻','⛺','🗺️','🧭','🎣','🏊',
+  '💎','🌟','⭐','💫','🪐','🔮','✨','🌴',
+  '🏖️','🌞','🌝','🌚','🌛','🎮','🔭','🎲',
+  '🎵','🎨','🎸','🎭','🃏','🏆','🥷','🧙',
+  '🦸','🏋️','🤸','☕','🍕','🌮','🍺','🎪'
 ];
 var BADGES_DEF = [
   { icon:'🗺️', key:'badge_first_place', check:function(s){ return s.places>=1; } },
@@ -2753,25 +2763,34 @@ async function renderProfile() {
   var swatchesHtml = BANNER_PRESETS.map(function(p) {
     return '<div class="pbe-swatch' + (p.g === bannerGrad ? ' sel' : '') + '" data-g="' + p.g + '" style="background:linear-gradient(' + p.g + ')"></div>';
   }).join('');
+  var avBgSwatchesHtml = BANNER_PRESETS.map(function(p) {
+    return '<div class="av-bg-swatch' + (p.g === avatarBg ? ' sel' : '') + '" data-g="' + p.g + '" style="background:linear-gradient(' + p.g + ')" onclick="selectAvatarBg(\'' + p.g + '\')"></div>';
+  }).join('');
+  var avGridHtml = AVATAR_EMOJIS.map(function(e) {
+    return '<button class="pbe-av-btn' + (avatarInner === e ? ' sel' : '') + '" onclick="selectAvatar(\'' + e + '\');document.querySelectorAll(\'.pbe-av-btn\').forEach(function(b){b.classList.remove(\'sel\')});this.classList.add(\'sel\')">' + e + '</button>';
+  }).join('');
+  var btnStyle = 'flex-shrink:0;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:var(--font-body);font-weight:600;';
   el.innerHTML = '<div class="prof-card">'
     + '<div class="prof-banner" id="prof-banner" style="background:linear-gradient(' + bannerGrad + ')">'
     + '<div class="prof-bio-text" id="prof-bio-display">' + escHtml(bio) + '</div>'
     + '<div class="prof-banner-edit-overlay" id="prof-banner-overlay">'
-    + '<div style="font-size:13px;font-weight:700;color:#fff;opacity:0.8;text-align:center;letter-spacing:0.5px;">🎨 Personnaliser la bannière</div>'
+    + '<div style="font-size:14px;font-weight:800;color:#fff;text-align:center;letter-spacing:0.5px;">🎨 Personnaliser le profil</div>'
+    + '<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.8px;align-self:flex-start;">Avatar</div>'
+    + '<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">' + avBgSwatchesHtml + '</div>'
+    + '<div class="pbe-av-grid" id="pbe-av-grid">' + avGridHtml + '</div>'
+    + '<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.8px;align-self:flex-start;margin-top:4px;">Bannière &amp; Devise</div>'
     + '<div class="pbe-swatches" id="pbe-swatches">' + swatchesHtml + '</div>'
     + '<textarea class="pbe-bio-input" id="pbe-bio-input" placeholder="Ta devise…" maxlength="74">' + escHtml(bio) + '</textarea>'
     + '<div class="pbe-row"><button class="pbe-btn pbe-btn-save" id="pbe-save">&#10003; Enregistrer</button><button class="pbe-btn pbe-btn-close" id="pbe-close">&#10005; Annuler</button></div>'
     + '</div>'
-    + '<div class="prof-avatar" id="prof-avatar" style="' + avatarBgStyle + '">' + avatarInner + '<div class="prof-avatar-edit">&#9998;</div></div>'
+    + '<div class="prof-avatar" id="prof-avatar" style="' + avatarBgStyle + '">' + avatarInner + '</div>'
     + '</div>'
     + '<div class="prof-identity">'
-    + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;padding-left:100px;margin-bottom:10px;">'
+    + '<button onclick="document.getElementById(\'prof-banner-overlay\').classList.add(\'open\')" style="' + btnStyle + '">🎨 Personnaliser</button>'
+    + '<button onclick="inviteApp()" style="' + btnStyle + '">📨 Inviter un ami</button>'
+    + '</div>'
     + '<div class="prof-username">' + username + '</div>'
-    + '<div style="display:flex;gap:6px;">'
-    + '<button onclick="document.getElementById(\'prof-banner-overlay\').classList.add(\'open\')" style="flex-shrink:0;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:7px 13px;font-size:12px;cursor:pointer;font-family:var(--font-body);font-weight:600;transition:border-color 0.15s,color 0.15s;" onmouseenter="this.style.borderColor=\'var(--accent)\';this.style.color=\'var(--accent)\';" onmouseleave="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--text2)\';">🎨 Personnaliser</button>'
-    + '<button onclick="inviteApp()" style="flex-shrink:0;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:7px 13px;font-size:12px;cursor:pointer;font-family:var(--font-body);font-weight:600;transition:border-color 0.15s,color 0.15s;" onmouseenter="this.style.borderColor=\'var(--accent)\';this.style.color=\'var(--accent)\';" onmouseleave="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--text2)\';">📨 Inviter</button>'
-    + '</div>'
-    + '</div>'
     + '<div class="prof-meta" style="display:flex;flex-direction:column;gap:4px;margin-top:4px;">'
     + '<span id="prof-role-label" style="font-size:13px;font-weight:600;color:var(--accent);"></span>'
     + '<span style="font-size:12px;color:var(--text2);">&#128197; ' + t('profile_member_since') + ' ' + dateStr + ' &nbsp;&middot;&nbsp; <span id="prof-member-num"></span></span>'
