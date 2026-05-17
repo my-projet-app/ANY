@@ -3914,7 +3914,7 @@ async function loadCats() {
     });
   });
   try {
-    var countRes = await db.from('places').select('category_id').in('status', ['active', 'pending']).is('hidden', null).limit(100000);
+    var countRes = await db.from('places').select('category_id').in('status', ['active', 'pending']).limit(100000);
     catCounts = {};
     (countRes.data || []).forEach(function(p) {
       catCounts[p.category_id] = (catCounts[p.category_id] || 0) + 1;
