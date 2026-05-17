@@ -7106,114 +7106,6 @@ function showDashCategories() {
   });
 }
 
-function renderDashCategoriesContent() {
-  var c = document.getElementById('dash-detail-content');
-  if (!c) return;
-  var html = mainCats.map(function(mc) {
-    var subs = allCats.filter(function(s) { return s.main_category_id === mc.id; });
-    return '<div style="margin-bottom:18px;">'
-      + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);">'
-      + '<div style="font-size:14px;font-weight:700;color:var(--text);">' + escHtml(mc.icon + ' ' + mc.name) + '</div>'
-      + '<button onclick="adminShowCreateCatForm(\'' + mc.id + '\')" style="padding:5px 12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:12px;font-family:var(--font-body);cursor:pointer;">+ Ajouter</button>'
-      + '</div>'
-      + (subs.length ? subs.map(function(s) {
-        var photoBg = s.allow_photos ? 'rgba(39,174,96,0.12)' : 'var(--surface)';
-        var photoBorder = s.allow_photos ? '#27ae60' : 'var(--border)';
-        var photoColor = s.allow_photos ? '#27ae60' : 'var(--text2)';
-        var photoLabel = s.allow_photos ? '📷 Photos ON' : '📷 Photos OFF';
-        return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:10px;">'
-          + '<span style="font-size:20px;">' + escHtml(s.icon || '📍') + '</span>'
-          + '<div style="flex:1;min-width:0;">'
-          + '<div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escHtml(s.name) + '</div>'
-          + '</div>'
-          + '<button onclick="adminToggleCatPhotos(\'' + s.id + '\',' + (!!s.allow_photos) + ')" style="white-space:nowrap;padding:4px 9px;background:' + photoBg + ';border:1px solid ' + photoBorder + ';border-radius:8px;font-size:11px;color:' + photoColor + ';font-family:var(--font-body);cursor:pointer;">' + photoLabel + '</button>'
-          + '<button onclick="adminShowEditCatForm(\'' + s.id + '\')" style="background:none;border:none;font-size:17px;cursor:pointer;padding:4px;flex-shrink:0;">✏️</button>'
-          + '<button onclick="showConfirm(\'Supprimer ?\',\'Supprimer la sous-catégorie &quot;' + escHtml(s.name) + '&quot; ?\',\'🗑\',\'#e74c3c\',function(){adminDeleteCat(\'' + s.id + '\')})" style="background:none;border:none;font-size:17px;cursor:pointer;padding:4px;flex-shrink:0;">🗑️</button>'
-          + '</div>';
-      }).join('') : '<div style="font-size:12px;color:var(--text2);padding:4px 0 8px;">Aucune sous-catégorie</div>')
-      + '</div>';
-  }).join('');
-  c.innerHTML = html || '<div style="color:var(--text2);text-align:center;padding:20px;">Aucune catégorie</div>';
-}
-
-function adminShowCreateCatForm(mainCatId) {
-  var c = document.getElementById('dash-detail-content');
-  if (!c) return;
-  var mc = mainCats.find(function(m) { return m.id === mainCatId; });
-  c.innerHTML = '<div style="padding:4px 0;">'
-    + '<button onclick="renderDashCategoriesContent()" style="background:none;border:none;color:var(--accent);font-size:14px;cursor:pointer;padding:0 0 12px;font-family:var(--font-body);">← Retour</button>'
-    + '<div style="font-size:16px;font-weight:700;margin-bottom:4px;">Nouvelle sous-catégorie</div>'
-    + '<div style="font-size:12px;color:var(--text2);margin-bottom:14px;">Grande catégorie : ' + escHtml(mc ? mc.icon + ' ' + mc.name : '') + '</div>'
-    + '<input type="hidden" id="cat-main-id" value="' + escHtml(mainCatId) + '">'
-    + '<label style="font-size:12px;color:var(--text2);">Nom *</label>'
-    + '<input id="cat-name" placeholder="Ex: Douche publique" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-size:14px;font-family:var(--font-body);margin:3px 0 10px;">'
-    + '<label style="font-size:12px;color:var(--text2);">Icône (emoji) *</label>'
-    + '<input id="cat-icon" placeholder="🚿" maxlength="4" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-size:22px;font-family:var(--font-body);margin:3px 0 10px;">'
-    + '<label style="font-size:12px;color:var(--text2);">Couleur du marqueur</label>'
-    + '<input id="cat-color" type="color" value="#0ba6b3" style="width:100%;height:38px;box-sizing:border-box;border:1px solid var(--border);border-radius:8px;padding:3px 8px;margin:3px 0 14px;cursor:pointer;">'
-    + '<label style="display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text);margin-bottom:16px;cursor:pointer;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;">'
-    + '<input id="cat-allow-photos" type="checkbox" style="width:20px;height:20px;cursor:pointer;accent-color:var(--accent);flex-shrink:0;">'
-    + '<div><div style="font-weight:600;">📷 Autoriser les photos</div><div style="font-size:11px;color:var(--text2);margin-top:2px;">Les utilisateurs peuvent ajouter des photos sur les POI de cette catégorie</div></div>'
-    + '</label>'
-    + '<button onclick="adminCreateCat()" style="width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-family:var(--font-body);cursor:pointer;">Créer la sous-catégorie</button>'
-    + '</div>';
-}
-
-async function adminCreateCat() {
-  var mainId = (document.getElementById('cat-main-id').value || '').trim();
-  var name = (document.getElementById('cat-name').value || '').trim();
-  var icon = (document.getElementById('cat-icon').value || '📍').trim();
-  var color = document.getElementById('cat-color').value || '#0ba6b3';
-  var allowPhotos = document.getElementById('cat-allow-photos').checked;
-  if (!name || !icon) { showToast('Nom et icône obligatoires', 'error'); return; }
-  var maxRes = await db.from('categories').select('sort_order').eq('main_category_id', mainId).order('sort_order', { ascending: false }).limit(1);
-  var maxOrder = (maxRes.data && maxRes.data[0]) ? (maxRes.data[0].sort_order + 1) : 0;
-  var res = await db.from('categories').insert({ name: name, icon: icon, color: color, main_category_id: mainId, allow_photos: allowPhotos, sort_order: maxOrder });
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
-  showToast('Sous-catégorie créée ✓', 'success');
-  await loadCats();
-  renderDashCategoriesContent();
-}
-
-function adminShowEditCatForm(catId) {
-  var s = allCats.find(function(x) { return x.id === catId; });
-  if (!s) return;
-  var mc = mainCats.find(function(m) { return m.id === s.main_category_id; });
-  var c = document.getElementById('dash-detail-content');
-  if (!c) return;
-  c.innerHTML = '<div style="padding:4px 0;">'
-    + '<button onclick="renderDashCategoriesContent()" style="background:none;border:none;color:var(--accent);font-size:14px;cursor:pointer;padding:0 0 12px;font-family:var(--font-body);">← Retour</button>'
-    + '<div style="font-size:16px;font-weight:700;margin-bottom:4px;">Modifier la sous-catégorie</div>'
-    + '<div style="font-size:12px;color:var(--text2);margin-bottom:14px;">Grande catégorie : ' + escHtml(mc ? mc.icon + ' ' + mc.name : '') + '</div>'
-    + '<input type="hidden" id="cat-edit-id" value="' + escHtml(catId) + '">'
-    + '<label style="font-size:12px;color:var(--text2);">Nom *</label>'
-    + '<input id="cat-edit-name" value="' + escHtml(s.name) + '" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-size:14px;font-family:var(--font-body);margin:3px 0 10px;">'
-    + '<label style="font-size:12px;color:var(--text2);">Icône (emoji) *</label>'
-    + '<input id="cat-edit-icon" value="' + escHtml(s.icon || '') + '" maxlength="4" style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;font-size:22px;font-family:var(--font-body);margin:3px 0 10px;">'
-    + '<label style="font-size:12px;color:var(--text2);">Couleur du marqueur</label>'
-    + '<input id="cat-edit-color" type="color" value="' + escHtml(s.color || '#0ba6b3') + '" style="width:100%;height:38px;box-sizing:border-box;border:1px solid var(--border);border-radius:8px;padding:3px 8px;margin:3px 0 14px;cursor:pointer;">'
-    + '<label style="display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text);margin-bottom:16px;cursor:pointer;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;">'
-    + '<input id="cat-edit-allow-photos" type="checkbox"' + (s.allow_photos ? ' checked' : '') + ' style="width:20px;height:20px;cursor:pointer;accent-color:var(--accent);flex-shrink:0;">'
-    + '<div><div style="font-weight:600;">📷 Autoriser les photos</div><div style="font-size:11px;color:var(--text2);margin-top:2px;">Les utilisateurs peuvent ajouter des photos sur les POI de cette catégorie</div></div>'
-    + '</label>'
-    + '<button onclick="adminSaveEditCat()" style="width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-family:var(--font-body);cursor:pointer;">Enregistrer</button>'
-    + '</div>';
-}
-
-async function adminSaveEditCat() {
-  var catId = document.getElementById('cat-edit-id').value;
-  var name = (document.getElementById('cat-edit-name').value || '').trim();
-  var icon = (document.getElementById('cat-edit-icon').value || '📍').trim();
-  var color = document.getElementById('cat-edit-color').value || '#0ba6b3';
-  var allowPhotos = document.getElementById('cat-edit-allow-photos').checked;
-  if (!name || !icon) { showToast('Nom et icône obligatoires', 'error'); return; }
-  var res = await db.from('categories').update({ name: name, icon: icon, color: color, allow_photos: allowPhotos }).eq('id', catId);
-  if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
-  showToast('Sous-catégorie mise à jour ✓', 'success');
-  await loadCats();
-  renderDashCategoriesContent();
-}
-
 async function adminToggleCatPhotos(catId, current) {
   var res = await db.from('categories').update({ allow_photos: !current }).eq('id', catId);
   if (res.error) { showToast('Erreur : ' + res.error.message, 'error'); return; }
@@ -7464,15 +7356,18 @@ function renderDashCategoriesContent() {
           + '<div onmousedown="adminStartLongPress(\'' + scLpId + '\')" onmouseup="adminCancelLongPress()" onmouseleave="adminCancelLongPress()" ontouchstart="adminStartLongPress(\'' + scLpId + '\')" ontouchend="adminCancelLongPress()" ontouchmove="adminCancelLongPress()" oncontextmenu="return false" style="display:flex;align-items:center;gap:8px;user-select:none;-webkit-user-select:none;">'
           + '<span style="font-size:14px;">' + s.icon + '</span>'
           + '<span style="font-size:12px;flex:1;color:var(--text2);">' + s.name + adminRoleTag(s.min_role) + '</span>'
+          + '<span style="font-size:10px;color:' + (s.allow_photos ? '#27ae60' : 'var(--text2)') + ';opacity:0.7;margin-right:2px;">' + (s.allow_photos ? '📷' : '') + '</span>'
           + '<button ' + stopProp + ' onclick="adminShowEditSubCatForm(\'' + s.id + '\',\'' + mc.id + '\')" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:3px 7px;font-size:11px;cursor:pointer;font-family:var(--font-body);">&#9998;</button>'
           + '<select ' + stopProp + ' onchange="adminMoveSubCat(\'' + s.id + '\',this.value,this)" '
           + 'style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:3px 6px;font-size:11px;font-family:var(--font-body);max-width:130px;">'
           + opts + '</select>'
           + '</div>'
-          + '<div id="reorder-' + scLpId + '" style="display:none;align-items:center;gap:8px;padding:4px 0 2px;border-top:1px dashed var(--border);">'
-          + '<span style="font-size:11px;color:var(--text2);flex:1;">Déplacer :</span>'
+          + '<div id="reorder-' + scLpId + '" style="display:none;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 0 2px;border-top:1px dashed var(--border);">'
+          + '<span style="font-size:11px;color:var(--text2);">Déplacer :</span>'
           + (isFirstS ? '' : '<button ' + lpBtn + ' onclick="adminMoveSubCatOrder(\'' + s.id + '\',-1,\'' + mc.id + '\')">&#8593;</button>')
           + (isLastS  ? '' : '<button ' + lpBtn + ' onclick="adminMoveSubCatOrder(\'' + s.id + '\',1,\'' + mc.id + '\')">&#8595;</button>')
+          + '<span style="flex:1;"></span>'
+          + '<button ' + lpBtn + ' onclick="adminToggleCatPhotos(\'' + s.id + '\',' + (!!s.allow_photos) + ')" style="background:' + (s.allow_photos ? 'rgba(39,174,96,0.15)' : 'var(--surface2)') + ';border-color:' + (s.allow_photos ? '#27ae60' : 'var(--border)') + ';color:' + (s.allow_photos ? '#27ae60' : 'var(--text2)') + ';">' + (s.allow_photos ? '📷 Photos ON' : '📷 Photos OFF') + '</button>'
           + '</div>'
           + '<div id="admin-edit-subcat-' + s.id + '"></div>'
           + '</div>';
@@ -7552,6 +7447,8 @@ function adminShowCreateSubCatForm(mainCatId) {
     + '<input id="acs-color-' + mainCatId + '" type="color" value="#0ba6b3" title="Couleur marqueur" style="width:40px;height:35px;border:1px solid var(--border);border-radius:8px;cursor:pointer;padding:2px;background:var(--surface);">'
     + '</div>'
     + adminRoleSelectHTML('acs-role-' + mainCatId, 'public')
+    + '<label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);margin-bottom:8px;cursor:pointer;">'
+    + '<input id="acs-photos-' + mainCatId + '" type="checkbox" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;"> 📷 Autoriser les photos</label>'
     + '<div style="display:flex;gap:8px;">'
     + '<button onclick="document.getElementById(\'admin-subcat-form-' + mainCatId + '\').innerHTML=\'\';" style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px;font-size:12px;cursor:pointer;font-family:var(--font-body);">Annuler</button>'
     + '<button onclick="adminCreateSubCat(\'' + mainCatId + '\')" style="flex:1;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);">Créer</button>'
@@ -7565,8 +7462,9 @@ async function adminCreateSubCat(mainCatId) {
   var icon  = (document.getElementById('acs-icon-' + mainCatId).value || '').trim();
   var color = document.getElementById('acs-color-' + mainCatId).value || '#0ba6b3';
   var role  = document.getElementById('acs-role-' + mainCatId).value || 'public';
+  var allowPhotos = !!(document.getElementById('acs-photos-' + mainCatId) && document.getElementById('acs-photos-' + mainCatId).checked);
   if (!name || !icon) { showToast(t('toast_err_icon'), 'error'); return; }
-  var res = await db.from('categories').insert({ name: name, icon: icon, color: color, main_category_id: mainCatId, min_role: role }).select().single();
+  var res = await db.from('categories').insert({ name: name, icon: icon, color: color, main_category_id: mainCatId, min_role: role, allow_photos: allowPhotos }).select().single();
   if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
   showToast(t('toast_subcat_created'), 'success');
   await loadCats();
@@ -7585,6 +7483,8 @@ function adminShowEditSubCatForm(subId, mainCatId) {
     + '<input id="acse-color-' + subId + '" type="color" value="' + (s.color || '#0ba6b3') + '" title="Couleur marqueur" style="width:40px;height:35px;border:1px solid var(--border);border-radius:8px;cursor:pointer;padding:2px;background:var(--surface);">'
     + '</div>'
     + adminRoleSelectHTML('acse-role-' + subId, s.min_role)
+    + '<label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);margin-bottom:8px;cursor:pointer;">'
+    + '<input id="acse-photos-' + subId + '" type="checkbox"' + (s.allow_photos ? ' checked' : '') + ' style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer;"> 📷 Autoriser les photos</label>'
     + '<div style="display:flex;gap:8px;">'
     + '<button onclick="document.getElementById(\'admin-edit-subcat-' + subId + '\').innerHTML=\'\';" style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px;font-size:12px;cursor:pointer;font-family:var(--font-body);">Annuler</button>'
     + '<button onclick="adminSaveEditSubCat(\'' + subId + '\')" style="flex:1;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);">Sauvegarder</button>'
@@ -7598,8 +7498,9 @@ async function adminSaveEditSubCat(subId) {
   var icon  = (document.getElementById('acse-icon-' + subId).value || '').trim();
   var color = document.getElementById('acse-color-' + subId).value || '#0ba6b3';
   var role  = document.getElementById('acse-role-' + subId).value || 'public';
+  var allowPhotos = !!(document.getElementById('acse-photos-' + subId) && document.getElementById('acse-photos-' + subId).checked);
   if (!name || !icon) { showToast(t('toast_err_icon'), 'error'); return; }
-  var res = await db.from('categories').update({ name: name, icon: icon, color: color, min_role: role }).eq('id', subId);
+  var res = await db.from('categories').update({ name: name, icon: icon, color: color, min_role: role, allow_photos: allowPhotos }).eq('id', subId);
   if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
   showToast(t('toast_subcat_modified'), 'success');
   await loadCats();
