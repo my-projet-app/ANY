@@ -6814,6 +6814,7 @@ async function loadDashLeaderboard() {
     if (e.validations_cnt > 0) breakdown.push('✅ ' + e.validations_cnt);
     if (e.comments_cnt > 0) breakdown.push('💬 ' + e.comments_cnt);
     if (e.votes_cnt > 0) breakdown.push('👍 ' + e.votes_cnt);
+    if (e.mercis_cnt > 0) breakdown.push('🙏 ' + e.mercis_cnt);
     var rowBg = isSelf ? 'background:rgba(11,166,179,0.08);border-radius:10px;padding:10px 8px;margin:2px -8px;' : '';
     var posLabel = i < 3 ? '<span style="font-size:20px;">' + medals[i] + '</span>' : '<span style="font-size:13px;font-weight:700;color:var(--text2);width:26px;display:inline-block;text-align:center;">' + (i + 1) + '</span>';
     return '<div onclick="' + (e.username ? 'openPublicProfile(\'' + escHtml(e.username).replace(/'/g, "\\'") + '\')' : '') + '" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);' + rowBg + (e.username ? 'cursor:pointer;' : '') + '">'
