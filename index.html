@@ -2767,7 +2767,10 @@ async function renderProfile() {
     + '<div class="prof-identity">'
     + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">'
     + '<div class="prof-username">' + username + '</div>'
-    + '<button onclick="shareProfile()" style="flex-shrink:0;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:7px 13px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:var(--font-body);font-weight:600;transition:border-color 0.15s,color 0.15s;" onmouseenter="this.style.borderColor=\'var(--accent)\';this.style.color=\'var(--accent)\';" onmouseleave="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--text2)\';">' + t('profile_share') + '</button>'
+    + '<div style="display:flex;gap:6px;">'
+    + '<button onclick="document.getElementById(\'prof-banner-overlay\').classList.add(\'open\')" style="flex-shrink:0;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:7px 13px;font-size:12px;cursor:pointer;font-family:var(--font-body);font-weight:600;transition:border-color 0.15s,color 0.15s;" onmouseenter="this.style.borderColor=\'var(--accent)\';this.style.color=\'var(--accent)\';" onmouseleave="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--text2)\';">🎨 Personnaliser</button>'
+    + '<button onclick="inviteApp()" style="flex-shrink:0;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:7px 13px;font-size:12px;cursor:pointer;font-family:var(--font-body);font-weight:600;transition:border-color 0.15s,color 0.15s;" onmouseenter="this.style.borderColor=\'var(--accent)\';this.style.color=\'var(--accent)\';" onmouseleave="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--text2)\';">📨 Inviter</button>'
+    + '</div>'
     + '</div>'
     + '<div class="prof-meta" style="display:flex;flex-direction:column;gap:4px;margin-top:4px;">'
     + '<span id="prof-role-label" style="font-size:13px;font-weight:600;color:var(--accent);"></span>'
@@ -2875,6 +2878,20 @@ function shareProfile() {
     navigator.clipboard.writeText(url).then(function() {
       showToast(t('toast_copied'), 'success');
     }).catch(function() { _fallbackCopyText(url); });
+  } else {
+    _fallbackCopyText(url);
+  }
+}
+
+function inviteApp() {
+  var url = 'https://my-projet-app.github.io/ANY/';
+  var msg = '🗺️ Rejoins-moi sur ANY — Anything, Anywhere, Anytime !\nTrouve des services en libre-service près de toi : ' + url;
+  if (navigator.share) {
+    navigator.share({ title: 'ANY — Anything, Anywhere, Anytime', text: msg, url: url }).catch(function() {});
+    return;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(msg).then(function() { showToast('Lien copié !', 'success'); }).catch(function() { _fallbackCopyText(url); });
   } else {
     _fallbackCopyText(url);
   }
