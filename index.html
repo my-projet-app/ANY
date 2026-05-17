@@ -4052,7 +4052,9 @@ async function loadCats() {
   var resM = await db.from('main_categories').select('*').order('sort_order');
   var resS = await db.from('categories').select('*').order('sort_order').order('name');
   mainCats = (resM.data || []).filter(function(mc) { return catVisibleForRole(mc.min_role); });
-  PHOTO_MAIN_CAT_IDS = mainCats.filter(function(mc) { return /libre.?service/i.test(mc.name); }).map(function(mc) { return mc.id; });
+  // Catégories principales qui autorisent les photos — ajouter le nom exact ici
+  var PHOTO_ALLOWED_NAMES = ['Libre Services 24/7'];
+  PHOTO_MAIN_CAT_IDS = mainCats.filter(function(mc) { return PHOTO_ALLOWED_NAMES.indexOf(mc.name) !== -1; }).map(function(mc) { return mc.id; });
   allCats  = (resS.data || []).filter(function(c)  { return catVisibleForRole(c.min_role); });
   mainCats.forEach(function(mc) {
     filters[mc.id] = { on: false, subs: {} };
