@@ -4671,32 +4671,39 @@ async function loadValidationSection(pid) {
     + '</div>';
 }
 
+async function getWeightedCount(pid) {
+  var res = await db.from('place_validations').select('weight').eq('place_id', pid);
+  return (res.data || []).reduce(function(sum, v) { return sum + (v.weight || 1); }, 0);
+}
+
 async function voteValidation(pid) {
   if (!currentUser) { showToast(t('toast_login_vote'), 'error'); return; }
   var placeRes = await db.from('places').select('user_id, name, status').eq('id', pid).maybeSingle();
   var place = placeRes.data;
   var isImport = place && !place.user_id;
+  if (!isImport && place && place.user_id === currentUser.id) { showToast('⛔ Vous ne pouvez pas valider votre propre lieu', 'error'); return; }
   if (!isImport && isTrusted) { await validatePlace(pid); return; }
   var existing = await db.from('place_validations').select('id').eq('place_id', pid).eq('user_id', currentUser.id).maybeSingle();
   if (existing.data) { showToast(isImport ? 'Vous avez déjà confirmé ce lieu' : 'Vous avez déjà voté pour ce lieu', 'error'); return; }
-  var voteRes = await db.from('place_validations').insert({ place_id: pid, user_id: currentUser.id });
+  var weight = (isTrusted || isModerator || isAdmin) ? 2 : 1;
+  var voteRes = await db.from('place_validations').insert({ place_id: pid, user_id: currentUser.id, weight: weight });
   if (voteRes.error) { showToast(t('lbl_err_generic') + voteRes.error.message, 'error'); return; }
-  var countRes = await db.from('place_validations').select('id', { count: 'exact', head: true }).eq('place_id', pid);
-  var voteCount = countRes.count || 0;
+  var voteCount = await getWeightedCount(pid);
   var threshold = isImport ? 2 : 3;
+  var weightLabel = weight === 2 ? ' ⚡×2' : '';
   if (isImport) {
     if (voteCount >= threshold) {
       await db.from('places').update({ approved_by_id: currentUser.id }).eq('id', pid).is('approved_by_id', null);
       showToast('🎉 Lieu confirmé par la communauté et publié sur la carte !', 'success');
     } else {
-      showToast('✓ Confirmation enregistrée (' + voteCount + '/' + threshold + ')', 'success');
+      showToast('✓ Confirmation enregistrée (' + voteCount + '/' + threshold + ')' + weightLabel, 'success');
     }
     loadValidationCount(pid);
   } else if (voteCount >= threshold) {
     showToast('🎉 Seuil atteint — lieu soumis à validation !', 'success');
     await validatePlace(pid);
   } else {
-    showToast('✓ Vote enregistré (' + voteCount + '/' + threshold + ')', 'success');
+    showToast('✓ Vote enregistré (' + voteCount + '/' + threshold + ')' + weightLabel, 'success');
     loadValidationCount(pid);
     if (place && place.user_id) {
       insertPlaceNotif(place.user_id, 'place_vote', '&#128077; ' + voteCount + '/' + threshold + ' votes pour votre lieu « ' + place.name + ' »', pid);
@@ -4709,11 +4716,11 @@ async function loadValidationCount(pid) {
   var box = document.getElementById('validation-box-' + safeId);
   var info = document.getElementById('validation-info-' + safeId);
   var badge = document.getElementById('val-badge-' + safeId);
-  var [countRes, placeRes] = await Promise.all([
-    db.from('place_validations').select('id', { count: 'exact', head: true }).eq('place_id', pid),
+  var [validRes, placeRes] = await Promise.all([
+    db.from('place_validations').select('weight').eq('place_id', pid),
     db.from('places').select('user_id').eq('id', pid).maybeSingle()
   ]);
-  var n = countRes.count || 0;
+  var n = (validRes.data || []).reduce(function(sum, v) { return sum + (v.weight || 1); }, 0);
   var isImport = placeRes.data && !placeRes.data.user_id;
   var threshold = isImport ? 2 : 3;
   var bar = document.getElementById('val-bar-' + safeId);
