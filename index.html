@@ -6784,7 +6784,7 @@ async function loadDashMembersList() {
       var roleLabel = role === 'admin' ? '&#128081;' : role === 'moderator' ? '&#128737;&#65039;' : role === 'trusted' ? '&#11088;' : '';
       var date = m.registered_at ? new Date(m.registered_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'2-digit' }) : '';
       var displayName = m.username ? escHtml(m.username) : '<span style="color:var(--text2);font-style:italic;">(sans pseudo)</span>';
-      var clickable = m.username ? 'onclick="closeSheet(\'sheet-dashboard\');openPublicProfile(\'' + escHtml(m.username).replace(/'/g,"\\'") + '\')" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;"' : 'style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);"';
+      var clickable = m.username ? 'onclick="openPublicProfile(\'' + escHtml(m.username).replace(/'/g,"\\'") + '\')" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;"' : 'style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);"';
       return '<div ' + clickable + '>'
         + '<div style="width:30px;height:30px;border-radius:50%;background:rgba(11,166,179,0.15);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent);flex-shrink:0;">' + (i + 1) + '</div>'
         + '<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + roleLabel + ' ' + displayName + '</div>'
