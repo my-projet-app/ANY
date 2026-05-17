@@ -6562,7 +6562,7 @@ async function loadDashboardTiles() {
   var weekStart = getWeekStartISO();
   var results = await Promise.all([
     db.rpc('get_registered_users_count'),
-    db.from('profiles').select('id', { count: 'exact', head: true }).gte('registered_at', weekStart),
+    db.rpc('get_new_users_count', { since: weekStart }),
     db.from('places').select('id', { count: 'exact', head: true }).eq('status', 'active').not('user_id', 'is', null),
     db.from('places').select('id', { count: 'exact', head: true }).gte('created_at', weekStart).not('user_id', 'is', null),
     db.from('places').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
@@ -6570,7 +6570,7 @@ async function loadDashboardTiles() {
     db.from('comment_reports').select('id', { count: 'exact', head: true })
   ]);
   var totalMembers   = (results[0].data != null ? Number(results[0].data) : results[0].count) || 0;
-  var newMembers     = results[1].count || 0;
+  var newMembers     = (results[1].data != null ? Number(results[1].data) : results[1].count) || 0;
   var totalPlaces    = results[2].count || 0;
   var newPlaces      = results[3].count || 0;
   var pendingCount   = results[4].count || 0;
