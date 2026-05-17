@@ -4687,13 +4687,16 @@ async function voteValidation(pid) {
   if (isImport) {
     if (voteCount >= threshold) {
       await db.from('places').update({ approved_by_id: currentUser.id }).eq('id', pid).is('approved_by_id', null);
+      showToast('🎉 Lieu confirmé par la communauté et publié sur la carte !', 'success');
+    } else {
+      showToast('✓ Confirmation enregistrée (' + voteCount + '/' + threshold + ')', 'success');
     }
-    showToast('✓ ' + t('place_validate_btn').replace('👍 ','') + ' (' + voteCount + '/' + threshold + ')', 'success');
     loadValidationCount(pid);
   } else if (voteCount >= threshold) {
+    showToast('🎉 Seuil atteint — lieu soumis à validation !', 'success');
     await validatePlace(pid);
   } else {
-    showToast('✓ ' + t('val_validate_btn').replace('👍 ','') + ' (' + voteCount + '/' + threshold + ')', 'success');
+    showToast('✓ Vote enregistré (' + voteCount + '/' + threshold + ')', 'success');
     loadValidationCount(pid);
     if (place && place.user_id) {
       insertPlaceNotif(place.user_id, 'place_vote', '&#128077; ' + voteCount + '/' + threshold + ' votes pour votre lieu « ' + place.name + ' »', pid);
@@ -4729,7 +4732,8 @@ async function loadValidationCount(pid) {
       info.style.color = done ? '#27ae60' : '#3498db';
       info.textContent = n === 0 ? t('val_first_confirm') : (done ? '✓ ' + t('val_community_confirmed') + ' (' + n + '/' + threshold + ')' : '✓ ' + n + '/' + threshold + ' ' + (n > 1 ? t('val_confirmation_many') : t('val_confirmation_one')));
     } else {
-      info.textContent = '⏳ ' + n + '/' + threshold + ' ' + t('val_votes');
+      info.style.color = n >= threshold ? '#27ae60' : '#f59e0b';
+      info.textContent = n >= threshold ? '✅ Validé par la communauté (' + n + '/' + threshold + ')' : '⏳ ' + n + '/' + threshold + ' ' + t('val_votes');
     }
   }
   if (!currentUser) return;
