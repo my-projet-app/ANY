@@ -366,6 +366,8 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
 .prof-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#0ba6b3,#0480b3);display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:900;color:#fff;border:3px solid var(--bg);position:absolute;bottom:-36px;left:20px;box-shadow:0 4px 16px rgba(0,0,0,0.4);cursor:pointer;overflow:hidden;}
 .prof-avatar-edit{position:absolute;inset:0;background:rgba(0,0,0,0.42);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:15px;}
 .prof-avatar:hover .prof-avatar-edit{display:flex;}
+.prof-avatar-edit-badge{position:absolute;bottom:1px;right:1px;width:22px;height:22px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:2.5px solid var(--bg);cursor:pointer;z-index:2;color:#fff;line-height:1;}
+.prof-banner-edit-btn{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.45);border:none;border-radius:8px;padding:5px 9px;color:#fff;font-size:14px;cursor:pointer;z-index:2;line-height:1;backdrop-filter:blur(4px);}
 .prof-bio-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:12px;font-style:italic;font-weight:600;text-align:center;text-shadow:0 1px 5px rgba(0,0,0,0.65);width:92%;white-space:pre-line;pointer-events:none;letter-spacing:0.2px;word-break:break-word;}
 .prof-banner-edit-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);display:none;flex-direction:column;align-items:center;justify-content:flex-start;gap:14px;z-index:10000;padding:24px 20px 30px;overflow-y:auto;box-sizing:border-box;}
 .prof-banner-edit-overlay.open{display:flex;}
@@ -2769,10 +2771,11 @@ async function renderProfile() {
   var avGridHtml = AVATAR_EMOJIS.map(function(e) {
     return '<button class="pbe-av-btn' + (avatarInner === e ? ' sel' : '') + '" onclick="selectAvatar(\'' + e + '\');document.querySelectorAll(\'.pbe-av-btn\').forEach(function(b){b.classList.remove(\'sel\')});this.classList.add(\'sel\')">' + e + '</button>';
   }).join('');
-  var btnStyle = 'flex-shrink:0;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:var(--font-body);font-weight:600;';
+  var invBtnStyle = 'flex-shrink:0;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:10px;padding:7px 13px;font-size:12px;cursor:pointer;font-family:var(--font-body);font-weight:600;';
   el.innerHTML = '<div class="prof-card">'
     + '<div class="prof-banner" id="prof-banner" style="background:linear-gradient(' + bannerGrad + ')">'
     + '<div class="prof-bio-text" id="prof-bio-display">' + escHtml(bio) + '</div>'
+    + '<button class="prof-banner-edit-btn" onclick="document.getElementById(\'prof-banner-overlay\').classList.add(\'open\')">&#9998;</button>'
     + '<div class="prof-banner-edit-overlay" id="prof-banner-overlay">'
     + '<div style="font-size:14px;font-weight:800;color:#fff;text-align:center;letter-spacing:0.5px;">🎨 Personnaliser le profil</div>'
     + '<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.8px;align-self:flex-start;">Avatar</div>'
@@ -2783,14 +2786,13 @@ async function renderProfile() {
     + '<textarea class="pbe-bio-input" id="pbe-bio-input" placeholder="Ta devise…" maxlength="74">' + escHtml(bio) + '</textarea>'
     + '<div class="pbe-row"><button class="pbe-btn pbe-btn-save" id="pbe-save">&#10003; Enregistrer</button><button class="pbe-btn pbe-btn-close" id="pbe-close">&#10005; Annuler</button></div>'
     + '</div>'
-    + '<div class="prof-avatar" id="prof-avatar" style="' + avatarBgStyle + '">' + avatarInner + '</div>'
+    + '<div class="prof-avatar" id="prof-avatar" style="' + avatarBgStyle + '">' + avatarInner + '<div class="prof-avatar-edit-badge" onclick="document.getElementById(\'prof-banner-overlay\').classList.add(\'open\')">&#9998;</div></div>'
     + '</div>'
     + '<div class="prof-identity">'
-    + '<div style="display:flex;align-items:center;justify-content:space-between;padding-left:100px;margin-bottom:10px;">'
-    + '<button onclick="document.getElementById(\'prof-banner-overlay\').classList.add(\'open\')" style="' + btnStyle + '">🎨 Personnaliser</button>'
-    + '<button onclick="inviteApp()" style="' + btnStyle + '">📨 Inviter un ami</button>'
-    + '</div>'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">'
     + '<div class="prof-username">' + username + '</div>'
+    + '<button onclick="inviteApp()" style="' + invBtnStyle + '">📨 Inviter un ami</button>'
+    + '</div>'
     + '<div class="prof-meta" style="display:flex;flex-direction:column;gap:4px;margin-top:4px;">'
     + '<span id="prof-role-label" style="font-size:13px;font-weight:600;color:var(--accent);"></span>'
     + '<span style="font-size:12px;color:var(--text2);">&#128197; ' + t('profile_member_since') + ' ' + dateStr + ' &nbsp;&middot;&nbsp; <span id="prof-member-num"></span></span>'
@@ -2854,8 +2856,7 @@ async function renderProfile() {
     + '</div>';
 
   document.getElementById('prof-banner').addEventListener('click', function(e) {
-    if (e.target.closest('#prof-avatar') || e.target.closest('#prof-banner-overlay')) return;
-    document.getElementById('prof-banner-overlay').classList.toggle('open');
+    if (e.target.closest('#prof-avatar') || e.target.closest('#prof-banner-overlay') || e.target.closest('.prof-banner-edit-btn')) return;
   });
   document.getElementById('pbe-swatches').addEventListener('click', function(e) {
     e.stopPropagation();
