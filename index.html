@@ -6598,8 +6598,9 @@ async function loadDashboardTiles() {
     + tile('&#10024;', t('dash_new_places'), newPlaces, 'showDashNewPlaces()', 0, 'week', t('lbl_this_week'))
     + tile('&#9888;&#65039;', t('dash_reported_places'), reportedPlaces, 'showDashReportedPlaces()', reportedPlaces, reportedPlaces > 0 ? 'urgent' : '')
     + tile('&#128172;', t('dash_reported_comments'), reportedCmts, 'showDashReportedComments()', reportedCmts, reportedCmts > 0 ? 'urgent' : '');
-  // Ligne 4 : lieux en attente + statistiques globales
-  html += tile('&#9203;', t('dash_pending'), pendingCount, 'showDashPending()', pendingCount, pendingCount > 0 ? 'urgent' : '')
+  // Ligne 4 : classement XP + lieux en attente + statistiques globales
+  html += tile('&#127942;', 'Classement XP', '', 'showDashLeaderboard()', 0, '')
+    + tile('&#9203;', t('dash_pending'), pendingCount, 'showDashPending()', pendingCount, pendingCount > 0 ? 'urgent' : '')
     + tile('&#128202;', t('dash_global_stats'), '', 'showDashStats()', 0, '');
   // Ligne 5 admin : équipe + sanctions
   if (isAdmin) {
@@ -6717,6 +6718,66 @@ function showDashNewMembers() {
         }).join('');
     })();
   });
+}
+
+function showDashLeaderboard() {
+  showDashDetail('🏆 Classement XP — Cette semaine', function() {
+    var c = document.getElementById('dash-detail-content');
+    c.innerHTML = '<div id="dash-leaderboard"><div style="color:var(--text2);font-size:13px;text-align:center;padding:24px 0;">Chargement...</div></div>';
+    loadDashLeaderboard();
+  });
+}
+
+async function loadDashLeaderboard() {
+  var el = document.getElementById('dash-leaderboard');
+  if (!el) return;
+  var res = await db.rpc('get_weekly_leaderboard');
+  if (res.error) { el.innerHTML = '<div style="color:#e74c3c;font-size:13px;">Erreur : ' + res.error.message + '</div>'; return; }
+  var entries = res.data || [];
+  if (!entries.length) {
+    el.innerHTML = '<div style="text-align:center;padding:32px 16px;color:var(--text2);font-size:13px;">Aucune activité cette semaine.<br>Soyez le premier ! 🚀</div>';
+    return;
+  }
+  var now = new Date();
+  var nextMonday = new Date(now);
+  var day = now.getDay();
+  var daysToMonday = day === 0 ? 1 : 8 - day;
+  nextMonday.setDate(now.getDate() + daysToMonday);
+  nextMonday.setHours(0, 0, 0, 0);
+  var msLeft = nextMonday - now;
+  var daysLeft = Math.floor(msLeft / 86400000);
+  var hoursLeft = Math.floor((msLeft % 86400000) / 3600000);
+  var resetLabel = daysLeft > 0 ? 'Réinitialisation dans ' + daysLeft + 'j ' + hoursLeft + 'h' : 'Réinitialisation dans ' + hoursLeft + 'h';
+  var medals = ['🥇', '🥈', '🥉'];
+  var html = '<div style="text-align:center;font-size:11px;color:var(--text2);margin-bottom:16px;padding:6px 10px;background:var(--surface2);border-radius:8px;">⏱ ' + resetLabel + '</div>';
+  html += entries.map(function(e, i) {
+    var isSelf = currentUsername && e.username === currentUsername;
+    var avatar = e.avatar_url || (e.username ? e.username.slice(0, 2).toUpperCase() : '?');
+    var isEmoji = avatar.length > 2;
+    var avatarBg = e.avatar_bg ? 'background:linear-gradient(' + e.avatar_bg + ');' : 'background:rgba(11,166,179,0.15);';
+    var avatarColor = e.avatar_bg ? 'color:#fff;' : 'color:var(--accent);';
+    var avatarFontSize = isEmoji ? '20px' : '13px';
+    var breakdown = [];
+    if (e.places_cnt > 0) breakdown.push('📍 ' + e.places_cnt);
+    if (e.validations_cnt > 0) breakdown.push('✅ ' + e.validations_cnt);
+    if (e.comments_cnt > 0) breakdown.push('💬 ' + e.comments_cnt);
+    if (e.votes_cnt > 0) breakdown.push('👍 ' + e.votes_cnt);
+    var rowBg = isSelf ? 'background:rgba(11,166,179,0.08);border-radius:10px;padding:10px 8px;margin:2px -8px;' : '';
+    var posLabel = i < 3 ? '<span style="font-size:20px;">' + medals[i] + '</span>' : '<span style="font-size:13px;font-weight:700;color:var(--text2);width:26px;display:inline-block;text-align:center;">' + (i + 1) + '</span>';
+    return '<div onclick="' + (e.username ? 'openPublicProfile(\'' + escHtml(e.username).replace(/'/g, "\\'") + '\')' : '') + '" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);' + rowBg + (e.username ? 'cursor:pointer;' : '') + '">'
+      + '<div style="width:28px;flex-shrink:0;text-align:center;">' + posLabel + '</div>'
+      + '<div style="width:38px;height:38px;border-radius:50%;' + avatarBg + avatarColor + 'display:flex;align-items:center;justify-content:center;font-size:' + avatarFontSize + ';font-weight:700;flex-shrink:0;">' + avatar + '</div>'
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="font-size:13px;font-weight:' + (isSelf ? '800' : '600') + ';color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (isSelf ? '👤 ' : '') + escHtml(e.username || '(sans pseudo)') + '</div>'
+      + (breakdown.length ? '<div style="font-size:11px;color:var(--text2);">' + breakdown.join(' · ') + '</div>' : '')
+      + '</div>'
+      + '<div style="text-align:right;flex-shrink:0;">'
+      + '<div style="font-size:15px;font-weight:800;color:var(--accent);">' + e.weekly_xp + '</div>'
+      + '<div style="font-size:10px;color:var(--text2);">XP</div>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+  el.innerHTML = html;
 }
 
 function showDashNewPlaces() {
