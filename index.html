@@ -2914,9 +2914,9 @@ async function selectAvatarBg(g) {
   document.querySelectorAll('.av-bg-swatch').forEach(function(s) { s.classList.toggle('sel', s.dataset.g === g); });
   var avEl = document.getElementById('prof-avatar');
   if (avEl) avEl.style.background = 'linear-gradient(' + g + ')';
-  var upsertData = { user_id: currentUser.id, username: currentUsername, avatar_bg: g };
-  if (currentUserAvatar) upsertData.avatar_url = currentUserAvatar;
-  var r = await db.from('profiles').upsert(upsertData, { onConflict: 'user_id' });
+  var upd = { avatar_bg: g };
+  if (currentUserAvatar) upd.avatar_url = currentUserAvatar;
+  var r = await db.from('profiles').update(upd).eq('user_id', currentUser.id);
   if (r.error) showToast('Erreur : ' + r.error.message, 'error');
 }
 
@@ -2927,12 +2927,10 @@ async function selectAvatar(emoji) {
   var av = document.getElementById('prof-avatar');
   if (av) av.innerHTML = emoji + '<div class="prof-avatar-edit">&#9998;</div>';
   localStorage.setItem('vlm_avatar', emoji);
-  var saveRes = await db.from('profiles').upsert(
-    { user_id: currentUser.id, username: currentUsername, avatar_url: emoji, bio: currentUserBio || null, banner_color: currentUserBannerColor || null, avatar_bg: currentUserAvatarBg || null },
-    { onConflict: 'user_id' }
-  );
+  var upd = { avatar_url: emoji, bio: currentUserBio || null, banner_color: currentUserBannerColor || null, avatar_bg: currentUserAvatarBg || null };
+  var saveRes = await db.from('profiles').update(upd).eq('user_id', currentUser.id);
   if (saveRes.error) { showToast('Erreur sauvegarde : ' + saveRes.error.message, 'error'); return; }
-  showToast('Avatar mis à jour !', 'success');
+  showToast('Avatar mis à jour !', 'success');
 }
 
 async function saveBannerProfile() {
@@ -2945,9 +2943,9 @@ async function saveBannerProfile() {
   if (overlay) overlay.classList.remove('open');
   var bioEl = document.getElementById('prof-bio-display');
   if (bioEl) bioEl.textContent = bio;
-  var upsertData = { user_id: currentUser.id, username: currentUsername, bio: bio || null, banner_color: color, avatar_bg: currentUserAvatarBg || null };
+  var upsertData = { bio: bio || null, banner_color: color, avatar_bg: currentUserAvatarBg || null };
   if (currentUserAvatar) upsertData.avatar_url = currentUserAvatar;
-  var r = await db.from('profiles').upsert(upsertData, { onConflict: 'user_id' });
+  var r = await db.from('profiles').update(upsertData).eq('user_id', currentUser.id);
   if (r.error) { showToast('Erreur : ' + r.error.message, 'error'); return; }
   localStorage.setItem('vlm_banner_color', color);
   if (bio) localStorage.setItem('vlm_bio', bio); else localStorage.removeItem('vlm_bio');
