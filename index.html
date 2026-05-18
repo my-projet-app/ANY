@@ -4411,7 +4411,7 @@ function renderMarkers(places) {
     var icon = cat ? cat.icon : '📍';
     var isHidden = !!p.hidden;
     var isPending = p.status === 'pending';
-    var isValidated = (p.votes_positifs || 0) >= 1;
+    var isValidated = (p.validation_weight || 0) >= 3;
     var iconHtml = isHidden ? '🔒' : isPending ? '⏳' : fluentImg(icon, 22);
     var markerColor = isHidden ? '#555' : isPending ? '#888' : color;
     var extra = isHidden || isPending ? ';opacity:0.6' : isValidated ? '' : ';filter:grayscale(1)';
