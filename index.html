@@ -4417,7 +4417,7 @@ function renderMarkers(places) {
     var extra = isHidden || isPending ? ';opacity:0.6' : isValidated ? '' : ';filter:grayscale(1)';
     var markerStyle = 'background:' + markerColor + extra;
     var vw = p.validation_weight || 0;
-    var vThreshold = p.user_id ? 3 : 2;
+    var vThreshold = 3;
     var badgeHtml = (!isValidated && !isPending && !isHidden) ? '<div class="marker-unverified-badge">À vérifier · ' + vw + '/' + vThreshold + '</div>' : '';
     var mi = L.divIcon({
       html: '<div style="position:relative;">' +
@@ -4802,7 +4802,7 @@ async function voteValidation(pid) {
   if (voteRes.error) { showToast(t('lbl_err_generic') + voteRes.error.message, 'error'); return; }
   var voteCount = await getWeightedCount(pid);
   await db.from('places').update({ validation_weight: voteCount }).eq('id', pid);
-  var threshold = isImport ? 2 : 3;
+  var threshold = 3;
   var weightLabel = weight === 2 ? ' ⚡×2' : '';
   if (isImport) {
     if (voteCount >= threshold) {
@@ -4835,7 +4835,7 @@ async function loadValidationCount(pid) {
   ]);
   var n = (validRes.data || []).reduce(function(sum, v) { return sum + (v.weight || 1); }, 0);
   var isImport = placeRes.data && !placeRes.data.user_id;
-  var threshold = isImport ? 2 : 3;
+  var threshold = 3;
   var bar = document.getElementById('val-bar-' + safeId);
   var barLabel = document.getElementById('val-bar-label-' + safeId);
   if (bar) { bar.style.width = Math.min(100, Math.round(n / threshold * 100)) + '%'; bar.style.background = n >= threshold ? '#27ae60' : (isImport ? '#3498db' : 'var(--accent)'); }
@@ -4878,7 +4878,7 @@ async function loadValidatorsRow(pid) {
   var place = placeRes.data;
   var isImport = place && !place.user_id;
   var isPending = place && place.status === 'pending';
-  var threshold = isImport ? 2 : 3;
+  var threshold = 3;
   var isComplete = !isPending;
   var label, color;
   if (isComplete) {
@@ -4917,7 +4917,7 @@ async function toggleValidatorsList(pid) {
   var place = placeRes.data;
   var isImport = place && !place.user_id;
   var isPending = place && place.status === 'pending';
-  var threshold = isImport ? 2 : 3;
+  var threshold = 3;
   var header = isPending
     ? '<div style="font-size:11px;color:#f59e0b;font-weight:600;padding:6px 0 8px;">&#8987; ' + data.length + '&thinsp;/&thinsp;' + threshold + ' votes — encore ' + Math.max(0, threshold - data.length) + ' nécessaire' + (threshold - data.length > 1 ? 's' : '') + '</div>'
     : '<div style="font-size:11px;color:#27ae60;font-weight:600;padding:6px 0 8px;">&#9989; Lieu validé par ' + data.length + ' personne' + (data.length > 1 ? 's' : '') + '</div>';
