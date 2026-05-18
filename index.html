@@ -6383,13 +6383,7 @@ async function submitPlace() {
   if (add24hValue === null) { showToast(t('toast_err_24h'), 'error'); _reEnable(); return; }
   var photoInput = document.getElementById('add-photo-input');
   if (catAllowsPhotos(catId) && (!photoInput || !photoInput.files[0])) { showToast(t('toast_err_photo'), 'error'); _reEnable(); return; }
-  var placeStatus = 'pending';
-  if (isAdmin || isModerator || isTrusted) {
-    placeStatus = 'active';
-  } else if (currentUser) {
-    var countRes = await db.from('places').select('id', { count: 'exact', head: true }).eq('user_id', currentUser.id).eq('status', 'active');
-    if (!countRes.error && (countRes.count || 0) >= 5) placeStatus = 'active';
-  }
+  var placeStatus = 'active';
   var result = await db.from('places').insert({
     name: name, description: desc,
     latitude: selectedLatLng.lat, longitude: selectedLatLng.lng,
@@ -6429,11 +6423,7 @@ async function submitPlace() {
   closeModal('modal-add');
   addingMode = false;
   document.getElementById('info-adding').style.display = 'none';
-  showToast(placeStatus === 'pending' ? '\u23f3 Lieu soumis, en attente de validation !' : '\ud83d\udccd Lieu ajout\u00e9 !', 'success');
-  if (placeStatus === 'pending') {
-    var placeName = document.getElementById('add-name').value.trim();
-    notifyMods('place_pending', '\u23f3 Nouveau lieu \u00e0 valider : ' + placeName, newId);
-  }
+  showToast('\ud83d\udccd Lieu ajout\u00e9 !', 'success');
   scheduleLoad();
 }
 
