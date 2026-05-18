@@ -342,7 +342,8 @@ html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;font-f
 .pv2-mod-show{background:rgba(52,152,219,0.18);color:#3498db;}
 .pv2-mod-delete{background:rgba(248,113,113,0.2);color:var(--danger);border:1px solid rgba(248,113,113,0.4);}
 .pv2-hidden-banner{padding:6px 14px;background:rgba(248,113,113,0.12);border-bottom:1px solid rgba(248,113,113,0.25);font-size:11px;color:var(--danger);font-weight:700;}
-.pv2-validation-box{padding:10px 14px;background:rgba(11,166,179,0.08);border-top:1px solid rgba(11,166,179,0.2);}
+.pv2-validation-box{padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.pv2-verify-btn{flex-shrink:0;border:none;border-radius:6px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body);background:rgba(11,166,179,0.15);color:var(--accent);white-space:nowrap;}
 
 /* MOBILE */
 @media(max-width:768px){
@@ -4522,22 +4523,27 @@ function makePopup(p) {
     + '<span style="font-size:11px;color:var(--text2);">Chargement...</span>'
     + '</div></div>' : '')
 
+    + (currentUser && (p.validation_weight || 0) < 3 && p.user_id !== currentUser.id
+      ? '<div id="validation-box-' + safeId + '" class="pv2-validation-box">'
+        + '<div style="flex:1;">'
+        + '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:3px;">'
+        + '<span id="validation-info-' + safeId + '">✓ Vérification communautaire</span>'
+        + '<span id="val-bar-label-' + safeId + '">0/3</span>'
+        + '</div>'
+        + '<div style="background:var(--border);border-radius:3px;height:4px;overflow:hidden;">'
+        + '<div id="val-bar-' + safeId + '" style="height:100%;width:0%;border-radius:3px;background:var(--accent);transition:width 0.4s ease;"></div>'
+        + '</div>'
+        + '</div>'
+        + '<button class="pv2-verify-btn" onclick="voteValidation(\'' + safeId + '\')">Je vérifie →</button>'
+        + '</div>'
+      : '')
+
     + '<div class="pv2-nav">'
     + '<button onclick="toggleNav(\'' + safeId + '\',' + p.latitude + ',' + p.longitude + ',\'' + safeName + '\')" class="pv2-nav-btn pv2-btn-goto">&#128205; M\'y rendre</button>'
     + (currentUser ? '<button id="btn-fav-' + safeId + '" onclick="toggleFavorite(\'' + safeId + '\')" class="pv2-nav-btn pv2-btn-fav" title="Favoris">&#9825;</button>' : '')
     + (currentUser && (currentUser.id === p.user_id || isAdmin || isModerator) ? '<button onclick="openEditPlace()" class="pv2-nav-btn pv2-btn-edit" title="Modifier">&#9998;</button>' : '')
     + '<button onclick="sharePlace(\'' + safeId + '\',\'' + safeName + '\',' + p.latitude + ',' + p.longitude + ')" class="pv2-nav-btn pv2-btn-share" title="Partager"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>'
     + '</div>'
-    + (currentUser && (p.validation_weight || 0) < 3 && p.user_id !== currentUser.id ? '<div id="validation-box-' + safeId + '" class="pv2-validation-box"><div id="validation-info-' + safeId + '" style="font-size:12px;color:#f59e0b;margin-bottom:8px;">⏳ ' + t('val_loading') + '</div>'
-    + '<div style="margin-bottom:10px;">'
-    + '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px;"><span>Confirmations</span><span id="val-bar-label-' + safeId + '">0/3</span></div>'
-    + '<div style="background:var(--border);border-radius:4px;height:6px;overflow:hidden;"><div id="val-bar-' + safeId + '" style="height:100%;width:0%;border-radius:4px;background:var(--accent);transition:width 0.4s ease;"></div></div>'
-    + '</div>'
-    + '<button class="pv2-mod-btn pv2-mod-show" onclick="voteValidation(\'' + safeId + '\')">' + t('val_validate_btn') + '</button></div>' : '')
-    + (currentUser ? '<div id="val-section-' + safeId + '" class="pv2-val-section"><div class="pv2-val-loading">&#8230;</div></div>' : '')
-    + ''
-
-    + '<div id="validators-row-' + safeId + '"></div>'
 
     + '<div class="pv2-votes">'
     + '<button class="pv2-vote-btn ok" onclick="vote(\'' + safeId + '\',true)"><span>Merci<br><span style=\"font-size:10px;font-weight:400;opacity:0.75;\">(tout est ok)</span> (' + (p.votes_positifs || 0) + ')</span>&#128077;</button>'
@@ -4564,8 +4570,7 @@ function makePopup(p) {
     loadRating(p.id);
   }
   loadReportInfo(p.id);
-  loadValidatorsRow(p.id);
-  if (currentUser) { checkFavorite(p.id); loadValidationSection(p.id); }
+  if (currentUser) { checkFavorite(p.id); }
   return el;
 }
 
