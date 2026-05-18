@@ -4161,9 +4161,9 @@ async function loadCats() {
   mainCats = (resM.data || []).filter(function(mc) { return catVisibleForRole(mc.min_role); });
   allCats  = (resS.data || []).filter(function(c)  { return catVisibleForRole(c.min_role); });
   mainCats.forEach(function(mc) {
-    filters[mc.id] = { on: false, subs: {} };
+    filters[mc.id] = { on: true, subs: {} };
     allCats.filter(function(c) { return c.main_category_id === mc.id; }).forEach(function(c) {
-      filters[mc.id].subs[c.id] = false;
+      filters[mc.id].subs[c.id] = true;
     });
   });
   catCounts = {};
@@ -4232,15 +4232,17 @@ function renderCats() {
     d.className = 'main-cat';
     var subsHTML = subs.map(function(s) {
       var cnt = catCounts[s.id] || 0;
+      var sOn = filters[mc.id] && filters[mc.id].subs[s.id];
       return '<div class="sub-cat-item" onclick="toggleSubF(\'' + mc.id + '\',\'' + s.id + '\')">'
-        + '<div class="chk-sm" id="chk-sub-' + s.id + '"></div>'
+        + '<div class="chk-sm' + (sOn ? ' on' : '') + '" id="chk-sub-' + s.id + '">' + (sOn ? '&#10003;' : '') + '</div>'
         + '<span class="sub-cat-icon">' + fluentImg(s.icon, 18) + '</span>'
         + '<span class="sub-cat-name">' + s.name + adminRoleTag(s.min_role) + '</span>'
         + '<span class="sub-cat-count">(' + cnt + ')</span>'
         + '</div>';
     }).join('');
+    var mOn = filters[mc.id] && filters[mc.id].on;
     d.innerHTML = '<div class="main-cat-header" onclick="toggleCatDesk(\'' + mc.id + '\',this)">'
-      + '<div class="chk" id="chk-' + mc.id + '" onclick="event.stopPropagation();toggleMainF(\'' + mc.id + '\')"></div>'
+      + '<div class="chk' + (mOn ? ' on' : '') + '" id="chk-' + mc.id + '" onclick="event.stopPropagation();toggleMainF(\'' + mc.id + '\')">' + (mOn ? '&#10003;' : '') + '</div>'
       + '<span class="main-cat-icon">' + fluentImg(mc.icon, 20) + '</span>'
       + '<span class="main-cat-name">' + mc.name + adminRoleTag(mc.min_role) + '</span>'
       + '<span class="main-cat-arrow">&#9654;</span>'
