@@ -2834,7 +2834,7 @@ async function renderProfile() {
     + '<div class="prof-avatar" id="prof-avatar" style="' + avatarBgStyle + '">' + avatarInner + '</div>'
     + '<div class="prof-avatar-edit-badge" onclick="openPersonalizeOverlay(\'avatar\')">&#9998;</div>'
     + '</div>'
-    + '<span id="prof-role-label" style="position:absolute;bottom:-22px;left:100px;font-size:12px;font-weight:700;color:#fff;background:rgba(11,166,179,0.85);border-radius:20px;padding:3px 10px;white-space:nowrap;"></span>'
+    + '<span id="prof-role-label" style="position:absolute;bottom:-28px;left:100px;font-size:12px;font-weight:700;color:#fff;background:rgba(11,166,179,0.85);border-radius:20px;padding:3px 10px;white-space:nowrap;"></span>'
     + '</div>'
     + (function() {
         var locText = formatLocText(currentUserPays, currentUserVille);
@@ -3347,7 +3347,7 @@ async function openPublicProfile(username) {
     + '<div class="prof-avatar-wrap">'
     + '<div class="prof-avatar" style="cursor:default;' + (pubAvatarBg ? 'background:linear-gradient(' + pubAvatarBg + ');' : '') + '">' + escHtml(pubAvatar) + '</div>'
     + '</div>'
-    + '<span style="position:absolute;bottom:-22px;left:100px;font-size:12px;font-weight:700;color:#fff;background:rgba(11,166,179,0.85);border-radius:20px;padding:3px 10px;white-space:nowrap;">' + communityRole + '</span>'
+    + '<span style="position:absolute;bottom:-28px;left:100px;font-size:12px;font-weight:700;color:#fff;background:rgba(11,166,179,0.85);border-radius:20px;padding:3px 10px;white-space:nowrap;">' + communityRole + '</span>'
     + '</div>'
     + (function() {
         var pubPays = (profile && profile.pays) || '';
