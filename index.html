@@ -6521,7 +6521,8 @@ async function submitPlace() {
     latitude: selectedLatLng.lat, longitude: selectedLatLng.lng,
     main_category_id: mainId, category_id: catId,
     user_id: currentUser.id, user_name: currentUsername || currentUser.email.split('@')[0],
-    disponible_24h: is24h, approved: true, status: placeStatus
+    disponible_24h: is24h, approved: true, status: placeStatus,
+    validation_weight: (isAdmin || isModerator) ? 3 : 0
   }).select('id').single();
   if (result.error) { showToast(t('lbl_err_generic') + result.error.message, 'error'); _reEnable(); return; }
   var newId = result.data.id;
