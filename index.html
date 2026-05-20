@@ -4648,20 +4648,7 @@ function makePopup(p) {
     + '<span style="font-size:11px;color:var(--text2);">Chargement...</span>'
     + '</div></div>' : '')
 
-    + (currentUser && (p.validation_weight || 0) < 3 && p.user_id !== currentUser.id
-      ? '<div id="validation-box-' + safeId + '" class="pv2-validation-box">'
-        + '<div style="flex:1;">'
-        + '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:3px;">'
-        + '<span id="validation-info-' + safeId + '">✓ Vérification communautaire</span>'
-        + '<span id="val-bar-label-' + safeId + '">0/3</span>'
-        + '</div>'
-        + '<div style="background:var(--border);border-radius:3px;height:4px;overflow:hidden;">'
-        + '<div id="val-bar-' + safeId + '" style="height:100%;width:0%;border-radius:3px;background:var(--accent);transition:width 0.4s ease;"></div>'
-        + '</div>'
-        + '</div>'
-        + '<button class="pv2-verify-btn" onclick="voteValidation(\'' + safeId + '\')">Je vérifie →</button>'
-        + '</div>'
-      : '')
+    + ''
 
     + '<div class="pv2-nav">'
     + '<button onclick="toggleNav(\'' + safeId + '\',' + p.latitude + ',' + p.longitude + ',\'' + safeName + '\')" class="pv2-nav-btn pv2-btn-goto">&#128205; M\'y rendre</button>'
@@ -4720,7 +4707,6 @@ function openPlaceSheet(p) {
   sheet.scrollTop = 0;
   sheet.classList.add('open');
   document.getElementById('pbs-bd').classList.add('open');
-  if (currentUser && (p.validation_weight || 0) < 3 && p.user_id !== currentUser.id) loadValidationCount(p.id);
 }
 
 async function openEditPlace() {
@@ -6359,9 +6345,26 @@ async function vote(pid, pos) {
   if (place) {
     var newCount = (place.votes_positifs || 0) + 1;
     await db.from('places').update({ votes_positifs: newCount }).eq('id', pid);
-    showToast(t('toast_voted_useful'), 'success');
-    scheduleLoad();
   }
+  if (pos) {
+    var placeData = place || (await db.from('places').select('user_id, validation_weight').eq('id', pid).maybeSingle()).data;
+    if (placeData && placeData.user_id !== currentUser.id && (placeData.validation_weight || 0) < 3) {
+      if (isAdmin || isModerator) {
+        await validatePlace(pid);
+      } else {
+        var existing = await db.from('place_validations').select('id').eq('place_id', pid).eq('user_id', currentUser.id).maybeSingle();
+        if (!existing.data) {
+          var weight = isTrusted ? 2 : 1;
+          await db.from('place_validations').insert({ place_id: pid, user_id: currentUser.id, weight: weight });
+          var voteCount = await getWeightedCount(pid);
+          await db.from('places').update({ validation_weight: voteCount }).eq('id', pid);
+          if (voteCount >= 3) await validatePlace(pid);
+        }
+      }
+    }
+  }
+  showToast(t('toast_voted_useful'), 'success');
+  scheduleLoad();
 }
 
 var _closedHSPendingId = null;
