@@ -5076,7 +5076,7 @@ async function confirmApprovePlace() {
   var a = _pendingPlaceAction; _pendingPlaceAction = null;
   closeModal('modal-approve-place');
   var placeRes = await db.from('places').select('user_id, name').eq('id', a.pid).maybeSingle();
-  var res = await db.from('places').update({ status: 'active', approved_by_id: currentUser.id }).eq('id', a.pid);
+  var res = await db.from('places').update({ status: 'active', approved_by_id: currentUser.id, validation_weight: 3 }).eq('id', a.pid);
   if (res.error) { showToast(t('lbl_err_generic') + res.error.message, 'error'); return; }
   if (placeRes.data) {
     insertPlaceNotif(placeRes.data.user_id, 'place_validated', '&#10003; Votre lieu « ' + placeRes.data.name + ' » a été validé et publié !', a.pid);
@@ -6350,7 +6350,9 @@ async function vote(pid, pos) {
     var placeData = place || (await db.from('places').select('user_id, validation_weight').eq('id', pid).maybeSingle()).data;
     if (placeData && placeData.user_id !== currentUser.id && (placeData.validation_weight || 0) < 3) {
       if (isAdmin || isModerator) {
-        await validatePlace(pid);
+        var exMod = await db.from('place_validations').select('id').eq('place_id', pid).eq('user_id', currentUser.id).maybeSingle();
+        if (!exMod.data) await db.from('place_validations').insert({ place_id: pid, user_id: currentUser.id, weight: 2 });
+        await db.from('places').update({ validation_weight: 3 }).eq('id', pid);
       } else {
         var existing = await db.from('place_validations').select('id').eq('place_id', pid).eq('user_id', currentUser.id).maybeSingle();
         if (!existing.data) {
@@ -6358,7 +6360,6 @@ async function vote(pid, pos) {
           await db.from('place_validations').insert({ place_id: pid, user_id: currentUser.id, weight: weight });
           var voteCount = await getWeightedCount(pid);
           await db.from('places').update({ validation_weight: voteCount }).eq('id', pid);
-          if (voteCount >= 3) await validatePlace(pid);
         }
       }
     }
